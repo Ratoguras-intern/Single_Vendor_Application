@@ -46,6 +46,11 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
+        $redirectUrl = $request->input('redirect');
+        if ($redirectUrl && str_starts_with($redirectUrl, '/') && ! str_starts_with($redirectUrl, '//')) {
+            return redirect($redirectUrl);
+        }
+
         return redirect(route('dashboard', absolute: false));
     }
 }

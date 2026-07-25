@@ -50,8 +50,7 @@
 
             <!-- Logo (mobile only) -->
             <a href="/" class="xl:hidden">
-                <img class="dark:hidden" src="{{ asset('images/logo/logo.svg') }}" alt="Logo" />
-                <img class="hidden dark:block" src="{{ asset('images/logo/logo-dark.svg') }}" alt="Logo" />
+                <x-brand-logo :showText="false" />
             </a>
 
             <!-- Application Menu Toggle (mobile only) -->

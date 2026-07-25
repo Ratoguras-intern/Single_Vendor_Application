@@ -1,5 +1,12 @@
 @extends('admin.layouts.app')
 
+@php
+    $breadcrumbs = [
+        ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+        ['label' => 'Categories', 'url' => null],
+    ];
+@endphp
+
 @section('content')
     <div class="flex items-center justify-between mb-6">
         <h2 class="text-xl font-bold text-gray-800 dark:text-white">Categories</h2>
@@ -9,12 +16,6 @@
             Add Category
         </a>
     </div>
-
-    @if (session('success'))
-        <div class="mb-4 rounded-lg bg-green-50 p-4 text-sm text-green-700 dark:bg-green-500/10 dark:text-green-400">
-            {{ session('success') }}
-        </div>
-    @endif
 
     <div class="mb-4 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
         <form action="{{ route('admin.categories.index') }}" method="GET" class="flex flex-wrap items-end gap-4">
@@ -89,7 +90,19 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-5 py-8 text-center text-sm text-gray-500 dark:text-gray-400">No categories found.</td>
+                            <td colspan="5" class="px-5 py-12 text-center">
+                                <div class="flex flex-col items-center">
+                                    <div class="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-gray-400"><path d="M9.10927 2.55078H5.09927C3.89927 2.55078 2.91927 3.53078 2.91927 4.73078V8.74078C2.91927 9.94078 3.89927 10.9208 5.09927 10.9208H9.10927C10.3093 10.9208 11.2893 9.94078 11.2893 8.74078V4.73078C11.2893 3.53078 10.3093 2.55078 9.10927 2.55078Z" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.10927 13.0808H5.09927C3.89927 13.0808 2.91927 14.0608 2.91927 15.2608V19.2708C2.91927 20.4708 3.89927 21.4508 5.09927 21.4508H9.10927C10.3093 21.4508 11.2893 20.4708 11.2893 19.2708V15.2608C11.2893 14.0608 10.3093 13.0808 9.10927 13.0808Z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    </div>
+                                    <p class="text-sm font-medium text-gray-800 dark:text-white mb-1">No categories found</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">Create a category to organize your products.</p>
+                                    <a href="{{ route('admin.categories.create') }}" class="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5V19M5 12H19"/></svg>
+                                        Add Category
+                                    </a>
+                                </div>
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>

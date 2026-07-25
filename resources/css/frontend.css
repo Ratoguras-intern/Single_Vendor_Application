@@ -23,4 +23,25 @@
         --bloom-ring: #e89b2d;
         --bloom-radius: 1.225rem;
     }
+
+    .dark {
+        --bloom-background: #0f172a;
+        --bloom-foreground: #e2e8f0;
+        --bloom-card: #1e293b;
+        --bloom-card-foreground: #e2e8f0;
+        --bloom-primary: #e89b2d;
+        --bloom-primary-foreground: #000000;
+        --bloom-secondary: #1e293b;
+        --bloom-secondary-foreground: #94a3b8;
+        --bloom-muted: #1e293b;
+        --bloom-muted-foreground: #94a3b8;
+        --bloom-accent: #2d2315;
+        --bloom-accent-foreground: #f59e0b;
+        --bloom-destructive: #ef4444;
+        --bloom-destructive-foreground: #ffffff;
+        --bloom-border: #334155;
+        --bloom-input: #334155;
+        --bloom-ring: #e89b2d;
+        --bloom-radius: 1.225rem;
+    }
 }

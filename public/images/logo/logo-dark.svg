@@ -1,6 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="150" height="40" viewBox="0 0 150 40">
-  <rect width="32" height="32" rx="8" fill="#465FFF"/>
-  <path d="M10 12L16 20L10 28" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <path d="M18 12L24 20L18 28" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.5"/>
-  <text x="42" y="26" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="700" fill="#e5e7eb">TailAdmin</text>
+  <defs>
+    <linearGradient id="nbkGradDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="50%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="url(#nbkGradDark)"/>
+  <circle class="opacity-20" cx="28" cy="4" r="4" fill="#22d3ee"/>
+  <circle cx="26" cy="6" r="2" fill="#22d3ee"/>
+  <text x="8" y="22" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="900" fill="white">N</text>
+  <text x="17" y="22" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="900" fill="#67e8f9">V</text>
+  <text x="42" y="18" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="900" fill="#e2e8f0">NBK</text>
+  <line x1="82" y1="10" x2="82" y2="26" stroke="#475569" stroke-width="1"/>
+  <text x="90" y="18" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="900" fill="#818cf8">Vertex</text>
+  <text x="42" y="30" font-family="system-ui, -apple-system, sans-serif" font-size="7" font-weight="600" fill="#94a3b8" letter-spacing="3">ADMIN SUITE</text>
 </svg>

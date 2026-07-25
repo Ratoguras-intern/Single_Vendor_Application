@@ -1,86 +1,302 @@
 <script>
-document.addEventListener('alpine:init', () => {
-    Alpine.store('cart', {
-        items: JSON.parse(localStorage.getItem('bloom_cart') || '[]'),
+    window.isLoggedIn = {{ auth()->check() ? 'true' : 'false' }};
+    window.loginUrl = '{{ route("login") }}';
+    window.checkoutUrl = '{{ route("frontend.checkout") }}';
+    window.cartLoginMessage = 'Please sign in to add items to your cart and make purchases.';
+    window.flashSuccess = @json(session('success'));
+    window.flashError = @json(session('error'));
+    window.apiRoutes = {
+        cart: '{{ route("api.cart.index") }}',
+        cartAdd: '{{ route("api.cart.add") }}',
+        cartUpdate: '{{ route("api.cart.update") }}',
+        favorites: '{{ route("api.favorites.index") }}',
+        currencyRates: '{{ route("api.currency.rates") }}',
+    };
+    window.csrfToken = '{{ csrf_token() }}';
+    window.currencyConfig = @json(config('currency.supported', []));
 
-        save() {
-            localStorage.setItem('bloom_cart', JSON.stringify(this.items));
+function toastManager() {
+    return {
+        items: [],
+        add(detail) {
+            const id = Date.now() + Math.random();
+            const toast = { id, message: detail.message || '', type: detail.type || 'success', show: true };
+            this.items.push(toast);
+            setTimeout(() => this.dismiss(id), detail.duration || 4000);
+        },
+        dismiss(id) {
+            const t = this.items.find(i => i.id === id);
+            if (t) t.show = false;
+            setTimeout(() => { this.items = this.items.filter(i => i.id !== id); }, 300);
+        },
+        init() {
+            if (window.flashSuccess) this.add({ message: window.flashSuccess, type: 'success' });
+            if (window.flashError) this.add({ message: window.flashError, type: 'error' });
+        }
+    }
+}
+
+async function apiFetch(url, options = {}) {
+    const defaults = {
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': window.csrfToken,
+            'Accept': 'application/json',
+        },
+    };
+    const response = await fetch(url, { ...defaults, ...options });
+    if (response.status === 401) {
+        window.location.href = window.loginUrl + '?redirect=' + encodeURIComponent(window.location.href);
+        return null;
+    }
+    if (!response.ok) return null;
+    return response.json();
+}
+
+document.addEventListener('alpine:init', () => {
+    Alpine.store('currency', {
+        code: 'USD',
+        rates: {},
+        loading: false,
+
+        async init() {
+            this.code = localStorage.getItem('currency') || 'USD';
+            await this.fetchRates();
+        },
+
+        async fetchRates() {
+            if (this.loading) return;
+            this.loading = true;
+            try {
+                const response = await fetch(window.apiRoutes.currencyRates);
+                if (response.ok) {
+                    this.rates = await response.json();
+                }
+            } catch (e) {
+                this.rates = { USD: 1, JPY: 149.5, NPR: 133.2 };
+            }
+            this.loading = false;
+        },
+
+        set(code) {
+            this.code = code;
+            localStorage.setItem('currency', code);
+        },
+
+        convert(amount) {
+            if (!this.rates.USD || !this.rates[this.code]) return amount;
+            return (amount / this.rates.USD) * this.rates[this.code];
+        },
+
+        format(amount) {
+            const converted = this.convert(amount);
+            const config = window.currencyConfig[this.code] || window.currencyConfig['USD'];
+            const symbol = config.symbol;
+            if (this.code === 'JPY') {
+                return symbol + Math.round(converted).toLocaleString();
+            }
+            return symbol + converted.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+    });
+
+    Alpine.store('i18n', {
+        locale: 'en',
+
+        init() {
+            this.locale = localStorage.getItem('locale') || window.defaultLocale || 'en';
+            document.documentElement.lang = this.locale;
+        },
+
+        t(text) {
+            if (this.locale === 'en' || !text) return text;
+            const dict = window.i18nTranslations[this.locale] || {};
+            return dict[text] || text;
+        },
+
+        setLocale(locale) {
+            if (locale === this.locale) return;
+            this.locale = locale;
+            localStorage.setItem('locale', locale);
+            document.documentElement.lang = locale;
+            this.applyToDOM();
+            this.persistToServer();
+        },
+
+        applyToDOM() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const text = el.getAttribute('data-i18n');
+                if (!text) return;
+                el.textContent = this.t(text);
+            });
+        },
+
+        persistToServer() {
+            fetch('/language', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': window.csrfToken,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ locale: this.locale }),
+            });
+        }
+    });
+
+    Alpine.store('cart', {
+        items: [],
+        loading: false,
+        subtotal: 0,
+        shipping: 0,
+        tax: 0,
+        total: 0,
+
+        async init() {
+            if (!window.isLoggedIn) return;
+            this.loading = true;
+            const data = await apiFetch(window.apiRoutes.cart);
+            if (data) {
+                this.items = data.items;
+                this.subtotal = data.subtotal;
+                this.shipping = data.shipping;
+                this.tax = data.tax;
+                this.total = data.total;
+            }
+            this.loading = false;
         },
 
         count() {
             return this.items.reduce((total, item) => total + item.quantity, 0);
         },
 
-        subtotal() {
-            return this.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        },
-
-        shipping() {
-            return this.subtotal() > 50 ? 0 : 9.99;
-        },
-
-        tax() {
-            return this.subtotal() * 0.08;
-        },
-
-        total() {
-            return this.subtotal() + this.shipping() + this.tax();
-        },
-
-        add(item) {
-            const existing = this.items.find(i => i.id === item.id);
-            if (existing) {
-                existing.quantity += 1;
-            } else {
-                this.items.push({ ...item, quantity: 1 });
+        requireAuth() {
+            if (!window.isLoggedIn) {
+                window.location.href = window.loginUrl + '?redirect=' + encodeURIComponent(window.location.href);
+                return false;
             }
-            this.save();
+            return true;
         },
 
-        addToCartQty(item, qty) {
-            for (let i = 0; i < qty; i++) {
-                this.add(item);
+        syncFromResponse(data) {
+            this.items = data.items;
+            this.subtotal = data.subtotal;
+            this.shipping = data.shipping;
+            this.tax = data.tax;
+            this.total = data.total;
+        },
+
+        async add(item) {
+            if (!this.requireAuth()) return;
+            const data = await apiFetch(window.apiRoutes.cartAdd, {
+                method: 'POST',
+                body: JSON.stringify({ product_id: item.id, quantity: 1 }),
+            });
+            if (data) {
+                this.syncFromResponse(data);
+                window.dispatchEvent(new CustomEvent('toast', { detail: { message: item.name + ' added to cart', type: 'success' } }));
             }
         },
 
-        remove(id) {
-            this.items = this.items.filter(i => i.id !== id);
-            this.save();
-        },
-
-        updateQuantity(id, quantity) {
-            const item = this.items.find(i => i.id === id);
-            if (item) {
-                item.quantity = Math.max(1, quantity);
-                this.save();
+        async addToCartQty(item, qty) {
+            if (!this.requireAuth()) return;
+            const data = await apiFetch(window.apiRoutes.cartAdd, {
+                method: 'POST',
+                body: JSON.stringify({ product_id: item.id, quantity: qty }),
+            });
+            if (data) {
+                this.syncFromResponse(data);
+                window.dispatchEvent(new CustomEvent('toast', { detail: { message: item.name + ' added to cart', type: 'success' } }));
             }
         },
 
-        clear() {
-            this.items = [];
-            this.save();
+        async buyNow(item) {
+            if (!this.requireAuth()) return;
+            const data = await apiFetch(window.apiRoutes.cartAdd, {
+                method: 'POST',
+                body: JSON.stringify({ product_id: item.id, quantity: 1 }),
+            });
+            if (data) {
+                this.syncFromResponse(data);
+                window.location.href = window.checkoutUrl;
+            }
+        },
+
+        async buyNowQty(item, qty) {
+            if (!this.requireAuth()) return;
+            const data = await apiFetch(window.apiRoutes.cartAdd, {
+                method: 'POST',
+                body: JSON.stringify({ product_id: item.id, quantity: qty }),
+            });
+            if (data) {
+                this.syncFromResponse(data);
+                window.location.href = window.checkoutUrl;
+            }
+        },
+
+        async remove(productId) {
+            const url = '{{ route("api.cart.remove", ":id") }}'.replace(':id', productId);
+            const data = await apiFetch(url, { method: 'DELETE' });
+            if (data) this.syncFromResponse(data);
+        },
+
+        async updateQuantity(productId, quantity) {
+            if (quantity < 1) return;
+            const data = await apiFetch(window.apiRoutes.cartUpdate, {
+                method: 'PUT',
+                body: JSON.stringify({ product_id: productId, quantity }),
+            });
+            if (data) this.syncFromResponse(data);
+        },
+
+        async clear() {
+            const data = await apiFetch(window.apiRoutes.cart, { method: 'DELETE' });
+            if (data) this.syncFromResponse(data);
         }
     });
 
     Alpine.store('wishlist', {
-        items: JSON.parse(localStorage.getItem('bloom_wishlist') || '[]'),
+        items: [],
+        loading: false,
 
-        save() {
-            localStorage.setItem('bloom_wishlist', JSON.stringify(this.items));
-        },
-
-        toggle(id) {
-            const index = this.items.indexOf(id);
-            if (index > -1) {
-                this.items.splice(index, 1);
-            } else {
-                this.items.push(id);
-            }
-            this.save();
+        async init() {
+            if (!window.isLoggedIn) return;
+            this.loading = true;
+            const data = await apiFetch(window.apiRoutes.favorites);
+            if (data) this.items = data.items;
+            this.loading = false;
         },
 
         has(id) {
             return this.items.includes(id);
+        },
+
+        async toggle(id) {
+            if (!window.isLoggedIn) {
+                window.location.href = window.loginUrl + '?redirect=' + encodeURIComponent(window.location.href);
+                return;
+            }
+            const url = '{{ route("api.favorites.toggle", ":id") }}'.replace(':id', id);
+            const data = await apiFetch(url, { method: 'POST' });
+            if (data) {
+                if (data.favorited) {
+                    if (!this.items.includes(id)) this.items.push(id);
+                    window.dispatchEvent(new CustomEvent('toast', { detail: { message: 'Added to favorites', type: 'success' } }));
+                } else {
+                    this.items = this.items.filter(i => i !== id);
+                    window.dispatchEvent(new CustomEvent('toast', { detail: { message: 'Removed from favorites', type: 'info' } }));
+                }
+                window.dispatchEvent(new CustomEvent('favorites:count', { detail: { count: data.count } }));
+            }
+        },
+
+        async remove(id) {
+            const url = '{{ route("api.favorites.destroy", ":id") }}'.replace(':id', id);
+            const data = await apiFetch(url, { method: 'DELETE' });
+            if (data) {
+                this.items = this.items.filter(i => i !== id);
+                window.dispatchEvent(new CustomEvent('favorites:count', { detail: { count: data.count } }));
+                window.dispatchEvent(new CustomEvent('toast', { detail: { message: 'Removed from favorites', type: 'info' } }));
+            }
         }
     });
 });

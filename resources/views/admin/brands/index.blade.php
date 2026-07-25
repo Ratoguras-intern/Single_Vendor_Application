@@ -1,5 +1,12 @@
 @extends('admin.layouts.app')
 
+@php
+    $breadcrumbs = [
+        ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+        ['label' => 'Brands', 'url' => null],
+    ];
+@endphp
+
 @section('content')
     <div class="flex items-center justify-between mb-6">
         <h2 class="text-xl font-bold text-gray-800 dark:text-white">Brands</h2>
@@ -9,12 +16,6 @@
             Add Brand
         </a>
     </div>
-
-    @if (session('success'))
-        <div class="mb-4 rounded-lg bg-green-50 p-4 text-sm text-green-700 dark:bg-green-500/10 dark:text-green-400">
-            {{ session('success') }}
-        </div>
-    @endif
 
     <div class="mb-4 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
         <form action="{{ route('admin.brands.index') }}" method="GET" class="flex flex-wrap items-end gap-4">
@@ -99,7 +100,19 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-5 py-8 text-center text-sm text-gray-500 dark:text-gray-400">No brands found.</td>
+                            <td colspan="5" class="px-5 py-12 text-center">
+                                <div class="flex flex-col items-center">
+                                    <div class="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-gray-400"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    </div>
+                                    <p class="text-sm font-medium text-gray-800 dark:text-white mb-1">No brands found</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">Add a brand to categorize your products.</p>
+                                    <a href="{{ route('admin.brands.create') }}" class="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5V19M5 12H19"/></svg>
+                                        Add Brand
+                                    </a>
+                                </div>
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>

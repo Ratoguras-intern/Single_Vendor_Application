@@ -1,6 +1,6 @@
 @extends('layouts.frontend')
 
-@section('title', 'Contact Us - BloomShop')
+@section('title', 'Contact Us - NBK Vertex')
 
 @section('content')
 <div style="background-color: var(--bloom-background);">
@@ -8,9 +8,9 @@
     <section class="py-16 lg:py-24 bg-gradient-to-br from-orange-50 to-yellow-50">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-3xl mx-auto">
-                <span class="mb-6 inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold shadow" style="background-color: var(--bloom-primary); color: var(--bloom-primary-foreground); border-color: transparent;">Get in Touch</span>
+                <span class="mb-6 inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold shadow" style="background-color: var(--bloom-primary); color: var(--bloom-primary-foreground); border-color: transparent;"><span data-i18n="Get in Touch" x-text="$store.i18n.t('Get in Touch')">Get in Touch</span></span>
                 <h1 class="text-4xl lg:text-6xl font-bold mb-6" style="color: var(--bloom-foreground);">We'd love to <span class="block lg:inline lg:ml-4" style="color: var(--bloom-primary);">hear from you</span></h1>
-                <p class="text-lg max-w-2xl mx-auto" style="color: var(--bloom-muted-foreground);">Have a question, suggestion, or just want to say hello? We're here to help and would love to hear from you.</p>
+                <p class="text-lg max-w-2xl mx-auto" style="color: var(--bloom-muted-foreground);"><span data-i18n="Have a question, suggestion, or just want to say hello? We're here to help and would love to hear from you." x-text="$store.i18n.t('Have a question, suggestion, or just want to say hello? We\\'re here to help and would love to hear from you.')">Have a question, suggestion, or just want to say hello? We're here to help and would love to hear from you.</span></p>
             </div>
         </div>
     </section>
@@ -22,41 +22,41 @@
                 <div class="lg:col-span-2">
                     <div class="rounded-xl border bg-white shadow" style="border-color: var(--bloom-border); background-color: var(--bloom-card);">
                         <div class="p-6">
-                            <h2 class="text-2xl font-bold" style="color: var(--bloom-foreground);">Send us a message</h2>
-                            <p style="color: var(--bloom-muted-foreground);">Fill out the form below and we'll get back to you as soon as possible.</p>
+                            <h2 class="text-2xl font-bold" style="color: var(--bloom-foreground);"><span data-i18n="Send us a message" x-text="$store.i18n.t('Send us a message')">Send us a message</span></h2>
+                            <p style="color: var(--bloom-muted-foreground);"><span data-i18n="Fill out the form below and we'll get back to you as soon as possible." x-text="$store.i18n.t('Fill out the form below and we\\'ll get back to you as soon as possible.')">Fill out the form below and we'll get back to you as soon as possible.</span></p>
                         </div>
                         <div class="px-6 pb-6">
                             <form x-data="{ name: '', email: '', subject: '', message: '', submitting: false, submitted: false }" x-on:submit.prevent="submitting = true; setTimeout(() => { submitting = false; submitted = true; setTimeout(() => { submitted = false; name = ''; email = ''; subject = ''; message = ''; }, 3000); }, 1000)" class="space-y-6">
                                 <div class="grid sm:grid-cols-2 gap-4">
                                     <div class="space-y-2">
-                                        <label for="name" class="text-sm font-medium" style="color: var(--bloom-foreground);">Your Name</label>
+                                        <label for="name" class="text-sm font-medium" style="color: var(--bloom-foreground);"><span data-i18n="Your Name" x-text="$store.i18n.t('Your Name')">Your Name</span></label>
                                         <input x-model="name" type="text" id="name" name="name" placeholder="John Doe" required class="flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-base shadow-sm transition-colors placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-1 md:text-sm" style="border-color: var(--bloom-input);" />
                                     </div>
                                     <div class="space-y-2">
-                                        <label for="email" class="text-sm font-medium" style="color: var(--bloom-foreground);">Your Email</label>
+                                        <label for="email" class="text-sm font-medium" style="color: var(--bloom-foreground);"><span data-i18n="Your Email" x-text="$store.i18n.t('Your Email')">Your Email</span></label>
                                         <input x-model="email" type="email" id="email" name="email" placeholder="john@example.com" required class="flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-base shadow-sm transition-colors placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-1 md:text-sm" style="border-color: var(--bloom-input);" />
                                     </div>
                                 </div>
 
                                 <div class="space-y-2">
-                                    <label for="subject" class="text-sm font-medium" style="color: var(--bloom-foreground);">Subject</label>
+                                    <label for="subject" class="text-sm font-medium" style="color: var(--bloom-foreground);"><span data-i18n="Subject" x-text="$store.i18n.t('Subject')">Subject</span></label>
                                     <input x-model="subject" type="text" id="subject" name="subject" placeholder="How can we help you?" required class="flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-base shadow-sm transition-colors placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-1 md:text-sm" style="border-color: var(--bloom-input);" />
                                 </div>
 
                                 <div class="space-y-2">
-                                    <label for="message" class="text-sm font-medium" style="color: var(--bloom-foreground);">Your Message</label>
+                                    <label for="message" class="text-sm font-medium" style="color: var(--bloom-foreground);"><span data-i18n="Your Message" x-text="$store.i18n.t('Your Message')">Your Message</span></label>
                                     <textarea x-model="message" id="message" name="message" placeholder="Tell us more about your question or concern..." rows="6" required class="flex w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-400 md:text-sm resize-none" style="border-color: var(--bloom-input);"></textarea>
                                 </div>
 
                                 <button type="submit" :disabled="submitting || submitted" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-sm text-sm font-medium transition-colors h-10 px-8 text-black shadow hover:opacity-90 disabled:pointer-events-none disabled:opacity-50" style="background-color: var(--bloom-primary);">
                                     <template x-if="submitting">
-                                        <span class="flex items-center gap-2"><span class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span> Sending...</span>
+                                        <span class="flex items-center gap-2"><span class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span> <span data-i18n="Sending..." x-text="$store.i18n.t('Sending...')">Sending...</span></span>
                                     </template>
                                     <template x-if="submitted">
-                                        <span class="flex items-center gap-2"><svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg> Message Sent!</span>
+                                        <span class="flex items-center gap-2"><svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg> <span data-i18n="Message Sent!" x-text="$store.i18n.t('Message Sent!')">Message Sent!</span></span>
                                     </template>
                                     <template x-if="!submitting && !submitted">
-                                        <span class="flex items-center gap-2"><svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"/></svg> Send Message</span>
+                                        <span class="flex items-center gap-2"><svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"/></svg> <span data-i18n="Send Message" x-text="$store.i18n.t('Send Message')">Send Message</span></span>
                                     </template>
                                 </button>
                             </form>
@@ -68,12 +68,12 @@
                     {{-- Contact Information --}}
                     <div class="rounded-xl border bg-white shadow" style="border-color: var(--bloom-border); background-color: var(--bloom-card);">
                         <div class="p-6">
-                            <h2 class="text-xl font-semibold" style="color: var(--bloom-foreground);">Contact Information</h2>
+                            <h2 class="text-xl font-semibold" style="color: var(--bloom-foreground);"><span data-i18n="Contact Information" x-text="$store.i18n.t('Contact Information')">Contact Information</span></h2>
                         </div>
                         <div class="px-6 pb-6 space-y-6">
                             @php
                             $contactInfo = [
-                                ['icon' => 'mail', 'title' => 'Email Us', 'details' => ['hello@bloomshop.com', 'support@bloomshop.com'], 'description' => 'Send us an email anytime'],
+                                ['icon' => 'mail', 'title' => 'Email Us', 'details' => ['hello@nbkvertex.com', 'support@nbkvertex.com'], 'description' => 'Send us an email anytime'],
                                 ['icon' => 'phone', 'title' => 'Call Us', 'details' => ['+1 (555) 123-4567', '+1 (555) 987-6543'], 'description' => 'Mon-Fri from 8am to 5pm'],
                                 ['icon' => 'map', 'title' => 'Visit Us', 'details' => ['123 Fashion Street', 'Style City, SC 12345'], 'description' => 'Come say hello at our office'],
                                 ['icon' => 'clock', 'title' => 'Working Hours', 'details' => ['Monday - Friday: 9am - 6pm', 'Saturday: 10am - 4pm'], 'description' => 'Sunday: Closed'],
@@ -107,7 +107,7 @@
                     {{-- Why Contact Us --}}
                     <div class="rounded-xl border bg-white shadow" style="border-color: var(--bloom-border); background-color: var(--bloom-card);">
                         <div class="p-6">
-                            <h2 class="text-xl font-semibold" style="color: var(--bloom-foreground);">Why Contact Us?</h2>
+                            <h2 class="text-xl font-semibold" style="color: var(--bloom-foreground);"><span data-i18n="Why Contact Us?" x-text="$store.i18n.t('Why Contact Us?')">Why Contact Us?</span></h2>
                         </div>
                         <div class="px-6 pb-6 space-y-4">
                             @php
@@ -151,8 +151,8 @@
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
                 <span class="mb-6 inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold" style="color: var(--bloom-foreground); border-color: var(--bloom-border);">FAQ</span>
-                <h2 class="text-3xl lg:text-4xl font-bold mb-4" style="color: var(--bloom-foreground);">Frequently Asked Questions</h2>
-                <p class="text-lg max-w-2xl mx-auto" style="color: var(--bloom-muted-foreground);">Find quick answers to common questions about our products and services.</p>
+                <h2 class="text-3xl lg:text-4xl font-bold mb-4" style="color: var(--bloom-foreground);"><span data-i18n="Frequently Asked Questions" x-text="$store.i18n.t('Frequently Asked Questions')">Frequently Asked Questions</span></h2>
+                <p class="text-lg max-w-2xl mx-auto" style="color: var(--bloom-muted-foreground);"><span data-i18n="Find quick answers to common questions about our products and services." x-text="$store.i18n.t('Find quick answers to common questions about our products and services.')">Find quick answers to common questions about our products and services.</span></p>
             </div>
 
             <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">

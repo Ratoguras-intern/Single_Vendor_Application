@@ -5,6 +5,10 @@
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
+        @if(request('redirect'))
+            <input type="hidden" name="redirect" value="{{ request('redirect') }}">
+        @endif
+
         <!-- Email Address -->
         <div>
             <x-input-label for="email" :value="__('Email')" />
@@ -44,4 +48,13 @@
             </x-primary-button>
         </div>
     </form>
+
+    <div class="mt-6 text-center">
+        <p class="text-sm text-gray-600">
+            Don't have an account?
+            <a href="{{ route('register') }}{{ request('redirect') ? '?redirect=' . urlencode(request('redirect')) : '' }}" class="font-medium text-indigo-600 hover:text-indigo-500 underline">
+                Create account
+            </a>
+        </p>
+    </div>
 </x-guest-layout>

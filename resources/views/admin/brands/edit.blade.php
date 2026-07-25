@@ -1,5 +1,14 @@
 @extends('admin.layouts.app')
 
+@php
+    $breadcrumbs = [
+        ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+        ['label' => 'Brands', 'url' => route('admin.brands.index')],
+        ['label' => $brand->name, 'url' => route('admin.brands.show', $brand)],
+        ['label' => 'Edit', 'url' => null],
+    ];
+@endphp
+
 @section('content')
     <div class="mb-6">
         <h2 class="text-xl font-bold text-gray-800 dark:text-white">Edit Brand</h2>

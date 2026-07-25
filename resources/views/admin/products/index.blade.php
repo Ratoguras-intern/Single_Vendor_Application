@@ -1,5 +1,12 @@
 @extends('admin.layouts.app')
 
+@php
+    $breadcrumbs = [
+        ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+        ['label' => 'Products', 'url' => null],
+    ];
+@endphp
+
 @section('content')
     <div class="flex items-center justify-between mb-6">
         <h2 class="text-xl font-bold text-gray-800 dark:text-white">Products</h2>
@@ -9,12 +16,6 @@
             Add Product
         </a>
     </div>
-
-    @if (session('success'))
-        <div class="mb-4 rounded-lg bg-green-50 p-4 text-sm text-green-700 dark:bg-green-500/10 dark:text-green-400">
-            {{ session('success') }}
-        </div>
-    @endif
 
     <div class="mb-4 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
         <form action="{{ route('admin.products.index') }}" method="GET" class="flex flex-wrap items-end gap-4">
@@ -132,7 +133,19 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" class="px-5 py-8 text-center text-sm text-gray-500 dark:text-gray-400">No products found.</td>
+                            <td colspan="10" class="px-5 py-12 text-center">
+                                <div class="flex flex-col items-center">
+                                    <div class="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-gray-400"><path d="M21 8V21H3V8" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 3H23V8H1V3Z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    </div>
+                                    <p class="text-sm font-medium text-gray-800 dark:text-white mb-1">No products found</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">Get started by adding your first product.</p>
+                                    <a href="{{ route('admin.products.create') }}" class="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5V19M5 12H19"/></svg>
+                                        Add Product
+                                    </a>
+                                </div>
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>

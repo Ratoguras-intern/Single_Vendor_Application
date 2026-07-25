@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ config('app.name', 'NBK Vertex') }}</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -22,7 +22,7 @@
                         <div class="flex">
                             <div class="shrink-0 flex items-center">
                                 <a href="/">
-                                    <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                                    <x-brand-logo subtitle="Commerce Suite" />
                                 </a>
                             </div>
                         </div>

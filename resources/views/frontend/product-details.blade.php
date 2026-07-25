@@ -1,6 +1,6 @@
 @extends('layouts.frontend')
 
-@section('title', $product['name'] . ' - BloomShop')
+@section('title', $product['name'] . ' - NBK Vertex')
 
 @section('content')
 <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -27,7 +27,7 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <span class="text-3xl font-bold" style="color: var(--bloom-foreground);">${{ number_format($product['price'], 2) }}</span>
+                <span class="text-3xl font-bold" style="color: var(--bloom-foreground);"><span x-text="$store.currency.format({{ $product['price'] }})"></span></span>
             </div>
 
             <p class="leading-relaxed" style="color: var(--bloom-muted-foreground);">{{ $product['description'] }}</p>
@@ -36,7 +36,7 @@
 
             <div class="space-y-4" x-data="{ quantity: 1 }">
                 <div>
-                    <label class="text-sm font-medium mb-2 block" style="color: var(--bloom-foreground);">Quantity</label>
+                    <label class="text-sm font-medium mb-2 block" style="color: var(--bloom-foreground);"><span data-i18n="Quantity" x-text="$store.i18n.t('Quantity')">Quantity</span></label>
                     <div class="flex items-center gap-3">
                         <div class="flex items-center border rounded-lg" style="border-color: var(--bloom-border);">
                             <button x-on:click="quantity > 1 && quantity--" :disabled="quantity <= 1" class="h-10 w-10 inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-colors hover:bg-gray-100 rounded-r-none disabled:pointer-events-none disabled:opacity-50">
@@ -53,18 +53,18 @@
                 <div class="flex flex-col sm:flex-row gap-4">
                     <button x-on:click="$store.cart.addToCartQty({ id: {{ $product['id']}}, name: '{{ addslashes($product['name']) }}', price: {{ $product['price']}}, image: '{{ $product['image'] }}' }, quantity)" class="flex-1 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-sm text-sm font-medium transition-all duration-300 h-10 px-8 text-black shadow hover:opacity-90" style="background-color: var(--bloom-primary);">
                         <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
-                        Add to Cart
+                        <span data-i18n="Add to Cart" x-text="$store.i18n.t('Add to Cart')">{{ __('Add to Cart') }}</span>
                     </button>
 
-                    <a href="{{ route('frontend.cart') }}" x-on:click.prevent="$store.cart.addToCartQty({ id: {{ $product['id']}}, name: '{{ addslashes($product['name']) }}', price: {{ $product['price']}}, image: '{{ $product['image'] }}' }, quantity); setTimeout(() => window.location.href='{{ route('frontend.cart') }}', 300);" class="flex-1 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-sm text-sm font-medium transition-colors h-10 px-8 border border-gray-300 bg-white shadow-sm hover:bg-gray-50">
-                        Buy Now
-                    </a>
+                    <button x-on:click="$store.cart.buyNowQty({ id: {{ $product['id']}}, name: '{{ addslashes($product['name']) }}', price: {{ $product['price']}}, image: '{{ $product['image'] }}' }, quantity)" class="flex-1 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-sm text-sm font-medium transition-colors h-10 px-8 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
+                        <span data-i18n="Buy Now" x-text="$store.i18n.t('Buy Now')">{{ __('Buy Now') }}</span>
+                    </button>
                 </div>
 
                 <div class="flex items-center gap-4">
                     <button x-on:click="$store.wishlist.toggle({{ $product['id'] }})" :class="$store.wishlist.has({{ $product['id'] }}) ? 'text-red-500' : ''" class="inline-flex items-center gap-2 whitespace-nowrap rounded-sm text-sm font-medium transition-colors h-8 px-3 hover:bg-gray-100" style="color: var(--bloom-muted-foreground);">
-                        <svg class="h-4 w-4" :class="$store.wishlist.has({{ $product['id'] }}) && 'fill-current'" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"/></svg>
-                        Add to Wishlist
+                        <svg class="h-4 w-4" :class="$store.wishlist.has({{ $product['id'] }}) && 'fill-current'" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" :stroke-width="$store.wishlist.has({{ $product['id'] }}) ? 0 : 2" :stroke="$store.wishlist.has({{ $product['id'] }}) ? 'none' : 'currentColor'"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"/></svg>
+                        <span x-text="$store.wishlist.has({{ $product['id'] }}) ? 'Remove from Wishlist' : 'Add to Wishlist'"></span>
                     </button>
 
                     <button class="inline-flex items-center gap-2 whitespace-nowrap rounded-sm text-sm font-medium transition-colors h-8 px-3 hover:bg-gray-100" style="color: var(--bloom-muted-foreground);">
@@ -81,8 +81,8 @@
     {{-- Related Products --}}
     <div>
         <div class="flex items-center justify-between mb-8">
-            <h2 class="text-2xl font-bold" style="color: var(--bloom-foreground);">Related Products</h2>
-            <a href="{{ route('frontend.shop') }}" class="text-sm font-medium hover:opacity-80 transition-colors" style="color: var(--bloom-primary);">View All</a>
+            <h2 class="text-2xl font-bold" style="color: var(--bloom-foreground);"><span data-i18n="Related Products" x-text="$store.i18n.t('Related Products')">{{ __('Related Products') }}</span></h2>
+            <a href="{{ route('frontend.shop') }}" class="text-sm font-medium hover:opacity-80 transition-colors" style="color: var(--bloom-primary);"><span data-i18n="View All" x-text="$store.i18n.t('View All')">{{ __('View All') }}</span></a>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

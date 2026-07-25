@@ -75,6 +75,11 @@ class Product extends Model
             ->withTimestamps();
     }
 
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
     public function primaryImage()
     {
         return $this->images->where('is_primary', true)->first()
