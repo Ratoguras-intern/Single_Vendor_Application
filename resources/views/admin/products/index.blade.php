@@ -53,6 +53,21 @@
                     <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
                 </select>
             </div>
+            <div class="min-w-[150px]">
+                <label for="visibility" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Visibility</label>
+                <select name="visibility" id="visibility"
+                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+                    <option value="">All</option>
+                    <option value="is_featured" {{ request('visibility') === 'is_featured' ? 'selected' : '' }}>Featured</option>
+                    <option value="is_new_arrival" {{ request('visibility') === 'is_new_arrival' ? 'selected' : '' }}>New Arrivals</option>
+                    <option value="is_trending" {{ request('visibility') === 'is_trending' ? 'selected' : '' }}>Trending</option>
+                    <option value="is_best_seller" {{ request('visibility') === 'is_best_seller' ? 'selected' : '' }}>Best Sellers</option>
+                    <option value="is_flash_sale" {{ request('visibility') === 'is_flash_sale' ? 'selected' : '' }}>Flash Sales</option>
+                    <option value="is_recommended" {{ request('visibility') === 'is_recommended' ? 'selected' : '' }}>Recommended</option>
+                    <option value="is_popular" {{ request('visibility') === 'is_popular' ? 'selected' : '' }}>Popular</option>
+                    <option value="is_limited_edition" {{ request('visibility') === 'is_limited_edition' ? 'selected' : '' }}>Limited Edition</option>
+                </select>
+            </div>
             <div class="flex gap-2">
                 <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600">
                     Filter
@@ -74,10 +89,10 @@
                         <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Name</th>
                         <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">SKU</th>
                         <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Category</th>
-                        <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Brand</th>
                         <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Price</th>
                         <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Stock</th>
                         <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Status</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Visibility</th>
                         <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                 </thead>
@@ -99,7 +114,6 @@
                             </td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $product->sku }}</td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $product->category->name ?? '-' }}</td>
-                            <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $product->brand->name ?? '-' }}</td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">
                                 ${{ number_format($product->price, 2) }}
                                 @if ($product->discount_price)
@@ -112,6 +126,37 @@
                                     {{ $product->status === 'active' ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400' }}">
                                     {{ ucfirst($product->status) }}
                                 </span>
+                            </td>
+                            <td class="px-5 py-4">
+                                <div class="flex flex-wrap gap-1">
+                                    @if($product->is_featured)
+                                        <button onclick="toggleProductFlag({{ $product->id }}, 'is_featured')" class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700 hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400" title="Click to toggle">Featured</button>
+                                    @endif
+                                    @if($product->is_new_arrival)
+                                        <button onclick="toggleProductFlag({{ $product->id }}, 'is_new_arrival')" class="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold text-green-700 hover:bg-green-100 dark:bg-green-500/10 dark:text-green-400" title="Click to toggle">New</button>
+                                    @endif
+                                    @if($product->is_trending)
+                                        <button onclick="toggleProductFlag({{ $product->id }}, 'is_trending')" class="inline-flex items-center gap-1 rounded-full bg-purple-50 px-2 py-0.5 text-[10px] font-semibold text-purple-700 hover:bg-purple-100 dark:bg-purple-500/10 dark:text-purple-400" title="Click to toggle">Trending</button>
+                                    @endif
+                                    @if($product->is_best_seller)
+                                        <button onclick="toggleProductFlag({{ $product->id }}, 'is_best_seller')" class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700 hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-400" title="Click to toggle">Best Seller</button>
+                                    @endif
+                                    @if($product->is_flash_sale)
+                                        <button onclick="toggleProductFlag({{ $product->id }}, 'is_flash_sale')" class="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-red-700 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400" title="Click to toggle">Flash</button>
+                                    @endif
+                                    @if($product->is_recommended)
+                                        <button onclick="toggleProductFlag({{ $product->id }}, 'is_recommended')" class="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400" title="Click to toggle">Recommended</button>
+                                    @endif
+                                    @if($product->is_popular)
+                                        <button onclick="toggleProductFlag({{ $product->id }}, 'is_popular')" class="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-700 hover:bg-gray-200 dark:bg-gray-500/10 dark:text-gray-400" title="Click to toggle">Popular</button>
+                                    @endif
+                                    @if($product->is_limited_edition)
+                                        <button onclick="toggleProductFlag({{ $product->id }}, 'is_limited_edition')" class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800 hover:bg-amber-200 dark:bg-amber-500/10 dark:text-amber-300" title="Click to toggle">Limited</button>
+                                    @endif
+                                    @if(!$product->is_featured && !$product->is_new_arrival && !$product->is_trending && !$product->is_best_seller && !$product->is_flash_sale && !$product->is_recommended && !$product->is_popular && !$product->is_limited_edition)
+                                        <span class="text-xs text-gray-400 dark:text-gray-500">—</span>
+                                    @endif
+                                </div>
                             </td>
                             <td class="px-5 py-4">
                                 <div class="flex items-center gap-2">
@@ -133,7 +178,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" class="px-5 py-12 text-center">
+                            <td colspan="11" class="px-5 py-12 text-center">
                                 <div class="flex flex-col items-center">
                                     <div class="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-gray-400"><path d="M21 8V21H3V8" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 3H23V8H1V3Z" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -156,3 +201,19 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+function toggleProductFlag(productId, flag) {
+    fetch(`/admin/products/${productId}/toggle-flag/${flag}`, {
+        method: 'PATCH',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json',
+        },
+    }).then(r => r.json()).then(data => {
+        location.reload();
+    });
+}
+</script>
+@endpush

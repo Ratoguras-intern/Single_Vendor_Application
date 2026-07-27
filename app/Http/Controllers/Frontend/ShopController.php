@@ -3,42 +3,94 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Frontend\Concerns\FilterProducts;
+use App\Models\Brand;
+use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class ShopController extends Controller
 {
+    use FilterProducts;
+
     public function __invoke(Request $request)
     {
-        $products = $this->getProducts();
+        $query = Product::with(['images', 'category', 'brand'])
+            ->active();
 
-        if ($search = $request->input('search')) {
-            $products = array_filter($products, fn ($p) => stripos($p['name'], $search) !== false || stripos($p['description'] ?? '', $search) !== false);
+        if ($categorySlug = $request->input('category')) {
+            $category = Category::where('slug', $categorySlug)->active()->first();
+            if ($category) {
+                $childIds = $category->children()->active()->pluck('id');
+                $query->whereIn('category_id', $childIds->push($category->id));
+            }
         }
 
-        return view('frontend.shop', ['products' => array_values($products)]);
+        $query = $this->applyProductFilters($query, $request);
+        $query = $this->applyProductSort($query, $request);
+
+        $products = $query->paginate(24)->withQueryString();
+
+        $mappedProducts = $products->getCollection()
+            ->map(fn ($p) => $this->mapProduct($p))
+            ->toArray();
+        $products->setCollection(collect($mappedProducts));
+
+        $brands = Brand::where('status', true)
+            ->withCount(['products' => fn ($q) => $q->active()])
+            ->orderBy('name')
+            ->get();
+
+        $categories = Category::active()->ordered()
+            ->withCount(['products' => fn ($q) => $q->active()])
+            ->get();
+
+        $priceRange = Product::active()
+            ->selectRaw('MIN(COALESCE(discount_price, price)) as min_price, MAX(price) as max_price')
+            ->first();
+
+        $recommendations = $this->getRecommendations();
+
+        if ($request->ajax()) {
+            return view('frontend.partials.shop-products-content', [
+                'products' => $products,
+                'viewMode' => $request->input('view', 'grid'),
+                'ajax' => true,
+            ]);
+        }
+
+        return view('frontend.shop', compact(
+            'products', 'brands', 'categories', 'priceRange', 'recommendations'
+        ));
     }
 
-    protected function getProducts(): array
+    protected function getRecommendations(): array
     {
-        return Product::with(['images', 'category', 'brand'])
-            ->where('status', true)
-            ->latest()
-            ->get()
-            ->map(function ($product) {
-                $image = $product->primaryImage();
+        $limit = 8;
 
-                return [
-                    'id' => $product->id,
-                    'name' => $product->name,
-                    'price' => $product->discount_price ?? $product->price,
-                    'image' => $image?->image
-                        ? Storage::disk('public')->url($image->image)
-                        : asset('frontend-assets/images/no-image.jpg'),
-                    'description' => $product->description,
-                ];
-            })
+        $trending = Product::with(['images', 'brand'])
+            ->active()
+            ->withSum('orderItems', 'quantity')
+            ->orderByDesc('order_items_sum_quantity')
+            ->limit($limit)
+            ->get()
+            ->map(fn ($p) => $this->mapProduct($p))
+            ->filter(fn ($p) => $p['id'])
+            ->values()
             ->toArray();
+
+        $newArrivals = Product::with(['images', 'brand'])
+            ->active()
+            ->latest()
+            ->limit($limit)
+            ->get()
+            ->map(fn ($p) => $this->mapProduct($p))
+            ->values()
+            ->toArray();
+
+        return [
+            'trending' => $trending,
+            'new_arrivals' => $newArrivals,
+        ];
     }
 }

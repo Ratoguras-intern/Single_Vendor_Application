@@ -21,25 +21,32 @@ class Product extends Model
         'category_id',
         'brand_id',
         'status',
+        'is_featured',
+        'is_new_arrival',
+        'is_trending',
+        'is_best_seller',
+        'is_flash_sale',
+        'is_recommended',
+        'is_popular',
+        'is_limited_edition',
     ];
 
     protected function casts(): array
     {
         return [
+            'status' => 'boolean',
             'price' => 'decimal:2',
             'discount_price' => 'decimal:2',
             'stock' => 'integer',
+            'is_featured' => 'boolean',
+            'is_new_arrival' => 'boolean',
+            'is_trending' => 'boolean',
+            'is_best_seller' => 'boolean',
+            'is_flash_sale' => 'boolean',
+            'is_recommended' => 'boolean',
+            'is_popular' => 'boolean',
+            'is_limited_edition' => 'boolean',
         ];
-    }
-
-    public function getStatusAttribute(): string
-    {
-        return $this->attributes['status'] ? 'active' : 'inactive';
-    }
-
-    public function setStatusAttribute(string $value): void
-    {
-        $this->attributes['status'] = $value === 'active';
     }
 
     public static function boot(): void
@@ -84,5 +91,50 @@ class Product extends Model
     {
         return $this->images->where('is_primary', true)->first()
             ?? $this->images->first();
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', true);
+    }
+
+    public function scopeFeatured($query)
+    {
+        return $query->where('is_featured', true);
+    }
+
+    public function scopeNewArrival($query)
+    {
+        return $query->where('is_new_arrival', true);
+    }
+
+    public function scopeTrending($query)
+    {
+        return $query->where('is_trending', true);
+    }
+
+    public function scopeBestSeller($query)
+    {
+        return $query->where('is_best_seller', true);
+    }
+
+    public function scopeFlashSale($query)
+    {
+        return $query->where('is_flash_sale', true);
+    }
+
+    public function scopeRecommended($query)
+    {
+        return $query->where('is_recommended', true);
+    }
+
+    public function scopePopular($query)
+    {
+        return $query->where('is_popular', true);
+    }
+
+    public function scopeLimitedEdition($query)
+    {
+        return $query->where('is_limited_edition', true);
     }
 }

@@ -1,16 +1,19 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="theme-color" content="#e89b2d">
     <title>@yield('title', config('app.name', 'NBK Vertex'))</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
+
+    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+    <link rel="preload" href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" as="style">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+
     @vite(['resources/css/app.css', 'resources/css/frontend.css', 'resources/js/app.js'])
     @stack('styles')
 
-    <!-- Embedded translations for client-side i18n (no API required) -->
     <script>
         window.i18nTranslations = {
             'en': {!! file_get_contents(lang_path('en.json')) !!},
@@ -20,24 +23,22 @@
         window.defaultLocale = '{{ config("app.locale", "en") }}';
     </script>
 
-    <!-- Apply dark mode immediately to prevent flash -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const savedTheme = localStorage.getItem('theme');
-            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            const theme = savedTheme || systemTheme;
-            if (theme === 'dark') {
+        (function() {
+            const saved = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (saved === 'dark' || (!saved && prefersDark)) {
                 document.documentElement.classList.add('dark');
             }
-        });
+        })();
     </script>
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.store('theme', {
                 init() {
-                    const savedTheme = localStorage.getItem('theme');
-                    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                    this.current = savedTheme || systemTheme;
+                    const saved = localStorage.getItem('theme');
+                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    this.current = saved || (prefersDark ? 'dark' : 'light');
                     this.apply();
                 },
                 current: 'light',
@@ -47,28 +48,25 @@
                     this.apply();
                 },
                 apply() {
-                    const html = document.documentElement;
-                    if (this.current === 'dark') {
-                        html.classList.add('dark');
-                    } else {
-                        html.classList.remove('dark');
-                    }
+                    document.documentElement.classList.toggle('dark', this.current === 'dark');
                 }
             });
         });
     </script>
 </head>
-<body class="font-sans antialiased flex flex-col min-h-screen transition-colors duration-300" style="background-color: var(--bloom-background); color: var(--bloom-foreground);">
+<body class="font-sans antialiased flex flex-col min-h-screen ">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:bg-primary-500 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:font-semibold">Skip to content</a>
+    @include('frontend.partials.announcement-bar')
     @include('frontend.partials.header')
 
-    <main class="flex-grow">
+    <main id="main-content" class="flex-grow">
         @yield('content')
     </main>
 
-    {{-- Toast Container --}}
-    <div x-data="toastManager()" x-on:toast.window="add($event.detail)" class="fixed bottom-6 right-6 z-[9999] flex flex-col gap-3 pointer-events-none">
+    <div x-data="toastManager()" x-on:toast.window="add($event.detail)" role="status" aria-live="polite" class="fixed bottom-6 right-6 z-[9999] flex flex-col gap-3 pointer-events-none" style="padding-bottom: env(safe-area-inset-bottom, 0px);">
         <template x-for="t in items" :key="t.id">
-            <div x-show="t.show" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-x-8" x-transition:enter-end="opacity-100 translate-x-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-x-0" x-transition:leave-end="opacity-0 translate-x-8" class="pointer-events-auto max-w-sm w-full rounded-lg border shadow-lg px-4 py-3 flex items-center gap-3" :style="t.type === 'error' ? 'border-color: #fca5a5; background-color: #fef2f2; color: #991b1b;' : t.type === 'warning' ? 'border-color: #fcd34d; background-color: #fffbeb; color: #92400e;' : t.type === 'info' ? 'border-color: #93c5fd; background-color: #eff6ff; color: #1e40af;' : 'border-color: #86efac; background-color: #f0fdf4; color: #166534;'">
+            <div x-show="t.show" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-x-8" x-transition:enter-end="opacity-100 translate-x-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-x-0" x-transition:leave-end="opacity-0 translate-x-8" class="pointer-events-auto max-w-sm w-full rounded-card border shadow-dropdown px-4 py-3 flex items-center gap-3"
+                :class="t.type === 'error' ? 'border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/50 text-red-800 dark:text-red-300' : t.type === 'warning' ? 'border-yellow-300 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-950/50 text-yellow-800 dark:text-yellow-300' : t.type === 'info' ? 'border-blue-300 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/50 text-blue-800 dark:text-blue-300' : 'border-green-300 dark:border-green-800 bg-green-50 dark:bg-green-950/50 text-green-800 dark:text-green-300'">
                 <template x-if="t.type === 'success'">
                     <svg class="h-5 w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
                 </template>
@@ -89,7 +87,11 @@
         </template>
     </div>
 
-    @include('frontend.partials.footer')
+    @hasSection('footer')
+        @yield('footer')
+    @else
+        @include('frontend.partials.footer')
+    @endif
     @include('frontend.partials.scripts')
     @stack('scripts')
 </body>

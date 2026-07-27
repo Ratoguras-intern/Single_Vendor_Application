@@ -120,6 +120,53 @@
                     </div>
                 </div>
 
+                <div class="rounded-lg border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-white/[0.02]">
+                    <h3 class="mb-1 text-sm font-semibold text-gray-800 dark:text-white">Product Visibility</h3>
+                    <p class="mb-4 text-xs text-gray-500 dark:text-gray-400">Control where this product appears on the storefront.</p>
+                    <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                        <label class="flex items-center gap-2.5 cursor-pointer">
+                            <input type="hidden" name="is_featured" value="0">
+                            <input type="checkbox" name="is_featured" value="1" {{ old('is_featured', $product->is_featured) ? 'checked' : '' }} class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500">
+                            <span class="text-sm text-gray-700 dark:text-gray-300">Featured</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 cursor-pointer">
+                            <input type="hidden" name="is_new_arrival" value="0">
+                            <input type="checkbox" name="is_new_arrival" value="1" {{ old('is_new_arrival', $product->is_new_arrival) ? 'checked' : '' }} class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500">
+                            <span class="text-sm text-gray-700 dark:text-gray-300">New Arrival</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 cursor-pointer">
+                            <input type="hidden" name="is_trending" value="0">
+                            <input type="checkbox" name="is_trending" value="1" {{ old('is_trending', $product->is_trending) ? 'checked' : '' }} class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500">
+                            <span class="text-sm text-gray-700 dark:text-gray-300">Trending</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 cursor-pointer">
+                            <input type="hidden" name="is_best_seller" value="0">
+                            <input type="checkbox" name="is_best_seller" value="1" {{ old('is_best_seller', $product->is_best_seller) ? 'checked' : '' }} class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500">
+                            <span class="text-sm text-gray-700 dark:text-gray-300">Best Seller</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 cursor-pointer">
+                            <input type="hidden" name="is_flash_sale" value="0">
+                            <input type="checkbox" name="is_flash_sale" value="1" {{ old('is_flash_sale', $product->is_flash_sale) ? 'checked' : '' }} class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500">
+                            <span class="text-sm text-gray-700 dark:text-gray-300">Flash Sale</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 cursor-pointer">
+                            <input type="hidden" name="is_recommended" value="0">
+                            <input type="checkbox" name="is_recommended" value="1" {{ old('is_recommended', $product->is_recommended) ? 'checked' : '' }} class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500">
+                            <span class="text-sm text-gray-700 dark:text-gray-300">Recommended</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 cursor-pointer">
+                            <input type="hidden" name="is_popular" value="0">
+                            <input type="checkbox" name="is_popular" value="1" {{ old('is_popular', $product->is_popular) ? 'checked' : '' }} class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500">
+                            <span class="text-sm text-gray-700 dark:text-gray-300">Popular</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 cursor-pointer">
+                            <input type="hidden" name="is_limited_edition" value="0">
+                            <input type="checkbox" name="is_limited_edition" value="1" {{ old('is_limited_edition', $product->is_limited_edition) ? 'checked' : '' }} class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500">
+                            <span class="text-sm text-gray-700 dark:text-gray-300">Limited Edition</span>
+                        </label>
+                    </div>
+                </div>
+
                 <div>
                     <label for="description" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
                     <textarea name="description" id="description" rows="4"

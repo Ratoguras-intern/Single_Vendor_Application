@@ -1,15 +1,20 @@
 <?php
 
 use App\Http\Controllers\Admin\BrandController;
+use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\FeaturedCategoryController;
+use App\Http\Controllers\Admin\HomepageSectionController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductSectionController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Frontend\AboutController;
 use App\Http\Controllers\Api\CartController as ApiCartController;
 use App\Http\Controllers\Api\FavoriteController as ApiFavoriteController;
+use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\TranslationController;
 use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Frontend\CheckoutController;
@@ -17,6 +22,7 @@ use App\Http\Controllers\Frontend\ContactController;
 use App\Http\Controllers\Frontend\FavoriteController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\ShopController;
+use App\Http\Controllers\Frontend\CategoryPageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
@@ -25,6 +31,10 @@ use App\Services\CurrencyService;
 Route::get('/', HomeController::class)->name('frontend.home');
 
 Route::get('/shop', ShopController::class)->name('frontend.shop');
+
+Route::get('/category/{slug}', [CategoryPageController::class, 'show'])->name('frontend.category');
+
+Route::get('/api/search', SearchController::class)->name('api.search');
 
 Route::get('/api/currency/rates', function () {
     $service = new CurrencyService();
@@ -95,12 +105,38 @@ Route::middleware(['auth', 'admin'])
     ->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::resource('categories', CategoryController::class);
+        Route::patch('/categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])->name('categories.toggleStatus');
+        Route::patch('/categories/{category}/toggle-featured', [CategoryController::class, 'toggleFeatured'])->name('categories.toggleFeatured');
+        Route::patch('/categories/order', [CategoryController::class, 'updateOrder'])->name('categories.updateOrder');
+        Route::patch('/categories/{id}/restore', [CategoryController::class, 'restore'])->name('categories.restore');
         Route::resource('brands', BrandController::class);
+        Route::patch('/products/{product}/toggle-flag/{flag}', [ProductController::class, 'toggleFlag'])->name('products.toggleFlag');
         Route::resource('products', ProductController::class);
         Route::resource('orders', OrderController::class)->only(['index', 'show']);
         Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
         Route::resource('customers', CustomerController::class)->only(['index', 'show', 'destroy']);
         Route::get('/customers/{customer}/orders', [CustomerController::class, 'orders'])->name('customers.orders');
+
+        // Content Management
+        Route::get('/homepage-sections', [HomepageSectionController::class, 'index'])->name('homepage-sections.index');
+        Route::put('/homepage-sections/{homepageSection}', [HomepageSectionController::class, 'update'])->name('homepage-sections.update');
+        Route::patch('/homepage-sections/{homepageSection}/toggle', [HomepageSectionController::class, 'toggleEnabled'])->name('homepage-sections.toggle');
+        Route::patch('/homepage-sections/order', [HomepageSectionController::class, 'updateOrder'])->name('homepage-sections.updateOrder');
+
+        Route::resource('banners', BannerController::class);
+        Route::patch('/banners/{banner}/toggle', [BannerController::class, 'toggleEnabled'])->name('banners.toggle');
+
+        Route::get('/featured-categories', [FeaturedCategoryController::class, 'index'])->name('featured-categories.index');
+        Route::post('/featured-categories', [FeaturedCategoryController::class, 'store'])->name('featured-categories.store');
+        Route::delete('/featured-categories/{featuredCategory}', [FeaturedCategoryController::class, 'destroy'])->name('featured-categories.destroy');
+        Route::patch('/featured-categories/order', [FeaturedCategoryController::class, 'updateOrder'])->name('featured-categories.updateOrder');
+        Route::patch('/featured-categories/{featuredCategory}/toggle', [FeaturedCategoryController::class, 'toggleEnabled'])->name('featured-categories.toggle');
+        Route::patch('/featured-categories/{featuredCategory}/style', [FeaturedCategoryController::class, 'updateStyle'])->name('featured-categories.updateStyle');
+
+        Route::get('/product-sections/{section}', [ProductSectionController::class, 'index'])->name('product-sections.index');
+        Route::post('/product-sections/{section}/assign', [ProductSectionController::class, 'bulkAssign'])->name('product-sections.bulkAssign');
+        Route::delete('/product-sections/{section}/{product}', [ProductSectionController::class, 'destroy'])->name('product-sections.remove');
+        Route::post('/product-sections/{section}/bulk-remove', [ProductSectionController::class, 'bulkRemove'])->name('product-sections.bulkRemove');
     });
 
 require __DIR__.'/auth.php';

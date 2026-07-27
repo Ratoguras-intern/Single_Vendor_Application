@@ -300,4 +300,22 @@ document.addEventListener('alpine:init', () => {
         }
     });
 });
+
+// Scroll reveal — CSS-only via .animate-in class (no JS opacity hack)
+document.addEventListener('DOMContentLoaded', () => {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate-in');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.card-hover, .card, .category-card, .testimonial-card, .gallery-item').forEach(el => {
+        if (!el.closest('header') && !el.closest('nav')) {
+            observer.observe(el);
+        }
+    });
+});
 </script>

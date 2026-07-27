@@ -81,6 +81,39 @@
                     <label class="mb-1.5 block text-sm font-medium text-gray-500 dark:text-gray-400">Description</label>
                     <p class="text-sm text-gray-800 dark:text-white">{{ $product->description ?: '—' }}</p>
                 </div>
+
+                <div class="sm:col-span-2 lg:col-span-3">
+                    <label class="mb-1.5 block text-sm font-medium text-gray-500 dark:text-gray-400">Visibility Flags</label>
+                    <div class="flex flex-wrap gap-2">
+                        @if($product->is_featured)
+                            <span class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">Featured</span>
+                        @endif
+                        @if($product->is_new_arrival)
+                            <span class="inline-flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-700 dark:bg-green-500/10 dark:text-green-400">New Arrival</span>
+                        @endif
+                        @if($product->is_trending)
+                            <span class="inline-flex items-center gap-1 rounded-full bg-purple-50 px-2.5 py-1 text-xs font-semibold text-purple-700 dark:bg-purple-500/10 dark:text-purple-400">Trending</span>
+                        @endif
+                        @if($product->is_best_seller)
+                            <span class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">Best Seller</span>
+                        @endif
+                        @if($product->is_flash_sale)
+                            <span class="inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700 dark:bg-red-500/10 dark:text-red-400">Flash Sale</span>
+                        @endif
+                        @if($product->is_recommended)
+                            <span class="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400">Recommended</span>
+                        @endif
+                        @if($product->is_popular)
+                            <span class="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-700 dark:bg-gray-500/10 dark:text-gray-400">Popular</span>
+                        @endif
+                        @if($product->is_limited_edition)
+                            <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-500/10 dark:text-amber-300">Limited Edition</span>
+                        @endif
+                        @if(!$product->is_featured && !$product->is_new_arrival && !$product->is_trending && !$product->is_best_seller && !$product->is_flash_sale && !$product->is_recommended && !$product->is_popular && !$product->is_limited_edition)
+                            <span class="text-xs text-gray-400 dark:text-gray-500">No visibility flags set</span>
+                        @endif
+                    </div>
+                </div>
             </div>
 
             @if ($product->images->count() > 0)

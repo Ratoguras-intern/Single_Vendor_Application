@@ -38,6 +38,14 @@ class ProductController extends Controller
             $query->where('status', $request->status === 'active');
         }
 
+        $allowedVisibility = [
+            'is_featured', 'is_new_arrival', 'is_trending', 'is_best_seller',
+            'is_flash_sale', 'is_recommended', 'is_popular', 'is_limited_edition',
+        ];
+        if ($request->filled('visibility') && in_array($request->visibility, $allowedVisibility)) {
+            $query->where($request->visibility, true);
+        }
+
         $products = $query->latest()->paginate(10)->withQueryString();
         $categories = Category::where('status', true)->get();
         $brands = Brand::where('status', true)->get();
@@ -69,16 +77,32 @@ class ProductController extends Controller
             'images' => 'nullable|array|max:5',
             'images.*' => 'mimetypes:image/jpeg,image/png,image/webp,image/avif|mimes:jpg,jpeg,png,webp,avif|max:2048',
             'primary_image' => 'nullable|integer',
+            'is_featured' => 'nullable|boolean',
+            'is_new_arrival' => 'nullable|boolean',
+            'is_trending' => 'nullable|boolean',
+            'is_best_seller' => 'nullable|boolean',
+            'is_flash_sale' => 'nullable|boolean',
+            'is_recommended' => 'nullable|boolean',
+            'is_popular' => 'nullable|boolean',
+            'is_limited_edition' => 'nullable|boolean',
         ]);
 
         if (empty($validated['slug'])) {
             $validated['slug'] = Str::slug($validated['name']);
         }
 
-        $status = $validated['status'];
-        unset($validated['status'], $validated['images'], $validated['primary_image']);
+        $validated['status'] = $validated['status'] === 'active';
+        unset($validated['images'], $validated['primary_image']);
 
-        $product = Product::create(array_merge($validated, ['status' => $status]));
+        $flags = [
+            'is_featured', 'is_new_arrival', 'is_trending', 'is_best_seller',
+            'is_flash_sale', 'is_recommended', 'is_popular', 'is_limited_edition',
+        ];
+        foreach ($flags as $flag) {
+            $validated[$flag] = $request->boolean($flag);
+        }
+
+        $product = Product::create($validated);
 
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $index => $image) {
@@ -136,16 +160,32 @@ class ProductController extends Controller
             'primary_image' => 'nullable|integer',
             'remove_images' => 'nullable|array',
             'remove_images.*' => 'integer',
+            'is_featured' => 'nullable|boolean',
+            'is_new_arrival' => 'nullable|boolean',
+            'is_trending' => 'nullable|boolean',
+            'is_best_seller' => 'nullable|boolean',
+            'is_flash_sale' => 'nullable|boolean',
+            'is_recommended' => 'nullable|boolean',
+            'is_popular' => 'nullable|boolean',
+            'is_limited_edition' => 'nullable|boolean',
         ]);
 
         if (empty($validated['slug'])) {
             $validated['slug'] = Str::slug($validated['name']);
         }
 
-        $status = $validated['status'];
-        unset($validated['status'], $validated['images'], $validated['primary_image'], $validated['remove_images']);
+        $validated['status'] = $validated['status'] === 'active';
+        unset($validated['images'], $validated['primary_image'], $validated['remove_images']);
 
-        $product->update(array_merge($validated, ['status' => $status]));
+        $flags = [
+            'is_featured', 'is_new_arrival', 'is_trending', 'is_best_seller',
+            'is_flash_sale', 'is_recommended', 'is_popular', 'is_limited_edition',
+        ];
+        foreach ($flags as $flag) {
+            $validated[$flag] = $request->boolean($flag);
+        }
+
+        $product->update($validated);
 
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $index => $image) {
@@ -198,5 +238,23 @@ class ProductController extends Controller
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Product deleted successfully.');
+    }
+
+    public function toggleFlag(Product $product, string $flag)
+    {
+        $allowed = [
+            'is_featured', 'is_new_arrival', 'is_trending', 'is_best_seller',
+            'is_flash_sale', 'is_recommended', 'is_popular', 'is_limited_edition',
+        ];
+
+        abort_unless(in_array($flag, $allowed), 400);
+
+        $product->update([$flag => !$product->$flag]);
+
+        return response()->json([
+            'flag' => $flag,
+            'value' => $product->$flag,
+            'message' => 'Product flag updated.',
+        ]);
     }
 }

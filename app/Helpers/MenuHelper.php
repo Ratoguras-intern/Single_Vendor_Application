@@ -38,6 +38,39 @@ class MenuHelper
                 ],
             ],
             [
+                'title' => 'Content',
+                'items' => [
+                    [
+                        'name' => 'Homepage Sections',
+                        'icon' => 'homepage',
+                        'path' => route('admin.homepage-sections.index'),
+                    ],
+                    [
+                        'name' => 'Banners',
+                        'icon' => 'banner',
+                        'path' => route('admin.banners.index'),
+                    ],
+                    [
+                        'name' => 'Featured Categories',
+                        'icon' => 'featured',
+                        'path' => route('admin.featured-categories.index'),
+                    ],
+                    [
+                        'name' => 'Product Sections',
+                        'icon' => 'product',
+                        'subItems' => [
+                            ['name' => 'Featured', 'path' => route('admin.product-sections.index', 'featured-products')],
+                            ['name' => 'New Arrivals', 'path' => route('admin.product-sections.index', 'new-arrivals')],
+                            ['name' => 'Trending', 'path' => route('admin.product-sections.index', 'trending')],
+                            ['name' => 'Best Sellers', 'path' => route('admin.product-sections.index', 'best-sellers')],
+                            ['name' => 'Flash Sales', 'path' => route('admin.product-sections.index', 'flash-sale')],
+                            ['name' => 'Recommended', 'path' => route('admin.product-sections.index', 'recommended')],
+                            ['name' => 'Popular', 'path' => route('admin.product-sections.index', 'popular')],
+                        ],
+                    ],
+                ],
+            ],
+            [
                 'title' => 'Sales',
                 'items' => [
                     [
@@ -69,6 +102,12 @@ class MenuHelper
             'order' => '<svg class="menu-item-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 2V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 2V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 10H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12V8C21 6.89543 20.1046 6 19 6H5C3.89543 6 3 6.89543 3 8V12C3 13.1046 3.89543 14 5 14H19C20.1046 14 21 13.1046 21 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 17V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
 
             'customer' => '<svg class="menu-item-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 21V19C20 16.7909 18.2091 15 16 15H8C5.79086 15 4 16.7909 4 19V21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+
+            'homepage' => '<svg class="menu-item-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 22V12H15V22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+
+            'banner' => '<svg class="menu-item-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 3H3C1.89543 3 1 3.89543 1 5V19C1 20.1046 1.89543 21 3 21H21C22.1046 21 23 20.1046 23 19V5C23 3.89543 22.1046 3 21 3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 12H23" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+
+            'featured' => '<svg class="menu-item-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
         ];
 
         return $icons[$icon] ?? $icons['dashboard'];

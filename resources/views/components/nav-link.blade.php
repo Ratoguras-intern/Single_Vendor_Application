@@ -1,11 +1,8 @@
-@props(['active'])
+@props(['active' => false, 'href' => '#'])
 
-@php
-$classes = ($active ?? false)
-            ? 'inline-flex items-center px-1 pt-1 border-b-2 border-indigo-400 text-sm font-medium leading-5 text-gray-900 focus:outline-none focus:border-indigo-700 transition duration-150 ease-in-out'
-            : 'inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out';
-@endphp
-
-<a {{ $attributes->merge(['class' => $classes]) }}>
+<a href="{{ $href }}" {{ $attributes->merge(['class' => 'relative inline-flex items-center px-3 py-2 rounded-btn text-sm font-medium transition-colors duration-150 ' . ($active ? 'text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-500/10' : 'text-secondary-600 hover:text-secondary-900 hover:bg-secondary-100 dark:text-secondary-400 dark:hover:text-white dark:hover:bg-white/5')]) }}>
     {{ $slot }}
+    @if($active)
+        <span class="absolute bottom-0.5 left-3 right-3 h-0.5 bg-primary-500 rounded-full"></span>
+    @endif
 </a>

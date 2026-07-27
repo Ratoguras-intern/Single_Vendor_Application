@@ -3,37 +3,117 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Brand;
+use App\Models\Category;
 use App\Models\Product;
+use App\Models\HomepageSection;
+use App\Models\FeaturedHomepageCategory;
+use App\Models\Banner;
 use Illuminate\Support\Facades\Storage;
 
 class HomeController extends Controller
 {
     public function __invoke()
     {
-        $products = $this->getProducts();
+        $sections = HomepageSection::getCached()->filter(fn ($s) => $s->is_enabled);
 
-        return view('frontend.home', compact('products'));
+        $featuredProducts = $this->getFlaggedProducts('featured', 8);
+        $newArrivals = $this->getFlaggedProducts('newArrival', 10);
+        $trendingProducts = $this->getFlaggedProducts('trending', 8);
+        $flashSaleProducts = $this->getFlaggedProducts('flashSale', 8);
+        $bestSellers = $this->getFlaggedProducts('bestSeller', 8);
+        $recommendedProducts = $this->getFlaggedProducts('recommended', 8);
+        $popularProducts = $this->getFlaggedProducts('popular', 8);
+        $categories = $this->getCategories();
+        $brands = $this->getBrands();
+        $heroBanners = Banner::getCachedForPosition('hero');
+
+        return view('frontend.home', compact(
+            'sections',
+            'featuredProducts',
+            'newArrivals',
+            'trendingProducts',
+            'flashSaleProducts',
+            'bestSellers',
+            'recommendedProducts',
+            'popularProducts',
+            'categories',
+            'brands',
+            'heroBanners',
+        ));
     }
 
-    protected function getProducts(): array
+    protected function getFlaggedProducts(string $scope, int $limit): array
     {
-        return Product::with(['images', 'category', 'brand'])
-            ->where('status', true)
+        $products = Product::active()
+            ->with(['images', 'brand'])
+            ->{$scope}()
             ->latest()
-            ->get()
-            ->map(function ($product) {
-                $image = $product->primaryImage();
+            ->limit($limit)
+            ->get();
 
-                return [
-                    'id' => $product->id,
-                    'name' => $product->name,
-                    'price' => $product->discount_price ?? $product->price,
-                    'image' => $image?->image
-                        ? Storage::disk('public')->url($image->image)
-                        : asset('frontend-assets/images/no-image.jpg'),
-                    'description' => $product->description,
-                ];
-            })
+        return $this->mapProducts($products);
+    }
+
+    protected function getCategories(): array
+    {
+        return Category::active()
+            ->topLevel()
+            ->withCount(['products' => fn ($q) => $q->where('status', true)])
+            ->ordered()
+            ->get()
+            ->map(fn ($cat) => [
+                'id' => $cat->id,
+                'name' => $cat->name,
+                'slug' => $cat->slug,
+                'image' => $cat->display_image,
+                'products_count' => $cat->total_products_count,
+            ])
             ->toArray();
+    }
+
+    protected function getBrands(): array
+    {
+        return Brand::where('status', true)
+            ->withCount(['products' => fn ($q) => $q->where('status', true)])
+            ->get()
+            ->map(fn ($brand) => [
+                'id' => $brand->id,
+                'name' => $brand->name,
+                'slug' => $brand->slug,
+                'logo' => $brand->logo
+                    ? Storage::disk('public')->url($brand->logo)
+                    : null,
+                'products_count' => $brand->products_count,
+            ])
+            ->toArray();
+    }
+
+    protected function mapProducts($products): array
+    {
+        return $products->map(function ($product) {
+            $image = $product->primaryImage();
+
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => $product->discount_price ?? $product->price,
+                'original_price' => $product->discount_price ? $product->price : null,
+                'image' => $image?->image
+                    ? Storage::disk('public')->url($image->image)
+                    : asset('frontend-assets/images/no-image.jpg'),
+                'description' => $product->description,
+                'stock' => $product->stock,
+                'brand' => $product->brand?->name,
+                'is_featured' => $product->is_featured,
+                'is_new_arrival' => $product->is_new_arrival,
+                'is_trending' => $product->is_trending,
+                'is_best_seller' => $product->is_best_seller,
+                'is_flash_sale' => $product->is_flash_sale,
+                'is_recommended' => $product->is_recommended,
+                'is_popular' => $product->is_popular,
+                'is_limited_edition' => $product->is_limited_edition,
+            ];
+        })->toArray();
     }
 }
