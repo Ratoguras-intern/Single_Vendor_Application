@@ -83,7 +83,6 @@ class CategoryController extends Controller
 
         $validated['sort_order'] = $validated['sort_order'] ?? 0;
         $validated['featured'] = $request->boolean('featured');
-        $validated['status'] = $request->input('status') === 'active';
 
         if ($request->hasFile('banner_image')) {
             $validated['banner_image'] = $request->file('banner_image')->store('categories/banners', 'public');
@@ -148,7 +147,6 @@ class CategoryController extends Controller
 
         $validated['sort_order'] = $validated['sort_order'] ?? 0;
         $validated['featured'] = $request->boolean('featured');
-        $validated['status'] = $request->input('status') === 'active';
 
         $disk = Storage::disk('public');
 
@@ -228,7 +226,7 @@ class CategoryController extends Controller
 
     public function toggleStatus(Request $request, Category $category)
     {
-        $category->update(['status' => !$category->attributes['status']]);
+        $category->update(['status' => $category->attributes['status'] ? 'inactive' : 'active']);
         Cache::forget('frontend_categories');
 
         return response()->json([

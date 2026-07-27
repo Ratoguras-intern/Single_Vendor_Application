@@ -32,7 +32,7 @@
 
                 <div>
                     <label for="image" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Image <span class="text-red-500">*</span></label>
-                    <input type="file" name="image" id="image" accept="image/*" required
+                    <input type="file" name="image" id="image" accept="image/*"
                         class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-brand-600 hover:file:bg-brand-100">
                     <div id="image-preview" class="mt-3 hidden">
                         <img id="preview-img" src="" alt="Preview" class="h-32 w-64 rounded-lg object-cover">
