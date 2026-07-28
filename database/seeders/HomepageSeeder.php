@@ -249,6 +249,35 @@ class HomepageSeeder extends Seeder
                     ],
                 ],
             ],
+            [
+                'slug' => 'premium-footer',
+                'title' => null,
+                'subtitle' => null,
+                'is_enabled' => true,
+                'sort_order' => 15,
+                'max_products' => 0,
+                'layout' => 'grid',
+                'config' => [
+                    'company_name' => 'NBK Vertex',
+                    'company_description' => 'A powerful e-commerce management platform. Streamline operations, boost sales, and scale your business with confidence.',
+                    'address' => '123 Fashion Street, Style City, SC 12345',
+                    'phone' => '+1 (555) 123-4567',
+                    'email' => 'hello@nbkvertex.com',
+                    'copyright_text' => 'All Rights Reserved.',
+                    'social_links' => [
+                        ['platform' => 'Facebook', 'url' => '#'],
+                        ['platform' => 'Twitter', 'url' => '#'],
+                        ['platform' => 'Instagram', 'url' => '#'],
+                        ['platform' => 'GitHub', 'url' => '#'],
+                    ],
+                    'footer_columns' => [
+                        ['heading' => 'Shop', 'links' => ['All Products', 'New Arrivals', 'Sale', 'Featured']],
+                        ['heading' => 'Customer Care', 'links' => ['Contact Us', 'Help Center', 'Shipping Info', 'Returns & Exchanges']],
+                        ['heading' => 'Company', 'links' => ['About Us', 'Careers', 'Blog', 'Press']],
+                        ['heading' => 'Legal', 'links' => ['Privacy Policy', 'Terms & Conditions', 'Cookie Policy', 'Accessibility']],
+                    ],
+                ],
+            ],
         ];
 
         foreach ($sections as $data) {

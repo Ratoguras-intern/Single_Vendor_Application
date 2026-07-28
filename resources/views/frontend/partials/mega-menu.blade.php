@@ -32,7 +32,7 @@
                 <h3 class="text-xs font-bold uppercase tracking-wider text-secondary-400 dark:text-secondary-500 mb-4">Categories</h3>
                 <ul class="space-y-0.5">
                     @forelse($topCategories as $category)
-                        <li x-on:mouseenter="hoveredCat = {{ $category->id }}"
+                        <li class="mega-cat-item" x-on:mouseenter="hoveredCat = {{ $category->id }}"
                             x-on:mouseleave="hoveredCat = null">
                             <a href="{{ route('frontend.category', $category->slug) }}"
                                 class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors group
@@ -48,7 +48,7 @@
                                     <span class="font-medium">{{ $category->name }}</span>
                                 </span>
                                 @if($category->children->count())
-                                    <svg class="h-3.5 w-3.5 text-secondary-400 group-hover:text-primary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
+                                    <svg class="mega-cat-arrow h-3.5 w-3.5 text-secondary-400 dark:text-secondary-500 group-hover:text-primary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
                                 @else
                                     <span class="text-xs text-secondary-400 dark:text-secondary-500 group-hover:text-primary-500 shrink-0">{{ $category->total_products_count }}</span>
                                 @endif
@@ -88,7 +88,7 @@
                                             @endif
                                             <span>{{ $child->name }}</span>
                                         </span>
-                                        <span class="text-xs text-secondary-400 shrink-0">{{ $child->total_products_count }}</span>
+                                        <span class="text-xs text-secondary-400 dark:text-secondary-500 shrink-0">{{ $child->total_products_count }}</span>
                                     </a>
                                 @endforeach
                             </div>
@@ -109,15 +109,15 @@
                     <div class="grid grid-cols-2 gap-3">
                         @forelse($topCategories->take(4) as $category)
                             <a href="{{ route('frontend.category', $category->slug) }}"
-                                class="group relative overflow-hidden rounded-xl bg-secondary-100 dark:bg-secondary-700 aspect-[4/3] flex items-end">
+                                class="mega-cat-card">
                                 @if($category->display_image)
                                     <img src="{{ $category->display_image }}" alt="{{ $category->name }}"
-                                        class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy">
+                                        class="absolute inset-0 w-full h-full object-cover" loading="lazy">
                                 @else
                                     <div class="absolute inset-0 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/20"></div>
                                 @endif
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                                <div class="relative p-3 w-full">
+                                <div class="mega-cat-overlay"></div>
+                                <div class="mega-cat-content">
                                     <span class="text-sm font-semibold text-white">{{ $category->name }}</span>
                                     <span class="block text-xs text-white/70">{{ $category->total_products_count }} products</span>
                                 </div>
@@ -131,20 +131,17 @@
 
             {{-- Promo Banner --}}
             <div class="col-span-4">
-                <div class="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary-500 via-primary-600 to-secondary-800 h-full flex flex-col justify-end p-6">
-                    <div class="absolute top-0 right-0 h-32 w-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                    <div class="absolute bottom-0 left-0 h-24 w-24 bg-primary-400/20 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+                <a href="{{ route('frontend.shop') }}" class="mega-promo-card block h-full">
                     <div class="relative">
                         <span class="inline-block px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold mb-3">Featured</span>
                         <h4 class="text-xl font-bold text-white mb-2">Explore Our Collection</h4>
                         <p class="text-sm text-white/80 mb-4">Discover quality products across all categories.</p>
-                        <a href="{{ route('frontend.shop') }}"
-                            class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-secondary-100 text-secondary-900 rounded-lg text-sm font-semibold hover:bg-white/90 dark:hover:bg-white transition-colors">
+                        <span class="mega-promo-btn">
                             Shop Now
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
-                        </a>
+                        </span>
                     </div>
-                </div>
+                </a>
             </div>
 
         </div>

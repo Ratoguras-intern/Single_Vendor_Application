@@ -30,7 +30,7 @@
                         <span class="font-medium">{{ $category->name }}</span>
                     </span>
                     @if($hasChildren)
-                        <svg class="h-3.5 w-3.5 text-secondary-400 group-hover:text-primary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
+                        <svg class="h-3.5 w-3.5 text-secondary-400 dark:text-secondary-500 group-hover:text-primary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
                     @else
                         <span class="text-xs text-secondary-400 dark:text-secondary-500 group-hover:text-primary-500 shrink-0">{{ $category->total_products_count }}</span>
                     @endif
@@ -53,7 +53,7 @@
                             <a href="{{ route('frontend.category', $category->slug) }}" x-on:click.stop="mobileOpen = false" class="hover:text-primary-600">{{ $category->name }}</a>
                             <span class="text-xs text-secondary-400 dark:text-secondary-500">{{ $category->total_products_count }}</span>
                         </span>
-                        <svg class="h-3.5 w-3.5 text-secondary-400 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                        <svg class="h-3.5 w-3.5 text-secondary-400 dark:text-secondary-500 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
                     </button>
                     <div x-show="open" x-collapse class="ml-4 space-y-0.5">
                         @include('frontend.partials.category-tree', [

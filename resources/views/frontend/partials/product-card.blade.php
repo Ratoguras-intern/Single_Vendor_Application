@@ -6,7 +6,7 @@
     $isOutOfStock = isset($product['stock']) && $product['stock'] <= 0;
 @endphp
 
-<div x-data class="card-hover group overflow-hidden p-0 h-full">
+<div x-data="{ viewMode: 'grid' }" class="card-hover group overflow-hidden p-0 h-full">
     <div :class="viewMode === 'list' ? 'flex flex-row h-auto min-h-[160px]' : 'flex flex-col h-full'">
 
         {{-- Image --}}
@@ -17,22 +17,22 @@
                     <span class="badge-danger text-[10px] font-bold px-2 py-0.5">-{{ $discountPct }}%</span>
                 @endif
                 @if(!empty($product['is_flash_sale']))
-                    <span class="badge bg-red-500 text-white text-[10px] font-bold px-2 py-0.5">Flash Sale</span>
+                    <span class="product-badge-flash-sale">Flash Sale</span>
                 @endif
                 @if(!empty($product['is_limited_edition']))
-                    <span class="badge bg-amber-600 text-white text-[10px] font-bold px-2 py-0.5">Limited</span>
+                    <span class="product-badge-limited">Limited</span>
                 @endif
                 @if(!empty($product['is_best_seller']))
-                    <span class="badge bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5">Best Seller</span>
+                    <span class="product-badge-best-seller">Best Seller</span>
                 @endif
                 @if(!empty($product['is_new_arrival']))
-                    <span class="badge bg-green-500 text-white text-[10px] font-bold px-2 py-0.5">New</span>
+                    <span class="product-badge-new">New</span>
                 @endif
                 @if(!empty($product['is_featured']))
-                    <span class="badge bg-primary-500 text-white text-[10px] font-bold px-2 py-0.5">Featured</span>
+                    <span class="product-badge-featured">Featured</span>
                 @endif
                 @if(!empty($product['is_trending']))
-                    <span class="badge bg-purple-500 text-white text-[10px] font-bold px-2 py-0.5">Trending</span>
+                    <span class="product-badge-trending">Trending</span>
                 @endif
             </div>
 

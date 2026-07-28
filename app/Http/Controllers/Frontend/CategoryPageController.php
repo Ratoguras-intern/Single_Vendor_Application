@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Frontend\Concerns\FilterProducts;
+use App\Models\Banner;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
@@ -55,6 +56,8 @@ class CategoryPageController extends Controller
 
         $breadcrumbs = $this->buildBreadcrumbs($category);
 
+        $sidebarBanners = Banner::onPage('category')->active()->ordered()->get();
+
         return view('frontend.category', compact(
             'category',
             'children',
@@ -62,7 +65,8 @@ class CategoryPageController extends Controller
             'brands',
             'priceRange',
             'recommendations',
-            'breadcrumbs'
+            'breadcrumbs',
+            'sidebarBanners'
         ));
     }
 

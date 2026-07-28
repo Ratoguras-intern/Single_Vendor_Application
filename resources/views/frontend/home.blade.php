@@ -2,8 +2,12 @@
 
 @section('title', 'Home - NBK Vertex')
 
+@php
+    $sortedSections = $sections->sortBy('sort_order');
+@endphp
+
 @section('content')
-@foreach($sections->sortBy('sort_order') as $section)
+@foreach($sortedSections as $section)
     @php
         $slug = $section->slug;
     @endphp
@@ -12,10 +16,12 @@
         @include('frontend.home.hero-carousel')
     @elseif($slug === 'trust-bar')
         @include('frontend.home.trust-bar')
+        @include('frontend.partials.banner-promotional')
     @elseif($slug === 'shop-by-category')
         @include('frontend.home.shop-by-category')
     @elseif($slug === 'featured-products')
         @include('frontend.home.featured-products')
+        @include('frontend.partials.banner-featured-section')
     @elseif($slug === 'new-arrivals')
         @include('frontend.home.new-arrivals')
     @elseif($slug === 'trending-products')
@@ -28,6 +34,7 @@
         @include('frontend.home.recommended-products')
     @elseif($slug === 'popular-products')
         @include('frontend.home.popular-products')
+        @include('frontend.partials.banner-middle')
     @elseif($slug === 'top-brands')
         @include('frontend.home.top-brands')
     @elseif($slug === 'why-choose-us')
@@ -40,8 +47,6 @@
         @include('frontend.home.instagram-gallery')
     @endif
 @endforeach
-@endsection
 
-@section('footer')
-@include('frontend.home.premium-footer')
+@include('frontend.partials.banner-bottom')
 @endsection

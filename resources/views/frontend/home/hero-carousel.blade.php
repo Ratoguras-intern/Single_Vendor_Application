@@ -1,8 +1,46 @@
 @php
     $section = $sections->get('hero-carousel');
-    $slides = $section?->config['slides'] ?? [
-        ['badge' => 'NEW', 'badge_color' => 'bg-green-500', 'heading' => 'Step Into Style', 'description' => 'Discover our latest collection.', 'image' => 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1920&q=80', 'cta_primary' => 'Shop Now', 'cta_secondary' => 'Learn More', 'link_primary' => '/shop', 'link_secondary' => '/about'],
-    ];
+
+    if (!empty($heroBanners) && $heroBanners->isNotEmpty()) {
+        $slides = $heroBanners->map(function ($b) {
+            return [
+                'badge' => $b->badge ?? 'NEW',
+                'badge_color' => $b->badge_color ?? 'bg-green-500',
+                'heading' => $b->title ?? '',
+                'description' => $b->description ?? $b->subtitle ?? '',
+                'image' => $b->image_url ?? asset('frontend-assets/images/no-image.jpg'),
+                'mobile_image' => $b->mobile_image_url ?? null,
+                'text_alignment' => $b->text_alignment ?? 'left',
+                'text_alignment_class' => $b->text_alignment_class,
+                'text_color' => $b->text_color ?? 'text-white',
+                'overlay_opacity' => $b->overlay_opacity ?? 40,
+                'show_countdown' => $b->show_countdown,
+                'ends_at' => $b->ends_at?->toIso8601String(),
+                'cta_primary' => $b->button_text ?? 'Shop Now',
+                'cta_secondary' => $b->secondary_button_text ?? '',
+                'link_primary' => $b->link ?? '/shop',
+                'link_secondary' => $b->secondary_button_url ?? '#',
+            ];
+        })->toArray();
+    } else {
+        $slides = $section?->config['slides'] ?? [
+            ['badge' => 'NEW', 'badge_color' => 'bg-green-500', 'heading' => 'Step Into Style', 'description' => 'Discover our latest collection.', 'image' => 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1920&q=80', 'mobile_image' => null, 'text_alignment' => 'left', 'text_alignment_class' => 'text-left items-start', 'text_color' => 'text-white', 'overlay_opacity' => 40, 'show_countdown' => false, 'ends_at' => null, 'cta_primary' => 'Shop Now', 'cta_secondary' => 'Learn More', 'link_primary' => '/shop', 'link_secondary' => '/about'],
+        ];
+    }
+
+    $slides = array_map(function ($s) {
+        return array_merge([
+            'mobile_image' => null,
+            'text_alignment' => 'left',
+            'text_alignment_class' => 'text-left items-start',
+            'text_color' => 'text-white',
+            'overlay_opacity' => 40,
+            'show_countdown' => false,
+            'ends_at' => null,
+            'cta_secondary' => '',
+            'link_secondary' => '#',
+        ], $s);
+    }, $slides);
 @endphp
 
 <section
@@ -12,7 +50,9 @@
         paused: false,
         timer: null,
         init() {
-            this.startAuto();
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                this.startAuto();
+            }
             this.$el.addEventListener('mouseenter', () => { this.paused = true; clearInterval(this.timer); });
             this.$el.addEventListener('mouseleave', () => { this.paused = false; this.startAuto(); });
         },
@@ -21,44 +61,64 @@
         prev() { this.current = (this.current - 1 + this.total) % this.total; },
         goTo(i) { this.current = i; this.startAuto(); },
     }"
-    class="relative h-[500px] sm:h-[600px] lg:h-[700px] overflow-hidden bg-secondary-900"
+    class="relative min-h-[280px] sm:min-h-[350px] md:min-h-[400px] lg:min-h-[450px] xl:min-h-[500px] overflow-hidden bg-secondary-900"
 >
     @foreach($slides as $i => $slide)
         <div
             class="hero-slide"
             :class="{ 'opacity-100 z-10': current === {{ $i }}, 'opacity-0 z-0': current !== {{ $i }} }"
         >
-            <img src="{{ $slide['image'] }}" alt="{{ $slide['heading'] }}" class="absolute inset-0 w-full h-full object-cover" loading="{{ $i === 0 ? 'eager' : 'lazy' }}" />
-            <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent"></div>
+            <img src="{{ $slide['image'] }}" alt="{{ $slide['heading'] }}" class="absolute inset-0 w-full h-full object-cover object-center hidden md:block" loading="{{ $i === 0 ? 'eager' : 'lazy' }}" />
+            @if($slide['mobile_image'])
+                <img src="{{ $slide['mobile_image'] }}" alt="{{ $slide['heading'] }}" class="absolute inset-0 w-full h-full object-cover object-center md:hidden" loading="lazy" />
+            @else
+                <img src="{{ $slide['image'] }}" alt="{{ $slide['heading'] }}" class="absolute inset-0 w-full h-full object-cover object-center md:hidden" loading="lazy" />
+            @endif
+            <div class="absolute inset-0" style="background: linear-gradient(to right, rgba(0,0,0,{{ $slide['overlay_opacity'] / 100 }}) {{ $slide['overlay_opacity'] > 50 ? '60%' : '40%' }}, rgba(0,0,0,0.1) 100%);"></div>
             <div class="section relative h-full flex items-center">
-                <div class="max-w-2xl animate-in">
-                    <span class="inline-flex items-center gap-2 rounded-full {{ $slide['badge_color'] }} px-4 py-1.5 mb-6">
-                        <span class="text-xs font-bold text-white tracking-wider">{{ $slide['badge'] }}</span>
-                    </span>
-                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">{{ $slide['heading'] }}</h1>
-                    <p class="mt-6 text-lg sm:text-xl text-secondary-200 max-w-xl leading-relaxed">{{ $slide['description'] }}</p>
-                    <div class="mt-10 flex flex-col sm:flex-row items-start gap-4">
+                <div class="max-w-2xl animate-in flex flex-col {{ $slide['text_alignment_class'] }}">
+                    @if($slide['badge'])
+                        <span class="inline-flex items-center gap-2 rounded-full {{ $slide['badge_color'] }} px-4 py-1.5 mb-6 self-start">
+                            <span class="text-xs font-bold text-white tracking-wider">{{ $slide['badge'] }}</span>
+                        </span>
+                    @endif
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight {{ $slide['text_alignment'] === 'center' ? 'mx-auto' : '' }} {{ $slide['text_alignment'] === 'right' ? 'ml-auto' : '' }} {{ $slide['text_color'] }}">{{ $slide['heading'] }}</h1>
+                    <p class="mt-6 text-lg sm:text-xl max-w-xl leading-relaxed {{ $slide['text_alignment'] === 'center' ? 'mx-auto' : '' }} {{ $slide['text_alignment'] === 'right' ? 'ml-auto' : '' }} {{ str_replace('text-', 'text-', $slide['text_color']) }}/80">{{ $slide['description'] }}</p>
+                    <div class="mt-10 flex flex-col sm:flex-row items-start gap-4 {{ $slide['text_alignment'] === 'center' ? 'mx-auto' : '' }} {{ $slide['text_alignment'] === 'right' ? 'ml-auto' : '' }}">
                         <a href="{{ $slide['link_primary'] }}" class="btn-primary btn-lg shadow-lg shadow-primary-500/25">
                             {{ $slide['cta_primary'] }}
                             <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
                         </a>
-                        <a href="{{ $slide['link_secondary'] }}" class="btn bg-white/10 text-white hover:bg-white/20 border border-white/20 btn-lg backdrop-blur-sm">{{ $slide['cta_secondary'] }}</a>
+                        @if(!empty($slide['cta_secondary']))
+                            <a href="{{ $slide['link_secondary'] }}" class="btn bg-white/10 text-white hover:bg-white/20 border border-white/20 btn-lg backdrop-blur-sm">{{ $slide['cta_secondary'] }}</a>
+                        @endif
                     </div>
+                    @if($slide['show_countdown'] && $slide['ends_at'])
+                        <div class="mt-8" x-data="bannerCountdown('{{ $slide['ends_at'] }}')" x-init="init()" x-show="show">
+                            <div class="flex gap-2 sm:gap-3">
+                                <div class="countdown-unit"><span class="text-lg sm:text-2xl font-bold text-white" x-text="days"></span><span class="text-[10px] uppercase text-white/60">Days</span></div>
+                                <div class="countdown-unit"><span class="text-lg sm:text-2xl font-bold text-white" x-text="hours"></span><span class="text-[10px] uppercase text-white/60">Hours</span></div>
+                                <div class="countdown-unit"><span class="text-lg sm:text-2xl font-bold text-white" x-text="minutes"></span><span class="text-[10px] uppercase text-white/60">Mins</span></div>
+                                <div class="countdown-unit"><span class="text-lg sm:text-2xl font-bold text-white" x-text="seconds"></span><span class="text-[10px] uppercase text-white/60">Secs</span></div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
     @endforeach
 
-    <button x-on:click="prev()" class="absolute left-4 top-1/2 -translate-y-1/2 z-20 h-11 w-11 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/25 transition-all flex items-center justify-center border border-white/20">
+    <button x-on:click="prev()" aria-label="Previous slide" class="absolute left-4 top-1/2 -translate-y-1/2 z-20 h-11 w-11 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/25 transition-all flex items-center justify-center border border-white/20">
         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
     </button>
-    <button x-on:click="next()" class="absolute right-4 top-1/2 -translate-y-1/2 z-20 h-11 w-11 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/25 transition-all flex items-center justify-center border border-white/20">
+    <button x-on:click="next()" aria-label="Next slide" class="absolute right-4 top-1/2 -translate-y-1/2 z-20 h-11 w-11 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/25 transition-all flex items-center justify-center border border-white/20">
         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
     </button>
 
     <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2.5">
         @foreach($slides as $i => $slide)
-            <button x-on:click="goTo({{ $i }})" :class="current === {{ $i }} ? 'w-8 bg-primary-500' : 'w-2.5 bg-white/50 hover:bg-white/75'" class="h-2.5 rounded-full transition-all duration-300"></button>
+            <button x-on:click="goTo({{ $i }})" :aria-label="'Go to slide ' + ({{ $i }} + 1)" :aria-current="current === {{ $i }} ? 'true' : undefined" :class="current === {{ $i }} ? 'w-8 bg-primary-500' : 'w-2.5 bg-white/50 hover:bg-white/75'" class="h-2.5 rounded-full transition-all duration-300"></button>
         @endforeach
     </div>
 </section>
+

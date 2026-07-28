@@ -38,7 +38,7 @@
         <div class="flex items-center justify-between px-5 py-4 border-b border-secondary-100 dark:border-secondary-700">
             <x-brand-logo compact :show-text="true" />
             <button x-on:click="mobileOpen = false"
-                class="p-2 rounded-full hover:bg-secondary-100 dark:hover:bg-white/5 transition-colors text-secondary-500"
+                class="p-2 rounded-full hover:bg-secondary-100 dark:hover:bg-white/5 transition-colors text-secondary-500 dark:text-secondary-400"
                 aria-label="Close menu">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
@@ -150,7 +150,7 @@
                         'activeCategory' => $activeCategory,
                     ])
                 @empty
-                    <p class="px-3 py-2 text-sm text-secondary-400">No categories</p>
+                    <p class="px-3 py-2 text-sm text-secondary-400 dark:text-secondary-500">No categories</p>
                 @endforelse
             </div>
         </div>

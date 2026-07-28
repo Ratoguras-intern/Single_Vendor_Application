@@ -34,6 +34,7 @@
             'priceRange' => $priceRange,
             'ajax' => true,
         ])
+        @include('frontend.partials.banner-sidebar')
     </aside>
 
     {{-- Main Content --}}

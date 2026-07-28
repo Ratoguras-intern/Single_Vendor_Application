@@ -151,7 +151,7 @@
                             class="input text-sm py-2"
                         >
                     </div>
-                    <span class="text-secondary-400">—</span>
+                    <span class="text-secondary-400 dark:text-secondary-500">—</span>
                     <div class="flex-1">
                         <label for="max-price" class="sr-only">Maximum price</label>
                         <input

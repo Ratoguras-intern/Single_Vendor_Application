@@ -119,12 +119,15 @@ Route::middleware(['auth', 'admin'])
 
         // Content Management
         Route::get('/homepage-sections', [HomepageSectionController::class, 'index'])->name('homepage-sections.index');
+        Route::get('/homepage-sections/{homepageSection}', [HomepageSectionController::class, 'show'])->name('homepage-sections.show');
         Route::put('/homepage-sections/{homepageSection}', [HomepageSectionController::class, 'update'])->name('homepage-sections.update');
         Route::patch('/homepage-sections/{homepageSection}/toggle', [HomepageSectionController::class, 'toggleEnabled'])->name('homepage-sections.toggle');
         Route::patch('/homepage-sections/order', [HomepageSectionController::class, 'updateOrder'])->name('homepage-sections.updateOrder');
 
         Route::resource('banners', BannerController::class);
         Route::patch('/banners/{banner}/toggle', [BannerController::class, 'toggleEnabled'])->name('banners.toggle');
+        Route::post('/banners/{banner}/duplicate', [BannerController::class, 'duplicate'])->name('banners.duplicate');
+        Route::post('/banners/reorder', [BannerController::class, 'updateSortOrder'])->name('banners.reorder');
 
         Route::get('/featured-categories', [FeaturedCategoryController::class, 'index'])->name('featured-categories.index');
         Route::post('/featured-categories', [FeaturedCategoryController::class, 'store'])->name('featured-categories.store');

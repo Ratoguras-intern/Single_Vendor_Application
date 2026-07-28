@@ -48,7 +48,7 @@
                 aria-haspopup="listbox"
                 :aria-expanded="open"
             >
-                <svg class="h-4 w-4 text-secondary-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7.5 7.5 3m0 0L12 7.5M7.5 3v13.5m13-6L16.5 19m0 0L12 14.5m4.5 4.5V10.5"/></svg>
+                <svg class="h-4 w-4 text-secondary-400 dark:text-secondary-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7.5 7.5 3m0 0L12 7.5M7.5 3v13.5m13-6L16.5 19m0 0L12 14.5m4.5 4.5V10.5"/></svg>
                 <span>Sort</span>
             </button>
             <div

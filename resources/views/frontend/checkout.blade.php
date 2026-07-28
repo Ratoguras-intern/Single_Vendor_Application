@@ -78,7 +78,7 @@
 
                         <div class="space-y-3">
                             <label class="flex items-center gap-3 p-4 rounded-card border-2 cursor-pointer transition-colors" :class="paymentMethod === 'cod' ? 'border-green-500 bg-green-50 dark:bg-green-950/30' : 'border-secondary-200 dark:border-secondary-700 hover:border-secondary-300 dark:hover:border-secondary-600'">
-                                <input type="radio" name="payment_method" value="cod" x-model="paymentMethod" {{ old('payment_method', 'cod') === 'cod' ? 'checked' : '' }} required class="w-4 h-4 text-green-600" />
+                                <input type="radio" name="payment_method" value="cod" x-model="paymentMethod" {{ old('payment_method', 'cod') === 'cod' ? 'checked' : '' }} required class="w-4 h-4 text-green-600 dark:text-green-400" />
                                 <div>
                                     <p class="font-medium text-secondary-900 dark:text-white"><span data-i18n="Cash on Delivery" x-text="$store.i18n.t('Cash on Delivery')">Cash on Delivery</span></p>
                                     <p class="text-sm text-secondary-500 dark:text-secondary-400"><span data-i18n="Pay when your order arrives" x-text="$store.i18n.t('Pay when your order arrives')">Pay when your order arrives</span></p>

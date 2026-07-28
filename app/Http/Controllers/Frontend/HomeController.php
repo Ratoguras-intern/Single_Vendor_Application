@@ -26,7 +26,12 @@ class HomeController extends Controller
         $popularProducts = $this->getFlaggedProducts('popular', 8);
         $categories = $this->getCategories();
         $brands = $this->getBrands();
-        $heroBanners = Banner::getCachedForPosition('hero');
+        $heroBanners = Banner::onPage('hero')->active()->ordered()->get();
+        $promotionalBanners = Banner::onPage('promotional')->active()->ordered()->get();
+        $middleBanners = Banner::onPage('middle')->active()->ordered()->get();
+        $featuredBanners = Banner::onPage('featured-section')->active()->ordered()->get();
+        $bottomBanners = Banner::onPage('bottom')->active()->ordered()->get();
+        $sidebarBanners = Banner::onPage('sidebar')->active()->ordered()->get();
 
         return view('frontend.home', compact(
             'sections',
@@ -40,6 +45,11 @@ class HomeController extends Controller
             'categories',
             'brands',
             'heroBanners',
+            'promotionalBanners',
+            'middleBanners',
+            'featuredBanners',
+            'bottomBanners',
+            'sidebarBanners',
         ));
     }
 

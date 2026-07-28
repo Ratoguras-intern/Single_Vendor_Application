@@ -35,19 +35,19 @@
             <div class="flex gap-3 sm:gap-4">
                 <div class="countdown-unit">
                     <span class="text-2xl sm:text-3xl font-bold text-white" x-text="String(days).padStart(2, '0')">00</span>
-                    <span class="text-[10px] sm:text-xs text-secondary-400 uppercase tracking-wider mt-1">Days</span>
+                    <span class="text-[10px] sm:text-xs text-secondary-400 dark:text-secondary-300 uppercase tracking-wider mt-1">Days</span>
                 </div>
                 <div class="countdown-unit">
                     <span class="text-2xl sm:text-3xl font-bold text-white" x-text="String(hours).padStart(2, '0')">00</span>
-                    <span class="text-[10px] sm:text-xs text-secondary-400 uppercase tracking-wider mt-1">Hours</span>
+                    <span class="text-[10px] sm:text-xs text-secondary-400 dark:text-secondary-300 uppercase tracking-wider mt-1">Hours</span>
                 </div>
                 <div class="countdown-unit">
                     <span class="text-2xl sm:text-3xl font-bold text-white" x-text="String(minutes).padStart(2, '0')">00</span>
-                    <span class="text-[10px] sm:text-xs text-secondary-400 uppercase tracking-wider mt-1">Mins</span>
+                    <span class="text-[10px] sm:text-xs text-secondary-400 dark:text-secondary-300 uppercase tracking-wider mt-1">Mins</span>
                 </div>
                 <div class="countdown-unit">
                     <span class="text-2xl sm:text-3xl font-bold text-white" x-text="String(seconds).padStart(2, '0')">00</span>
-                    <span class="text-[10px] sm:text-xs text-secondary-400 uppercase tracking-wider mt-1">Secs</span>
+                    <span class="text-[10px] sm:text-xs text-secondary-400 dark:text-secondary-300 uppercase tracking-wider mt-1">Secs</span>
                 </div>
             </div>
         </div>

@@ -138,6 +138,7 @@
                     'brands' => $brands,
                     'priceRange' => $priceRange,
                 ])
+                @include('frontend.partials.banner-sidebar')
             </div>
 
             {{-- Filter Drawer (Mobile) --}}
