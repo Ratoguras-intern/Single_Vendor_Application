@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Database\Seeder;
@@ -16,7 +17,7 @@ class ProductSeeder extends Seeder
 
         $shoes = Category::where('slug', 'shoes')->first();
         $laptops = Category::where('slug', 'laptops')->first();
-        $categoryId = $shoes?->id ?? 1;
+        $brand = Brand::first();
 
         $slugs = ['shoes', 'shoes', 'shoes', 'shoes', 'shoes', 'laptops', 'laptops', 'laptops', 'laptops', 'laptops'];
 
@@ -35,7 +36,7 @@ class ProductSeeder extends Seeder
                 'stock' => 50,
                 'sku' => strtoupper(Str::slug($item['name'], '-')).'-'.$item['id'],
                 'category_id' => $category->id,
-                'brand_id' => 1,
+                'brand_id' => $brand?->id ?? 1,
                 'status' => true,
             ]);
         }
