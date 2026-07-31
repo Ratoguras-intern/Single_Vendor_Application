@@ -98,6 +98,9 @@ export default {
                 'search-expand':  'search-expand 0.3s ease-out',
                 'fade-down':      'fade-down 0.2s ease-out',
             },
+            maxHeight: {
+                'hero': '650px',
+            },
             borderRadius: {
                 'card': '0.75rem',
                 'btn': '0.5rem',

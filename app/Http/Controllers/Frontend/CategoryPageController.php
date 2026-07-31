@@ -56,7 +56,7 @@ class CategoryPageController extends Controller
 
         $breadcrumbs = $this->buildBreadcrumbs($category);
 
-        $sidebarBanners = Banner::onPage('category')->active()->ordered()->get();
+        $sidebarBanners = Banner::forTargetPage('category')->active()->ordered()->get();
 
         return view('frontend.category', compact(
             'category',

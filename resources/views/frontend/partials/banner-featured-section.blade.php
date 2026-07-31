@@ -16,7 +16,7 @@
             x-transition:leave-start="opacity-100 scale-100"
             x-transition:leave-end="opacity-0 scale-95">
             <div class="section">
-                <a href="{{ $banner->link ?? '#' }}" class="group relative block overflow-hidden rounded-card bg-secondary-900 min-h-[200px] sm:min-h-[250px] lg:min-h-[300px]">
+                <a href="{{ $banner->link ?? '#' }}" class="group relative block w-full overflow-hidden rounded-card bg-secondary-900 min-h-[200px] sm:min-h-[250px] lg:min-h-[300px]">
                     @if($banner->image_url)
                         <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105 hidden md:block" loading="lazy">
                     @endif
@@ -35,32 +35,32 @@
                                 <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold leading-tight {{ $textColor }}">{{ $banner->title }}</h2>
                             @endif
                             @if($banner->description)
-                                <p class="mt-2 text-sm sm:text-base max-w-lg {{ str_replace('text-', 'text-', $textColor) }}/80">{{ $banner->description }}</p>
+                                <p class="mt-2 text-sm sm:text-base max-w-lg {{ $textColor }}/80">{{ $banner->description }}</p>
                             @elseif($banner->subtitle)
-                                <p class="mt-2 text-sm sm:text-base max-w-lg {{ str_replace('text-', 'text-', $textColor) }}/80">{{ $banner->subtitle }}</p>
+                                <p class="mt-2 text-sm sm:text-base max-w-lg {{ $textColor }}/80">{{ $banner->subtitle }}</p>
                             @endif
                             @if($banner->button_text || $banner->secondary_button_text)
                                 <div class="mt-4 flex flex-wrap gap-3 {{ $banner->text_alignment === 'center' ? 'justify-center' : '' }} {{ $banner->text_alignment === 'right' ? 'justify-end' : 'justify-start' }}">
                                     @if($banner->button_text)
-                                        <span class="inline-flex items-center gap-2 btn-primary btn-sm">
+                                        <a href="{{ $banner->link ?? '#' }}" class="inline-flex items-center gap-2 btn-primary btn-sm">
                                             {{ $banner->button_text }}
                                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
-                                        </span>
+                                        </a>
                                     @endif
                                     @if($banner->secondary_button_text)
-                                        <span class="inline-flex items-center gap-2 btn bg-white/10 text-white hover:bg-white/20 border border-white/20 btn-sm backdrop-blur-sm">
+                                        <a href="{{ $banner->secondary_button_url ?? '#' }}" class="inline-flex items-center gap-2 btn bg-white/10 text-white hover:bg-white/20 border border-white/20 btn-sm backdrop-blur-sm">
                                             {{ $banner->secondary_button_text }}
-                                        </span>
+                                        </a>
                                     @endif
                                 </div>
                             @endif
                             @if($banner->show_countdown && $banner->ends_at)
                                 <div class="mt-5" x-show="show">
                                     <div class="flex gap-2">
-                                        <div class="countdown-unit"><span class="text-sm sm:text-lg font-bold {{ $textColor }}" x-text="days"></span><span class="text-[10px] uppercase {{ str_replace('text-', 'text-', $textColor) }}/60">Days</span></div>
-                                        <div class="countdown-unit"><span class="text-sm sm:text-lg font-bold {{ $textColor }}" x-text="hours"></span><span class="text-[10px] uppercase {{ str_replace('text-', 'text-', $textColor) }}/60">Hours</span></div>
-                                        <div class="countdown-unit"><span class="text-sm sm:text-lg font-bold {{ $textColor }}" x-text="minutes"></span><span class="text-[10px] uppercase {{ str_replace('text-', 'text-', $textColor) }}/60">Mins</span></div>
-                                        <div class="countdown-unit"><span class="text-sm sm:text-lg font-bold {{ $textColor }}" x-text="seconds"></span><span class="text-[10px] uppercase {{ str_replace('text-', 'text-', $textColor) }}/60">Secs</span></div>
+                                        <div class="countdown-unit"><span class="text-sm sm:text-lg font-bold {{ $textColor }}" x-text="days"></span><span class="text-[10px] uppercase {{ $textColor }}/60">Days</span></div>
+                                        <div class="countdown-unit"><span class="text-sm sm:text-lg font-bold {{ $textColor }}" x-text="hours"></span><span class="text-[10px] uppercase {{ $textColor }}/60">Hours</span></div>
+                                        <div class="countdown-unit"><span class="text-sm sm:text-lg font-bold {{ $textColor }}" x-text="minutes"></span><span class="text-[10px] uppercase {{ $textColor }}/60">Mins</span></div>
+                                        <div class="countdown-unit"><span class="text-sm sm:text-lg font-bold {{ $textColor }}" x-text="seconds"></span><span class="text-[10px] uppercase {{ $textColor }}/60">Secs</span></div>
                                     </div>
                                 </div>
                             @endif

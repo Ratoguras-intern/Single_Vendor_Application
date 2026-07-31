@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Banner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class BannerController extends Controller
 {
@@ -57,8 +59,8 @@ class BannerController extends Controller
             'title' => 'nullable|string|max:255',
             'subtitle' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp,avif|max:5120',
-            'mobile_image' => 'nullable|image|mimes:jpg,jpeg,png,webp,avif|max:5120',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp,avif,gif|max:10240',
+            'mobile_image' => 'nullable|image|mimes:jpg,jpeg,png,webp,avif,gif|max:10240',
             'link' => 'nullable|string|max:255',
             'button_text' => 'nullable|string|max:255',
             'secondary_button_text' => 'nullable|string|max:255',
@@ -71,7 +73,7 @@ class BannerController extends Controller
             'show_countdown' => 'nullable|boolean',
             'position' => "required|in:{$positions}",
             'target_pages' => 'nullable|array',
-            'target_pages.*' => 'string|in:hero,promotional,middle,featured-section,bottom,sidebar,category,shop',
+            'target_pages.*' => 'string|in:category,shop',
             'is_enabled' => 'nullable|boolean',
             'sort_order' => 'nullable|integer|min:0',
             'starts_at' => 'nullable|date',
@@ -80,10 +82,12 @@ class BannerController extends Controller
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('banners', 'public');
+            $this->processImage($validated['image'], 1920);
         }
 
         if ($request->hasFile('mobile_image')) {
             $validated['mobile_image'] = $request->file('mobile_image')->store('banners/mobile', 'public');
+            $this->processImage($validated['mobile_image'], 640, 460, true);
         }
 
         $validated['is_enabled'] = $request->boolean('is_enabled');
@@ -115,8 +119,8 @@ class BannerController extends Controller
             'title' => 'nullable|string|max:255',
             'subtitle' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp,avif|max:5120',
-            'mobile_image' => 'nullable|image|mimes:jpg,jpeg,png,webp,avif|max:5120',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp,avif,gif|max:10240',
+            'mobile_image' => 'nullable|image|mimes:jpg,jpeg,png,webp,avif,gif|max:10240',
             'link' => 'nullable|string|max:255',
             'button_text' => 'nullable|string|max:255',
             'secondary_button_text' => 'nullable|string|max:255',
@@ -129,7 +133,7 @@ class BannerController extends Controller
             'show_countdown' => 'nullable|boolean',
             'position' => "required|in:{$positions}",
             'target_pages' => 'nullable|array',
-            'target_pages.*' => 'string|in:hero,promotional,middle,featured-section,bottom,sidebar,category,shop',
+            'target_pages.*' => 'string|in:category,shop',
             'is_enabled' => 'nullable|boolean',
             'sort_order' => 'nullable|integer|min:0',
             'starts_at' => 'nullable|date',
@@ -146,6 +150,7 @@ class BannerController extends Controller
                 Storage::disk('public')->delete($banner->image);
             }
             $validated['image'] = $request->file('image')->store('banners', 'public');
+            $this->processImage($validated['image'], 1920);
         }
 
         if ($request->boolean('remove_mobile_image')) {
@@ -158,6 +163,7 @@ class BannerController extends Controller
                 Storage::disk('public')->delete($banner->mobile_image);
             }
             $validated['mobile_image'] = $request->file('mobile_image')->store('banners/mobile', 'public');
+            $this->processImage($validated['mobile_image'], 640, 460, true);
         }
 
         $validated['is_enabled'] = $request->boolean('is_enabled');
@@ -224,5 +230,29 @@ class BannerController extends Controller
         Banner::clearCache();
 
         return response()->json(['message' => 'Sort order updated.']);
+    }
+
+    protected function processImage(string $path, int $maxWidth, ?int $maxHeight = null, bool $crop = false): void
+    {
+        $fullPath = Storage::disk('public')->path($path);
+
+        if (!file_exists($fullPath)) {
+            return;
+        }
+
+        try {
+            $manager = new ImageManager(new Driver());
+            $image = $manager->decodePath($fullPath);
+
+            if ($crop && $maxHeight) {
+                $image->cover($maxWidth, $maxHeight);
+            } else {
+                $image->scaleDown($maxWidth);
+            }
+
+            $image->save();
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('Banner image processing failed: ' . $e->getMessage());
+        }
     }
 }

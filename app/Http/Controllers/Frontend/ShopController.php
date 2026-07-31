@@ -60,7 +60,7 @@ class ShopController extends Controller
             ]);
         }
 
-        $sidebarBanners = Banner::onPage('shop')->active()->ordered()->get();
+        $sidebarBanners = Banner::forTargetPage('shop')->active()->ordered()->get();
 
         return view('frontend.shop', compact(
             'products', 'brands', 'categories', 'priceRange', 'recommendations', 'sidebarBanners'

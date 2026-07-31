@@ -39,14 +39,15 @@
             return {
                 show: !autoHide, days: 0, hours: 0, minutes: 0, seconds: 0, timer: null,
                 init() {
-                    if (!endDate || !autoHide) return;
+                    if (!endDate) return;
                     this.tick();
                     this.timer = setInterval(() => this.tick(), 1000);
                 },
                 tick() {
-                    if (!autoHide || !endDate) return;
+                    if (!endDate) return;
                     const diff = new Date(endDate) - new Date();
                     if (diff <= 0) { this.show = false; clearInterval(this.timer); return; }
+                    if (autoHide) this.show = true;
                     this.days = Math.floor(diff / 86400000);
                     this.hours = Math.floor((diff % 86400000) / 3600000);
                     this.minutes = Math.floor((diff % 3600000) / 60000);

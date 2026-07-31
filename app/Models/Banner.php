@@ -54,20 +54,14 @@ class Banner extends Model
         return $query->where('position', $position);
     }
 
-    public function scopeOnPage(Builder $query, string $page): Builder
+    public function scopeForTargetPage(Builder $query, string $page): Builder
     {
-        return $query->where(function ($q) use ($page) {
-            $q->where('position', $page)
-              ->orWhereJsonContains('target_pages', $page);
-        });
+        return $query->whereJsonContains('target_pages', $page);
     }
 
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_enabled', true)
-            ->where(function ($q) {
-                $q->whereNull('starts_at')->orWhere('starts_at', '<=', now());
-            })
             ->where(function ($q) {
                 $q->whereNull('ends_at')->orWhere('ends_at', '>=', now());
             });
@@ -93,7 +87,7 @@ class Banner extends Model
     {
         return Cache::remember("banners_{$position}", 300, function () use ($position) {
             return static::active()
-                ->onPage($position)
+                ->forPosition($position)
                 ->ordered()
                 ->get();
         });
@@ -104,7 +98,7 @@ class Banner extends Model
         foreach (config('banners.positions') as $pos) {
             Cache::forget("banners_{$pos}");
         }
-        foreach (['category', 'shop'] as $page) {
+        foreach (array_keys(config('banners.pages')) as $page) {
             Cache::forget("banners_{$page}");
         }
     }
@@ -140,7 +134,7 @@ class Banner extends Model
 
     public function getOverlayStyleAttribute(): string
     {
-        $opacity = $this->overlay_opacity ?? 40;
+        $opacity = ($this->overlay_opacity ?? 40) / 100;
         return "rgba(0,0,0,{$opacity})";
     }
 

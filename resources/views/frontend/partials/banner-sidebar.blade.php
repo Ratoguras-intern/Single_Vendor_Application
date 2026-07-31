@@ -16,7 +16,12 @@
             x-transition:leave-end="opacity-0 scale-95">
             <a href="{{ $banner->link ?? '#' }}" class="group relative block overflow-hidden rounded-card bg-secondary-900 aspect-[4/5] sm:aspect-[3/4] lg:aspect-[4/3]">
                 @if($banner->image_url)
-                    <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105" loading="lazy">
+                    <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105 hidden md:block" loading="lazy">
+                @endif
+                @if($banner->mobile_image_url)
+                    <img src="{{ $banner->mobile_image_url }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105 md:hidden" loading="lazy">
+                @elseif($banner->image_url)
+                    <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105 md:hidden" loading="lazy">
                 @endif
                 <div class="absolute inset-0" @if($overlayStyle) style="background: linear-gradient(to top, {{ $overlayStyle }} 60%, transparent 100%);" @else class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" @endif></div>
                 <div class="relative h-full flex flex-col justify-end p-4">
@@ -30,17 +35,17 @@
                             <h3 class="text-sm font-bold {{ $textColor }}">{{ $banner->title }}</h3>
                         @endif
                         @if($banner->description)
-                            <p class="text-xs mt-0.5 {{ str_replace('text-', 'text-', $textColor) }}/80">{{ $banner->description }}</p>
+                            <p class="text-xs mt-0.5 {{ $textColor }}/80">{{ $banner->description }}</p>
                         @elseif($banner->subtitle)
-                            <p class="text-xs mt-0.5 {{ str_replace('text-', 'text-', $textColor) }}/80">{{ $banner->subtitle }}</p>
+                            <p class="text-xs mt-0.5 {{ $textColor }}/80">{{ $banner->subtitle }}</p>
                         @endif
                         @if($banner->show_countdown && $banner->ends_at)
                             <div class="mt-2" x-show="show">
                                 <div class="flex gap-1">
-                                    <div class="countdown-unit !px-2 !py-1 !min-w-[40px]"><span class="text-xs font-bold {{ $textColor }}" x-text="days"></span><span class="text-[8px] uppercase {{ str_replace('text-', 'text-', $textColor) }}/60">D</span></div>
-                                    <div class="countdown-unit !px-2 !py-1 !min-w-[40px]"><span class="text-xs font-bold {{ $textColor }}" x-text="hours"></span><span class="text-[8px] uppercase {{ str_replace('text-', 'text-', $textColor) }}/60">H</span></div>
-                                    <div class="countdown-unit !px-2 !py-1 !min-w-[40px]"><span class="text-xs font-bold {{ $textColor }}" x-text="minutes"></span><span class="text-[8px] uppercase {{ str_replace('text-', 'text-', $textColor) }}/60">M</span></div>
-                                    <div class="countdown-unit !px-2 !py-1 !min-w-[40px]"><span class="text-xs font-bold {{ $textColor }}" x-text="seconds"></span><span class="text-[8px] uppercase {{ str_replace('text-', 'text-', $textColor) }}/60">S</span></div>
+                                    <div class="countdown-unit !px-2 !py-1 !min-w-[40px]"><span class="text-xs font-bold {{ $textColor }}" x-text="days"></span><span class="text-[8px] uppercase {{ $textColor }}/60">D</span></div>
+                                    <div class="countdown-unit !px-2 !py-1 !min-w-[40px]"><span class="text-xs font-bold {{ $textColor }}" x-text="hours"></span><span class="text-[8px] uppercase {{ $textColor }}/60">H</span></div>
+                                    <div class="countdown-unit !px-2 !py-1 !min-w-[40px]"><span class="text-xs font-bold {{ $textColor }}" x-text="minutes"></span><span class="text-[8px] uppercase {{ $textColor }}/60">M</span></div>
+                                    <div class="countdown-unit !px-2 !py-1 !min-w-[40px]"><span class="text-xs font-bold {{ $textColor }}" x-text="seconds"></span><span class="text-[8px] uppercase {{ $textColor }}/60">S</span></div>
                                 </div>
                             </div>
                         @endif
