@@ -3,9 +3,9 @@
 @endphp
 
 @if(!empty($newArrivals) && count($newArrivals) > 0)
-<section class="py-12 sm:py-16 lg:py-20">
+<section class="home-section">
     <div class="section">
-        <div class="flex items-end justify-between mb-10">
+        <div class="flex items-end justify-between mb-6">
             <div>
                 <h2 class="section-heading">{{ $section?->title ?? 'New Arrivals' }}</h2>
                 <p class="section-subheading">{{ $section?->subtitle ?? 'Fresh drops, just landed' }}</p>
@@ -19,7 +19,7 @@
 
     <div class="relative group">
         <div class="section">
-            <div class="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-4">
+            <div class="flex gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-4">
                 @foreach(array_slice($newArrivals, 0, $section?->max_products ?? 10) as $product)
                     <div class="flex-shrink-0 w-[280px] sm:w-[300px] snap-start">
                         @include('frontend.partials.product-card', ['product' => $product])

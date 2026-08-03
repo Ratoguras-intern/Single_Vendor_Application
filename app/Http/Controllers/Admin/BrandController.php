@@ -108,6 +108,17 @@ class BrandController extends Controller
             ->with('success', 'Brand updated successfully.');
     }
 
+    public function toggleStatus(Brand $brand)
+    {
+        $brand->status = $brand->status === 'active' ? 'inactive' : 'active';
+        $brand->save();
+
+        return response()->json([
+            'status' => $brand->status,
+            'message' => 'Brand status updated.',
+        ]);
+    }
+
     public function destroy(Brand $brand)
     {
         if ($brand->logo) {
@@ -121,5 +132,29 @@ class BrandController extends Controller
 
         return redirect()->route('admin.brands.index')
             ->with('success', 'Brand deleted successfully.');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $validated = $request->validate([
+            'brand_ids' => ['required', 'array'],
+            'brand_ids.*' => ['integer', 'exists:brands,id'],
+        ]);
+
+        $brands = Brand::whereIn('id', $validated['brand_ids'])->get();
+
+        foreach ($brands as $brand) {
+            if ($brand->logo) {
+                $disk = Storage::disk('public');
+                if ($disk->exists($brand->logo)) {
+                    $disk->delete($brand->logo);
+                }
+            }
+        }
+
+        $count = Brand::whereIn('id', $validated['brand_ids'])->delete();
+
+        return redirect()->route('admin.brands.index')
+            ->with('success', "$count brands deleted successfully.");
     }
 }

@@ -56,8 +56,8 @@
                             class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
                             required>
                             <option value="">Select Category</option>
-                            @foreach ($categories as $category)
-                                <option value="{{ $category->id }}" {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                            @foreach ($categories as $categoryOption)
+                                <option value="{{ $categoryOption['id'] }}" {{ old('category_id', $product->category_id) == $categoryOption['id'] ? 'selected' : '' }}>{{ $categoryOption['name'] }}</option>
                             @endforeach
                         </select>
                         @error('category_id')
@@ -217,8 +217,8 @@
     </div>
 
     @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+    <script type="text/turbo-script">
+        {
             const nameInput = document.getElementById('name');
             const slugInput = document.getElementById('slug');
             const imagesInput = document.getElementById('images');
@@ -255,7 +255,7 @@
                     });
                 }
             });
-        });
+        }
     </script>
     @endpush
 @endsection

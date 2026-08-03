@@ -138,7 +138,7 @@
     </div>
 
     @push('scripts')
-    <script>
+    <script type="text/turbo-script">
         document.getElementById('select-all')?.addEventListener('change', function() {
             document.querySelectorAll('.product-cb').forEach(cb => cb.checked = this.checked);
         });

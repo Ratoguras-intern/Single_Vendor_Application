@@ -55,7 +55,7 @@ class BannerController extends Controller
     public function store(Request $request)
     {
         $positions = implode(',', config('banners.positions'));
-        $validated = $request->validate([
+        $validated = $request->validate(array_merge([
             'title' => 'nullable|string|max:255',
             'subtitle' => 'nullable|string|max:255',
             'description' => 'nullable|string',
@@ -68,6 +68,7 @@ class BannerController extends Controller
             'badge' => 'nullable|string|max:255',
             'badge_color' => 'nullable|string|max:255',
             'text_alignment' => 'nullable|in:left,center,right',
+            'image_position' => 'nullable|in:center,top,bottom,left,right,left top,right top,left bottom,right bottom,center center,top center,bottom center,center left,center right,top left,top right,bottom left,bottom right',
             'overlay_opacity' => 'nullable|integer|min:0|max:100',
             'text_color' => 'nullable|string|max:50',
             'show_countdown' => 'nullable|boolean',
@@ -78,7 +79,7 @@ class BannerController extends Controller
             'sort_order' => 'nullable|integer|min:0',
             'starts_at' => 'nullable|date',
             'ends_at' => 'nullable|date|after_or_equal:starts_at',
-        ]);
+        ], $this->displayRules()));
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('banners', 'public');
@@ -93,7 +94,7 @@ class BannerController extends Controller
         $validated['is_enabled'] = $request->boolean('is_enabled');
         $validated['show_countdown'] = $request->boolean('show_countdown');
 
-        Banner::create($validated);
+        Banner::create($this->packDisplaySettings($validated));
         Banner::clearCache();
 
         return redirect()->route('admin.banners.index')
@@ -115,7 +116,7 @@ class BannerController extends Controller
     public function update(Request $request, Banner $banner)
     {
         $positions = implode(',', config('banners.positions'));
-        $validated = $request->validate([
+        $validated = $request->validate(array_merge([
             'title' => 'nullable|string|max:255',
             'subtitle' => 'nullable|string|max:255',
             'description' => 'nullable|string',
@@ -128,6 +129,7 @@ class BannerController extends Controller
             'badge' => 'nullable|string|max:255',
             'badge_color' => 'nullable|string|max:255',
             'text_alignment' => 'nullable|in:left,center,right',
+            'image_position' => 'nullable|in:center,top,bottom,left,right,left top,right top,left bottom,right bottom,center center,top center,bottom center,center left,center right,top left,top right,bottom left,bottom right',
             'overlay_opacity' => 'nullable|integer|min:0|max:100',
             'text_color' => 'nullable|string|max:50',
             'show_countdown' => 'nullable|boolean',
@@ -138,7 +140,7 @@ class BannerController extends Controller
             'sort_order' => 'nullable|integer|min:0',
             'starts_at' => 'nullable|date',
             'ends_at' => 'nullable|date|after_or_equal:starts_at',
-        ]);
+        ], $this->displayRules()));
 
         if ($request->boolean('remove_image')) {
             if ($banner->image && Storage::disk('public')->exists($banner->image)) {
@@ -169,7 +171,7 @@ class BannerController extends Controller
         $validated['is_enabled'] = $request->boolean('is_enabled');
         $validated['show_countdown'] = $request->boolean('show_countdown');
 
-        $banner->update($validated);
+        $banner->update($this->packDisplaySettings($validated));
         Banner::clearCache();
 
         return redirect()->route('admin.banners.index')
@@ -230,6 +232,67 @@ class BannerController extends Controller
         Banner::clearCache();
 
         return response()->json(['message' => 'Sort order updated.']);
+    }
+
+    protected function displayRules(): array
+    {
+        return [
+            'image_fit' => 'nullable|in:cover,contain,fill,none,scale-down',
+            'image_repeat' => 'nullable|in:no-repeat,repeat,repeat-x,repeat-y',
+            'banner_height' => 'nullable|in:small,medium,large,xlarge,full_screen,custom',
+            'banner_height_custom' => 'nullable|integer|min:50|max:2000',
+            'overlay_enabled' => 'nullable|boolean',
+            'overlay_color' => 'nullable|string|regex:/^#[0-9a-fA-F]{6}$/',
+            'content_vertical' => 'nullable|in:top,center,bottom',
+            'border_radius' => 'nullable|in:none,small,medium,large,xlarge,custom',
+            'border_radius_custom' => 'nullable|integer|min:0|max:200',
+            'padding_top' => 'nullable|integer|min:0|max:200',
+            'padding_bottom' => 'nullable|integer|min:0|max:200',
+            'padding_left' => 'nullable|integer|min:0|max:200',
+            'padding_right' => 'nullable|integer|min:0|max:200',
+            'margin_top' => 'nullable|integer|min:0|max:200',
+            'margin_bottom' => 'nullable|integer|min:0|max:200',
+            'zoom' => 'nullable|integer|min:50|max:200',
+            'brightness' => 'nullable|integer|min:0|max:200',
+            'contrast' => 'nullable|integer|min:0|max:200',
+            'saturation' => 'nullable|integer|min:0|max:200',
+            'blur' => 'nullable|integer|min:0|max:20',
+            'grayscale' => 'nullable|boolean',
+            'text_width' => 'nullable|in:narrow,medium,wide,full',
+            'show_desktop' => 'nullable|boolean',
+            'show_tablet' => 'nullable|boolean',
+            'show_mobile' => 'nullable|boolean',
+        ];
+    }
+
+    protected function packDisplaySettings(array $validated): array
+    {
+        $displayKeys = [
+            'image_fit', 'image_repeat',
+            'banner_height', 'banner_height_custom',
+            'overlay_enabled', 'overlay_color',
+            'content_vertical', 'border_radius', 'border_radius_custom',
+            'padding_top', 'padding_bottom', 'padding_left', 'padding_right',
+            'margin_top', 'margin_bottom',
+            'zoom', 'brightness', 'contrast', 'saturation', 'blur', 'grayscale',
+            'text_width', 'show_desktop', 'show_tablet', 'show_mobile',
+        ];
+
+        $display = array_intersect_key($validated, array_flip($displayKeys));
+
+        foreach (['overlay_enabled', 'grayscale', 'show_desktop', 'show_tablet', 'show_mobile'] as $booleanKey) {
+            if (array_key_exists($booleanKey, $display)) {
+                $display[$booleanKey] = (bool) ($display[$booleanKey] ?? false);
+            }
+        }
+
+        if (empty($display)) {
+            return $validated;
+        }
+
+        $validated['style_settings'] = $display;
+
+        return array_diff_key($validated, array_flip($displayKeys));
     }
 
     protected function processImage(string $path, int $maxWidth, ?int $maxHeight = null, bool $crop = false): void

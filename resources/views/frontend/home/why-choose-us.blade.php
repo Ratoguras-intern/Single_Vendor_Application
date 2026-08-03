@@ -4,14 +4,14 @@
 @endphp
 
 @if(!empty($features))
-<section class="py-12 sm:py-16 lg:py-20">
+<section class="home-section">
     <div class="section">
-        <div class="text-center mb-12">
+        <div class="text-center mb-6">
             <h2 class="section-heading">{{ $section?->title ?? 'Why Choose Us' }}</h2>
             <p class="section-subheading">{{ $section?->subtitle ?? "We're committed to delivering the best experience" }}</p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             @foreach($features as $feature)
                 <div class="card-hover text-center group">
                     <div class="h-14 w-14 rounded-full bg-primary-50 dark:bg-primary-950/30 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary-100 dark:group-hover:bg-primary-950/30 transition-colors">

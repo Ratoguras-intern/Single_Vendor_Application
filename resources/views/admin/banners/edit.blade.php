@@ -13,15 +13,16 @@
         <h2 class="text-xl font-bold text-gray-800 dark:text-white">Edit Banner</h2>
     </div>
 
-    <div x-data="{ tab: 'content' }" class="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+    <div x-data="{ tab: 'content', tabs: ['content','images','buttons','schedule','targeting','display','style'], nextTab() { const i = this.tabs.indexOf(this.tab); if (i < this.tabs.length - 1) { this.tab = this.tabs[i + 1]; } } }" class="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div class="border-b border-gray-200 dark:border-gray-800">
-            <nav class="flex gap-0 px-6" role="tablist">
-                <button @click="tab = 'content'" :class="tab === 'content' ? 'border-brand-500 text-brand-600 dark:text-brand-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'" class="px-4 py-3 text-sm font-medium border-b-2 transition-colors">Content</button>
-                <button @click="tab = 'images'" :class="tab === 'images' ? 'border-brand-500 text-brand-600 dark:text-brand-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'" class="px-4 py-3 text-sm font-medium border-b-2 transition-colors">Images</button>
-                <button @click="tab = 'buttons'" :class="tab === 'buttons' ? 'border-brand-500 text-brand-600 dark:text-brand-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'" class="px-4 py-3 text-sm font-medium border-b-2 transition-colors">Buttons</button>
-                <button @click="tab = 'schedule'" :class="tab === 'schedule' ? 'border-brand-500 text-brand-600 dark:text-brand-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'" class="px-4 py-3 text-sm font-medium border-b-2 transition-colors">Schedule</button>
-                <button @click="tab = 'targeting'" :class="tab === 'targeting' ? 'border-brand-500 text-brand-600 dark:text-brand-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'" class="px-4 py-3 text-sm font-medium border-b-2 transition-colors">Targeting</button>
-                <button @click="tab = 'style'" :class="tab === 'style' ? 'border-brand-500 text-brand-600 dark:text-brand-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'" class="px-4 py-3 text-sm font-medium border-b-2 transition-colors">Style</button>
+            <nav class="flex flex-wrap gap-0 px-6" role="tablist">
+                <button @click="tab = 'content'" :class="tab === 'content' ? 'border-brand-500 text-brand-600 dark:text-brand-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'" class="px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap">Content</button>
+                <button @click="tab = 'images'" :class="tab === 'images' ? 'border-brand-500 text-brand-600 dark:text-brand-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'" class="px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap">Images</button>
+                <button @click="tab = 'buttons'" :class="tab === 'buttons' ? 'border-brand-500 text-brand-600 dark:text-brand-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'" class="px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap">Buttons</button>
+                <button @click="tab = 'schedule'" :class="tab === 'schedule' ? 'border-brand-500 text-brand-600 dark:text-brand-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'" class="px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap">Schedule</button>
+                <button @click="tab = 'targeting'" :class="tab === 'targeting' ? 'border-brand-500 text-brand-600 dark:text-brand-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'" class="px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap">Targeting</button>
+                <button @click="tab = 'display'" :class="tab === 'display' ? 'border-brand-500 text-brand-600 dark:text-brand-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'" class="px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap">Display</button>
+                <button @click="tab = 'style'" :class="tab === 'style' ? 'border-brand-500 text-brand-600 dark:text-brand-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'" class="px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap">Style</button>
             </nav>
         </div>
 
@@ -181,9 +182,13 @@
                     </div>
                 </div>
 
+                <div x-show="tab === 'display'" x-cloak>
+                    @include('admin.banners._display_settings')
+                </div>
+
                 <div x-show="tab === 'style'" x-cloak>
                     <div class="space-y-5">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
                                 <label for="badge" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Badge Text</label>
                                 <input type="text" name="badge" id="badge" value="{{ old('badge', $banner->badge ?? 'NEW') }}" placeholder="NEW"
@@ -201,23 +206,8 @@
                                     <option value="bg-pink-500" {{ old('badge_color', $banner->badge_color) === 'bg-pink-500' ? 'selected' : '' }}>Pink</option>
                                 </select>
                             </div>
-                            <div>
-                                <label for="text_alignment" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Text Alignment</label>
-                                <select name="text_alignment" id="text_alignment"
-                                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
-                                    <option value="left" {{ old('text_alignment', $banner->text_alignment ?? 'left') === 'left' ? 'selected' : '' }}>Left</option>
-                                    <option value="center" {{ old('text_alignment', $banner->text_alignment) === 'center' ? 'selected' : '' }}>Center</option>
-                                    <option value="right" {{ old('text_alignment', $banner->text_alignment) === 'right' ? 'selected' : '' }}>Right</option>
-                                </select>
-                            </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                            <div>
-                                <label for="overlay_opacity" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Overlay Opacity (%)</label>
-                                <input type="number" name="overlay_opacity" id="overlay_opacity" value="{{ old('overlay_opacity', $banner->overlay_opacity ?? 40) }}" min="0" max="100"
-                                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
-                                <p class="mt-1 text-xs text-gray-400">0 = no overlay, 100 = fully dark</p>
-                            </div>
                             <div>
                                 <label for="text_color" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Text Color</label>
                                 <select name="text_color" id="text_color"
@@ -244,14 +234,15 @@
             </div>
 
             <div class="flex items-center gap-3 border-t border-gray-200 dark:border-gray-800 px-6 py-4">
-                <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600">Save Changes</button>
+                <button type="submit" x-show="tab === 'style'" x-cloak class="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600">Save Changes</button>
+                <button type="button" x-show="tab !== 'style'" @click="nextTab()" class="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600">Next</button>
                 <a href="{{ route('admin.banners.index') }}" class="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.03]">Cancel</a>
             </div>
         </form>
     </div>
 
     @push('scripts')
-    <script>
+    <script type="text/turbo-script">
         ['image', 'mobile_image'].forEach(function(id) {
             document.getElementById(id)?.addEventListener('change', function() {
                 const previewId = id === 'image' ? 'preview-img' : 'preview-mobile-img';
@@ -261,6 +252,9 @@
                     reader.onload = function(e) {
                         document.getElementById(previewId).src = e.target.result;
                         document.getElementById(containerId).classList.remove('hidden');
+                        if (id === 'image') {
+                            window.dispatchEvent(new CustomEvent('banner-preview-src', { detail: e.target.result }));
+                        }
                     };
                     reader.readAsDataURL(this.files[0]);
                 }

@@ -57,7 +57,7 @@
                     </button>
                     <div x-show="open" x-collapse class="ml-4 space-y-0.5">
                         @include('frontend.partials.category-tree', [
-                            'categories' => $category->children->filter(fn($c) => $c->status ?? true),
+                            'categories' => $category->children->filter(fn($c) => $c->status === 'active'),
                             'level' => $level + 1,
                             'context' => 'mobile',
                             'activeCategory' => $activeCategory,

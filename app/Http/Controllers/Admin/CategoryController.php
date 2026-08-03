@@ -214,6 +214,30 @@ class CategoryController extends Controller
             ->with('success', 'Category deleted successfully.');
     }
 
+    public function bulkDestroy(Request $request)
+    {
+        $validated = $request->validate([
+            'category_ids' => ['required', 'array'],
+            'category_ids.*' => ['integer', 'exists:categories,id'],
+        ]);
+
+        $categories = Category::withCount('children')->whereIn('id', $validated['category_ids'])->get();
+
+        if ($categories->contains(fn ($category) => $category->children_count > 0)) {
+            return response()->json([
+                'message' => 'Cannot delete categories with subcategories. Remove subcategories first.',
+            ], 422);
+        }
+
+        Category::whereIn('id', $validated['category_ids'])->delete();
+        Cache::forget('frontend_categories');
+
+        $count = count($validated['category_ids']);
+
+        return redirect()->route('admin.categories.index')
+            ->with('success', "$count categories deleted successfully.");
+    }
+
     public function restore($id)
     {
         $category = Category::onlyTrashed()->findOrFail($id);

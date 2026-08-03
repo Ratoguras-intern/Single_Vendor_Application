@@ -49,7 +49,7 @@
             </button>
 
             <!-- Logo (mobile only) -->
-            <a href="/" class="xl:hidden">
+            <a href="/" data-turbo="false" class="xl:hidden">
                 <x-brand-logo :showText="false" />
             </a>
 

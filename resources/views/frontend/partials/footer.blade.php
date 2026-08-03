@@ -28,7 +28,7 @@
 
 <footer class="border-t border-secondary-200 bg-white dark:border-secondary-700 dark:bg-secondary-900">
     <div class="section">
-        <div class="py-12">
+        <div class="py-10">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
                 <div class="lg:col-span-2">
                     <div class="mb-5">
@@ -90,7 +90,7 @@
 
         <div class="divider"></div>
 
-        <div class="py-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="py-5 flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
                 <div class="flex items-center gap-2 text-sm text-secondary-500 dark:text-secondary-400">
                     <span>&copy; {{ date('Y') }} {{ $companyName }}&trade;. {{ $copyrightText }}</span>

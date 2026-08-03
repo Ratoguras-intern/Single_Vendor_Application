@@ -302,7 +302,7 @@ document.addEventListener('alpine:init', () => {
 });
 
 // Scroll reveal — CSS-only via .animate-in class (no JS opacity hack)
-document.addEventListener('DOMContentLoaded', () => {
+function initScrollReveal() {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -317,5 +317,13 @@ document.addEventListener('DOMContentLoaded', () => {
             observer.observe(el);
         }
     });
+}
+
+document.addEventListener('DOMContentLoaded', initScrollReveal);
+document.addEventListener('livewire:navigated', () => {
+    initScrollReveal();
+    const i18n = Alpine.store('i18n');
+    if (i18n) i18n.applyToDOM();
 });
+
 </script>

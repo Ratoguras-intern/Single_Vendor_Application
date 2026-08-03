@@ -104,16 +104,22 @@ Route::middleware(['auth', 'admin'])
     ->name('admin.')
     ->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::delete('/categories/bulk-destroy', [CategoryController::class, 'bulkDestroy'])->name('categories.bulkDestroy');
         Route::resource('categories', CategoryController::class);
         Route::patch('/categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])->name('categories.toggleStatus');
         Route::patch('/categories/{category}/toggle-featured', [CategoryController::class, 'toggleFeatured'])->name('categories.toggleFeatured');
         Route::patch('/categories/order', [CategoryController::class, 'updateOrder'])->name('categories.updateOrder');
         Route::patch('/categories/{id}/restore', [CategoryController::class, 'restore'])->name('categories.restore');
+        Route::delete('/brands/bulk-destroy', [BrandController::class, 'bulkDestroy'])->name('brands.bulkDestroy');
+        Route::patch('/brands/{brand}/toggle-status', [BrandController::class, 'toggleStatus'])->name('brands.toggleStatus');
         Route::resource('brands', BrandController::class);
         Route::patch('/products/{product}/toggle-flag/{flag}', [ProductController::class, 'toggleFlag'])->name('products.toggleFlag');
+        Route::patch('/products/{product}/toggle-status', [ProductController::class, 'toggleStatus'])->name('products.toggleStatus');
+        Route::delete('/products/bulk-destroy', [ProductController::class, 'bulkDestroy'])->name('products.bulkDestroy');
         Route::resource('products', ProductController::class);
         Route::resource('orders', OrderController::class)->only(['index', 'show']);
         Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+        Route::delete('/customers/bulk-destroy', [CustomerController::class, 'bulkDestroy'])->name('customers.bulkDestroy');
         Route::resource('customers', CustomerController::class)->only(['index', 'show', 'destroy']);
         Route::get('/customers/{customer}/orders', [CustomerController::class, 'orders'])->name('customers.orders');
 

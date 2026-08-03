@@ -129,6 +129,14 @@
         @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
     }
 
+    .home-section {
+        @apply py-8 sm:py-10 lg:py-12;
+    }
+
+    .home-section--alt {
+        @apply bg-white dark:bg-secondary-900;
+    }
+
     .section-heading {
         @apply text-2xl sm:text-3xl font-bold text-secondary-900 tracking-tight;
     }
@@ -191,16 +199,11 @@
         inset: 0;
         background-size: cover;
         background-repeat: no-repeat;
-        background-position: center 35%;
+        background-position: center;
     }
     .hero-slide-bg.ken-burns {
         animation: ken-burns 6s ease-out both;
         will-change: transform;
-    }
-    @media (max-width: 640px) {
-        .hero-slide-bg {
-            background-position: center 30%;
-        }
     }
 
     .countdown-unit {

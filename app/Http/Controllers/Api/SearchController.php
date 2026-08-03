@@ -83,6 +83,13 @@ class SearchController extends Controller
 
     private function popularSearches(): array
     {
-        return ['Shoes', 'T-Shirt', 'Jacket', 'Electronics', 'Watch', 'Sunglasses'];
+        return \App\Models\Category::query()
+            ->where('status', true)
+            ->withCount(['products' => fn ($q) => $q->where('status', true)])
+            ->orderByDesc('products_count')
+            ->orderBy('name')
+            ->limit(6)
+            ->pluck('name')
+            ->all();
     }
 }

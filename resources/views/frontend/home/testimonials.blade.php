@@ -4,14 +4,14 @@
 @endphp
 
 @if(!empty($testimonialItems))
-<section class="py-12 sm:py-16 lg:py-20">
+<section class="home-section">
     <div class="section">
-        <div class="text-center mb-12">
+        <div class="text-center mb-6">
             <h2 class="section-heading">{{ $section?->title ?? 'What Our Customers Say' }}</h2>
             <p class="section-subheading">{{ $section?->subtitle ?? 'Real reviews from real people' }}</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             @foreach($testimonialItems as $testimonial)
                 <div class="testimonial-card">
                     <div class="flex items-center gap-1 mb-4">

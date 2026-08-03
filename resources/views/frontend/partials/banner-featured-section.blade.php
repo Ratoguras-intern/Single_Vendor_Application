@@ -3,12 +3,14 @@
         @php
             $textColor = $banner->text_color ?? 'text-white';
             $alignClass = $banner->text_alignment_class;
-            $overlayRatio = $banner->overlay_opacity !== null ? $banner->overlay_opacity / 100 : null;
-            $overlayStyle = $overlayRatio !== null ? "rgba(0,0,0,{$overlayRatio})" : null;
             $autoHide = $banner->show_countdown && $banner->ends_at ? 'true' : 'false';
             $endDate = $banner->ends_at?->toIso8601String();
+            $verticalClass = $banner->content_vertical === 'top' ? 'items-start' : ($banner->content_vertical === 'bottom' ? 'items-end' : 'items-center');
+            $tileStyle = trim($banner->banner_height_css . ' ' . $banner->border_radius_css);
+            $textWidthStyle = $banner->text_width_css;
+            $visibility = $banner->visibility_classes;
         @endphp
-        <section class="py-8 sm:py-10 lg:py-12 border-t border-secondary-200 dark:border-secondary-800"
+        <section class="py-4 sm:py-6 lg:py-8 border-t border-secondary-200 dark:border-secondary-800 {{ $visibility }}" @if($banner->section_margin_css) style="{{ $banner->section_margin_css }}" @endif
             x-data="bannerCountdown('{{ $endDate }}', {{ $autoHide }})"
             x-init="init()"
             x-show="show"
@@ -16,16 +18,18 @@
             x-transition:leave-start="opacity-100 scale-100"
             x-transition:leave-end="opacity-0 scale-95">
             <div class="section">
-                <a href="{{ $banner->link ?? '#' }}" class="group relative block w-full overflow-hidden rounded-card bg-secondary-900 min-h-[200px] sm:min-h-[250px] lg:min-h-[300px]">
+                <a href="{{ $banner->link ?? '#' }}" class="group relative block w-full overflow-hidden rounded-card bg-secondary-900 min-h-[200px] sm:min-h-[250px] lg:min-h-[300px]" @if($tileStyle) style="{{ $tileStyle }}" @endif>
                     @if($banner->image_url)
-                        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105 hidden md:block" loading="lazy">
+                        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full transition-transform duration-500 group-hover:scale-105 hidden md:block" style="{{ $banner->image_css }}" loading="lazy">
                     @endif
                     @if($banner->mobile_image_url)
-                        <img src="{{ $banner->mobile_image_url }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105 md:hidden" loading="lazy">
+                        <img src="{{ $banner->mobile_image_url }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full transition-transform duration-500 group-hover:scale-105 md:hidden" style="{{ $banner->image_css }}" loading="lazy">
                     @endif
-                    <div class="absolute inset-0" @if($overlayStyle) style="background: linear-gradient(to left, {{ $overlayStyle }} 40%, transparent 100%);" @else class="absolute inset-0 bg-gradient-to-l from-black/60 via-black/20 to-transparent" @endif></div>
-                    <div class="relative h-full flex items-center px-6 sm:px-10 lg:px-14 py-8 sm:py-10 {{ $banner->text_alignment === 'right' ? 'justify-start' : ($banner->text_alignment === 'center' ? 'justify-center' : 'justify-end') }}">
-                        <div class="max-w-xl flex flex-col {{ $alignClass }}">
+                    @if($banner->overlay_enabled)
+                        <div class="absolute inset-0" style="background: linear-gradient(to left, {{ $banner->overlay_rgba }} 40%, transparent 100%);"></div>
+                    @endif
+                    <div class="relative h-full flex {{ $verticalClass }} px-6 sm:px-10 lg:px-14 py-8 sm:py-10 {{ $banner->text_alignment === 'right' ? 'justify-start' : ($banner->text_alignment === 'center' ? 'justify-center' : 'justify-end') }}" @if($banner->content_padding_css) style="{{ $banner->content_padding_css }}" @endif>
+                        <div class="max-w-xl flex flex-col {{ $alignClass }}" @if($textWidthStyle) style="{{ $textWidthStyle }}" @endif>
                             @if($banner->badge)
                                 <span class="inline-flex items-center rounded-full {{ $banner->badge_color ?? 'bg-primary-500' }} px-3 py-1 mb-3 {{ $banner->text_alignment === 'center' ? 'mx-auto' : '' }} {{ $banner->text_alignment === 'right' ? 'ml-auto mr-0' : 'ml-0 mr-auto' }}">
                                     <span class="text-xs font-bold text-white tracking-wider">{{ $banner->badge }}</span>

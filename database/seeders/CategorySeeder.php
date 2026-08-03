@@ -74,7 +74,7 @@ class CategorySeeder extends Seeder
                 'description' => $data['description'],
                 'sort_order' => $data['sort_order'],
                 'featured' => $data['featured'],
-                'status' => true,
+                'status' => 'active',
                 'seo_title' => "Shop {$name} | NBK Vertex",
                 'seo_description' => "Browse our {$name} collection at NBK Vertex.",
             ]);
@@ -87,7 +87,7 @@ class CategorySeeder extends Seeder
                     'parent_id' => $parent->id,
                     'sort_order' => $sub['sort_order'],
                     'featured' => false,
-                    'status' => true,
+                    'status' => 'active',
                 ]);
             }
         }

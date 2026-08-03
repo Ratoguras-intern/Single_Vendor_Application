@@ -4,9 +4,9 @@
 @endphp
 
 @if(!empty($trustItems))
-<section class="py-8 border-b border-secondary-100 dark:border-secondary-700/50 bg-white dark:bg-secondary-900">
+<section class="py-5 border-b border-secondary-100 dark:border-secondary-700/50 bg-white dark:bg-secondary-900">
     <div class="section">
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
             @foreach($trustItems as $item)
                 <div class="flex items-center gap-4">
                     <div class="flex-shrink-0 h-12 w-12 rounded-full bg-primary-50 dark:bg-primary-950/30 flex items-center justify-center">

@@ -109,8 +109,8 @@
                                 <a href="{{ route('admin.categories.show', $child) }}" class="text-sm font-medium text-gray-800 dark:text-white hover:text-brand-500">{{ $child->name }}</a>
                                 <p class="text-xs text-gray-500 dark:text-gray-400">{{ $child->products_count ?? 0 }} products</p>
                             </div>
-                            <span class="inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium {{ $child->status ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400' }}">
-                                {{ $child->status ? 'Active' : 'Inactive' }}
+                            <span class="inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium {{ $child->status === 'active' ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400' }}">
+                                {{ $child->status === 'active' ? 'Active' : 'Inactive' }}
                             </span>
                             @if($child->featured)
                                 <span class="inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">Featured</span>

@@ -108,7 +108,7 @@
 @endsection
 
 @push('scripts')
-<script>
+<script type="text/turbo-script">
 function sectionForm() {
     return {
         slides: @json($section->config['slides'] ?? []),

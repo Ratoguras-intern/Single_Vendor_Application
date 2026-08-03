@@ -75,6 +75,81 @@
         </form>
     </div>
 
+    @if (request('view') === 'flat')
+        <div class="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-gray-200 dark:border-gray-800">
+                            <th class="px-5 py-3 text-left"><input type="checkbox" id="select-all" class="rounded border-gray-300 text-brand-500 focus:ring-brand-500"></th>
+                            <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">#</th>
+                            <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Name</th>
+                            <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Slug</th>
+                            <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Parent</th>
+                            <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Status</th>
+                            <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                        @forelse ($categories as $category)
+                            <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02]">
+                                <td class="px-5 py-4"><input type="checkbox" name="category_ids[]" value="{{ $category->id }}" class="category-cb rounded border-gray-300 text-brand-500 focus:ring-brand-500"></td>
+                                <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $category->id }}</td>
+                                <td class="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white">
+                                    <a href="{{ route('admin.categories.show', $category) }}" class="hover:text-brand-500">{{ $category->name }}</a>
+                                </td>
+                                <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $category->slug }}</td>
+                                <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $category->parent->name ?? '-' }}</td>
+                                <td class="px-5 py-4">
+                                    <span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium
+                                        {{ $category->status === 'active' ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400' }}">
+                                        {{ $category->status === 'active' ? 'Active' : 'Inactive' }}
+                                    </span>
+                                </td>
+                                <td class="px-5 py-4">
+                                    <div class="flex items-center gap-2">
+                                        <a href="{{ route('admin.categories.edit', $category) }}" class="text-brand-500 hover:text-brand-600">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                        </a>
+                                        <form action="{{ route('admin.categories.destroy', $category) }}" method="POST" onsubmit="return confirm('Are you sure?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-500 hover:text-red-600">
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 6H21M19 6V20C19 21.1 18.1 22 17 22H7C5.9 22 5 21.1 5 20V6M8 6V4C8 2.9 8.9 2 10 2H14C15.1 2 16 2.9 16 4V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="px-5 py-12 text-center">
+                                    <div class="flex flex-col items-center">
+                                        <div class="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-gray-400"><path d="M9.10927 2.55078H5.09927C3.89927 2.55078 2.91927 3.53078 2.91927 4.73078V8.74078C2.91927 9.94078 3.89927 10.9208 5.09927 10.9208H9.10927C10.3093 10.9208 11.2893 9.94078 11.2893 8.74078V4.73078C11.2893 3.53078 10.3093 2.55078 9.10927 2.55078Z" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.10927 13.0808H5.09927C3.89927 13.0808 2.91927 14.0608 2.91927 15.2608V19.2708C2.91927 20.4708 3.89927 21.4508 5.09927 21.4508H9.10927C10.3093 21.4508 11.2893 20.4708 11.2893 19.2708V15.2608C11.2893 14.0608 10.3093 13.0808 9.10927 13.0808Z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                        </div>
+                                        <p class="text-sm font-medium text-gray-800 dark:text-white mb-1">No categories found</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">Create a category to organize your products.</p>
+                                        <a href="{{ route('admin.categories.create') }}" class="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5V19M5 12H19"/></svg>
+                                            Add Category
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex items-center justify-between border-t border-gray-200 px-5 py-3 dark:border-gray-800">
+                <button type="button" onclick="bulkDeleteCategories()" class="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6H21M19 6V20C19 21.1 18.1 22 17 22H7C5.9 22 5 21.1 5 20V6M8 6V4C8 2.9 8.9 2 10 2H14C15.1 2 16 2.9 16 4V6"/></svg>
+                    Delete Selected
+                </button>
+                {{ $categories->links() }}
+            </div>
+        </div>
+    @else
     {{-- Tree View --}}
     <div class="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div class="p-4 border-b border-gray-200 dark:border-gray-800">
@@ -85,7 +160,7 @@
                 @php
                     $filteredChildren = $category->children;
                     if (request('status')) {
-                        $filteredChildren = $filteredChildren->filter(fn($c) => $c->status === (request('status') === 'active'));
+                        $filteredChildren = $filteredChildren->filter(fn($c) => $c->status === (request('status') === 'active' ? 'active' : 'inactive'));
                     }
                     if (request('featured')) {
                         $filteredChildren = $filteredChildren->filter(fn($c) => $c->featured === request()->boolean('featured'));
@@ -117,8 +192,8 @@
                                 @if($category->featured)
                                     <span class="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">Featured</span>
                                 @endif
-                                <span class="inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium {{ $category->status ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400' }}">
-                                    {{ $category->status ? 'Active' : 'Inactive' }}
+                                <span class="inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium {{ $category->status === 'active' ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400' }}">
+                                    {{ $category->status === 'active' ? 'Active' : 'Inactive' }}
                                 </span>
                             </div>
                             <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $category->slug }} @if($category->parent) &middot; Parent: {{ $category->parent->name }} @endif</p>
@@ -126,8 +201,8 @@
 
                         <div class="flex items-center gap-1.5 shrink-0">
                             <button x-on:click.stop="toggleStatus({{ $category->id }}, this)"
-                                class="p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors {{ $category->status ? 'text-green-500' : 'text-gray-400' }}"
-                                title="{{ $category->status ? 'Deactivate' : 'Activate' }}">
+                                class="p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors {{ $category->status === 'active' ? 'text-green-500' : 'text-gray-400' }}"
+                                title="{{ $category->status === 'active' ? 'Deactivate' : 'Activate' }}">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/></svg>
                             </button>
                             <button x-on:click.stop="toggleFeatured({{ $category->id }}, this)"
@@ -168,8 +243,8 @@
                                         </div>
 
                                         <div class="flex items-center gap-1.5 shrink-0">
-                                            <span class="inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium {{ $child->status ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400' }}">
-                                                {{ $child->status ? 'Active' : 'Inactive' }}
+                                            <span class="inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium {{ $child->status === 'active' ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400' }}">
+                                                {{ $child->status === 'active' ? 'Active' : 'Inactive' }}
                                             </span>
                                             <button x-on:click.stop="toggleFeatured({{ $child->id }}, this)"
                                                 class="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors {{ $child->featured ? 'text-amber-500' : 'text-gray-400' }}"
@@ -208,15 +283,16 @@
             @endforelse
         </div>
     </div>
+    @endif
 
     @push('scripts')
-    <script>
+    <script type="text/turbo-script">
         function toggleStatus(id, el) {
             fetch(`/admin/categories/${id}/toggle-status`, {
                 method: 'PATCH',
                 headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' },
             }).then(r => r.json()).then(data => {
-                location.reload();
+                Turbo.visit(location.href, { action: 'replace' });
             });
         }
 
@@ -225,8 +301,41 @@
                 method: 'PATCH',
                 headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' },
             }).then(r => r.json()).then(data => {
-                location.reload();
+                Turbo.visit(location.href, { action: 'replace' });
             });
+        }
+
+        document.getElementById('select-all')?.addEventListener('change', function() {
+            document.querySelectorAll('.category-cb').forEach(cb => cb.checked = this.checked);
+        });
+
+        function bulkDeleteCategories() {
+            const ids = [...document.querySelectorAll('.category-cb:checked')].map(cb => cb.value);
+
+            if (ids.length === 0) {
+                alert('Please select at least one category.');
+                return;
+            }
+
+            if (!confirm(`Delete ${ids.length} selected category(s)?`)) {
+                return;
+            }
+
+            fetch('{{ route('admin.categories.bulkDestroy') }}', {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ category_ids: ids }),
+            }).then(async r => {
+                if (!r.ok) {
+                    const data = await r.json().catch(() => ({}));
+                    throw new Error(data.message || 'Failed to delete categories.');
+                }
+                Turbo.visit(location.href, { action: 'replace' });
+            }).catch(err => alert(err.message));
         }
     </script>
     @endpush

@@ -37,7 +37,7 @@ class ProductSeeder extends Seeder
                 'sku' => strtoupper(Str::slug($item['name'], '-')).'-'.$item['id'],
                 'category_id' => $category->id,
                 'brand_id' => $brand?->id ?? 1,
-                'status' => true,
+                'status' => 'active',
             ]);
         }
     }

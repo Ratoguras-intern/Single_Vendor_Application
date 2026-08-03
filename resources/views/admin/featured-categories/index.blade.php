@@ -107,12 +107,12 @@
     </div>
 
     @push('scripts')
-    <script>
+    <script type="text/turbo-script">
         function toggleCategory(id) {
             fetch(`/admin/featured-categories/${id}/toggle`, {
                 method: 'PATCH',
                 headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' }
-            }).then(r => r.json()).then(() => location.reload());
+            }).then(r => r.json()).then(() => Turbo.visit(location.href, { action: 'replace' }));
         }
 
         function updateStyle(id, style) {

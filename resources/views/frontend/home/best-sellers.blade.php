@@ -3,9 +3,9 @@
 @endphp
 
 @if(!empty($bestSellers) && count($bestSellers) > 0)
-<section class="py-12 sm:py-16 lg:py-20 bg-white dark:bg-secondary-900">
+<section class="home-section home-section--alt">
     <div class="section">
-        <div class="flex items-end justify-between mb-10">
+        <div class="flex items-end justify-between mb-6">
             <div>
                 <h2 class="section-heading">{{ $section?->title ?? 'Best Sellers' }}</h2>
                 <p class="section-subheading">{{ $section?->subtitle ?? 'Most popular picks from our customers' }}</p>
@@ -16,7 +16,7 @@
             </a>
         </div>
 
-        <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             @foreach(array_slice($bestSellers, 0, $section?->max_products ?? 8) as $product)
                 @include('frontend.partials.product-card', ['product' => $product])
             @endforeach

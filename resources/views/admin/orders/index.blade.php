@@ -146,7 +146,7 @@
     </div>
 
     @push('scripts')
-        <script>
+        <script type="text/turbo-script">
             function orderActions(orderId, status, paymentStatus) {
                 return {
                     currentStatus: status,

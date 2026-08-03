@@ -22,7 +22,7 @@ class BrandSeeder extends Seeder
             Brand::firstOrCreate([
                 'name' => $name,
                 'slug' => Str::slug($name),
-                'status' => true,
+                'status' => 'active',
             ]);
         }
     }

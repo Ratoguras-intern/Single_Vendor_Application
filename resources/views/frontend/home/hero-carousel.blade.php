@@ -5,7 +5,7 @@
 
     if (empty($staticSlides)) {
         $staticSlides = [
-            ['badge' => 'NEW', 'badge_color' => 'bg-green-500', 'heading' => 'Step Into Style', 'description' => 'Discover our latest collection.', 'image' => 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1920&q=80', 'mobile_image' => null, 'text_alignment' => 'left', 'text_alignment_class' => 'text-left items-start', 'text_color' => 'text-white', 'overlay_opacity' => 40, 'show_countdown' => false, 'ends_at' => null, 'cta_primary' => 'Shop Now', 'cta_secondary' => 'Learn More', 'link_primary' => '/shop', 'link_secondary' => '/about'],
+            ['badge' => 'NEW', 'badge_color' => 'bg-green-500', 'heading' => 'Step Into Style', 'description' => 'Discover our latest collection.', 'image' => 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1920&q=80', 'mobile_image' => null, 'text_alignment' => 'left', 'text_alignment_class' => 'text-left items-start', 'text_color' => 'text-white', 'overlay_opacity' => 40, 'image_position' => 'center', 'overlay_enabled' => true, 'overlay_color' => '#000000', 'overlay_rgba' => 'rgba(0,0,0,0.4)', 'image_fit' => 'cover', 'image_repeat' => 'no-repeat', 'image_size' => 'auto', 'image_width' => null, 'image_height' => null, 'background_css' => 'background-size: cover; background-position: center; background-repeat: no-repeat;', 'banner_height_css' => '', 'border_radius_css' => '', 'content_padding_css' => '', 'section_margin_css' => '', 'content_vertical' => null, 'text_width_css' => '', 'visibility_classes' => '', 'show_countdown' => false, 'ends_at' => null, 'cta_primary' => 'Shop Now', 'cta_secondary' => 'Learn More', 'link_primary' => '/shop', 'link_secondary' => '/about'],
         ];
     }
 
@@ -22,6 +22,18 @@
                 'text_alignment_class' => $b->text_alignment_class,
                 'text_color' => $b->text_color ?? 'text-white',
                 'overlay_opacity' => $b->overlay_opacity ?? 40,
+                'image_position' => $b->image_position ?? 'center',
+                'overlay_enabled' => $b->overlay_enabled,
+                'overlay_color' => $b->overlay_color,
+                'overlay_rgba' => $b->overlay_rgba,
+                'background_css' => $b->background_css,
+                'banner_height_css' => $b->banner_height_css,
+                'border_radius_css' => $b->border_radius_css,
+                'content_padding_css' => $b->content_padding_css,
+                'section_margin_css' => $b->section_margin_css,
+                'content_vertical' => $b->content_vertical,
+                'text_width_css' => $b->text_width_css,
+                'visibility_classes' => $b->visibility_classes,
                 'show_countdown' => $b->show_countdown,
                 'ends_at' => $b->ends_at?->toIso8601String(),
                 'cta_primary' => $b->button_text ?? 'Shop Now',
@@ -40,7 +52,18 @@
             'text_alignment' => 'left',
             'text_alignment_class' => 'text-left items-start',
             'text_color' => 'text-white',
-            'overlay_opacity' => 40,
+            'overlay_opacity' => 40, 'image_position' => 'center',
+            'overlay_enabled' => true,
+            'overlay_color' => '#000000',
+            'overlay_rgba' => 'rgba(0,0,0,0.4)',
+            'background_css' => 'background-size: cover; background-position: center; background-repeat: no-repeat;',
+            'banner_height_css' => '',
+            'border_radius_css' => '',
+            'content_padding_css' => '',
+            'section_margin_css' => '',
+            'content_vertical' => null,
+            'text_width_css' => '',
+            'visibility_classes' => '',
             'show_countdown' => false,
             'ends_at' => null,
             'cta_secondary' => '',
@@ -48,9 +71,32 @@
         ], $s);
     }, $slides);
 
+    $slides = array_map(function ($s) {
+        $s['content_vertical_class'] = ($s['content_vertical'] ?? null) === 'top'
+            ? 'items-start'
+            : (($s['content_vertical'] ?? null) === 'bottom' ? 'items-end' : 'items-center');
+
+        return $s;
+    }, $slides);
+
+    $heroContainerStyle = '';
+    $heroSectionMargin = '';
+    foreach ($slides as $slide) {
+        $style = trim(($slide['banner_height_css'] ?? '') . ' ' . ($slide['border_radius_css'] ?? ''));
+        if ($style) {
+            $heroContainerStyle = $style;
+        }
+        if (!empty($slide['section_margin_css'])) {
+            $heroSectionMargin = $slide['section_margin_css'];
+        }
+        if ($heroContainerStyle && $heroSectionMargin) {
+            break;
+        }
+    }
+
     if (empty($slides)) {
         $slides = [
-            ['badge' => 'NEW', 'badge_color' => 'bg-green-500', 'heading' => 'Step Into Style', 'description' => 'Discover our latest collection.', 'image' => 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1920&q=80', 'mobile_image' => null, 'text_alignment' => 'left', 'text_alignment_class' => 'text-left items-start', 'text_color' => 'text-white', 'overlay_opacity' => 40, 'show_countdown' => false, 'ends_at' => null, 'cta_primary' => 'Shop Now', 'cta_secondary' => 'Learn More', 'link_primary' => '/shop', 'link_secondary' => '/about'],
+            ['badge' => 'NEW', 'badge_color' => 'bg-green-500', 'heading' => 'Step Into Style', 'description' => 'Discover our latest collection.', 'image' => 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1920&q=80', 'mobile_image' => null, 'text_alignment' => 'left', 'text_alignment_class' => 'text-left items-start', 'text_color' => 'text-white', 'overlay_opacity' => 40, 'image_position' => 'center', 'overlay_enabled' => true, 'overlay_color' => '#000000', 'overlay_rgba' => 'rgba(0,0,0,0.4)', 'image_fit' => 'cover', 'image_repeat' => 'no-repeat', 'image_size' => 'auto', 'image_width' => null, 'image_height' => null, 'background_css' => 'background-size: cover; background-position: center; background-repeat: no-repeat;', 'banner_height_css' => '', 'border_radius_css' => '', 'content_padding_css' => '', 'section_margin_css' => '', 'content_vertical' => null, 'text_width_css' => '', 'visibility_classes' => '', 'show_countdown' => false, 'ends_at' => null, 'cta_primary' => 'Shop Now', 'cta_secondary' => 'Learn More', 'link_primary' => '/shop', 'link_secondary' => '/about'],
         ];
     }
 @endphp
@@ -78,19 +124,22 @@
     }"
     @touchstart.passive="touchStart($event)"
     @touchend.passive="touchEnd($event)"
-    class="section py-6 sm:py-10"
+    class="section pt-6 sm:pt-8 lg:pt-10 pb-4 sm:pb-6 lg:pb-8"
+    @if($heroSectionMargin) style="{{ $heroSectionMargin }}" @endif
 >
-    <div class="relative w-full min-h-[280px] sm:min-h-[350px] md:min-h-[400px] lg:min-h-[450px] xl:min-h-[500px] bg-secondary-900 overflow-hidden rounded-[22px] shadow-mega">
+    <div class="relative w-full min-h-[280px] sm:min-h-[350px] md:min-h-[400px] lg:min-h-[450px] xl:min-h-[500px] bg-secondary-900 overflow-hidden rounded-[22px] shadow-mega" @if($heroContainerStyle) style="{{ $heroContainerStyle }}" @endif>
     @foreach($slides as $i => $slide)
         <div
-            class="hero-slide"
+            class="hero-slide {{ $slide['visibility_classes'] }}"
             :class="{ 'opacity-100 z-10': current === {{ $i }}, 'opacity-0 z-0 pointer-events-none': current !== {{ $i }} }"
         >
-            <div class="hero-slide-bg hidden md:block" :class="current === {{ $i }} ? 'ken-burns' : ''" style="background-image: url('{{ $slide['image'] }}')"></div>
-            <div class="hero-slide-bg md:hidden" :class="current === {{ $i }} ? 'ken-burns' : ''" style="background-image: url('{{ $slide['mobile_image'] ?: $slide['image'] }}')"></div>
-            <div class="absolute inset-0 z-[1]" style="background: linear-gradient(to right, rgba(0,0,0,{{ $slide['overlay_opacity'] / 100 }}) {{ $slide['overlay_opacity'] > 50 ? '60%' : '40%' }}, rgba(0,0,0,0.1) 100%);"></div>
-            <div class="section relative z-10 w-full h-full flex items-center">
-                <div class="w-full flex flex-col {{ $slide['text_alignment_class'] }}">
+            <div class="hero-slide-bg hidden md:block" :class="current === {{ $i }} ? 'ken-burns' : ''" style="background-image: url('{{ $slide['image'] }}'); {{ $slide['background_css'] }}"></div>
+            <div class="hero-slide-bg md:hidden" :class="current === {{ $i }} ? 'ken-burns' : ''" style="background-image: url('{{ $slide['mobile_image'] ?: $slide['image'] }}'); {{ $slide['background_css'] }}"></div>
+            @if($slide['overlay_enabled'])
+                <div class="absolute inset-0 z-[1]" style="background: linear-gradient(to right, {{ $slide['overlay_rgba'] }} {{ $slide['overlay_opacity'] > 50 ? '60%' : '40%' }}, rgba(0,0,0,0.1) 100%);"></div>
+            @endif
+            <div class="section relative z-10 w-full h-full flex {{ $slide['content_vertical_class'] }}" @if($slide['content_padding_css']) style="{{ $slide['content_padding_css'] }}" @endif>
+                <div class="w-full flex flex-col {{ $slide['text_alignment_class'] }} {{ !empty($slide['text_width_css']) && $slide['text_alignment'] === 'center' ? 'mx-auto' : '' }} {{ !empty($slide['text_width_css']) && $slide['text_alignment'] === 'right' ? 'ml-auto' : '' }}" @if($slide['text_width_css']) style="{{ $slide['text_width_css'] }}" @endif>
                     @if($slide['badge'])
                         <span class="inline-flex items-center gap-2 rounded-full {{ $slide['badge_color'] }} px-4 py-1.5 mb-5 self-start" :class="current === {{ $i }} ? 'animate-in' : 'opacity-0'">
                             <span class="text-xs font-bold text-white tracking-wider">{{ $slide['badge'] }}</span>

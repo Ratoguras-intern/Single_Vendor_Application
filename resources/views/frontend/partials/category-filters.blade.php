@@ -1,71 +1,17 @@
 @props([
     'brands' => collect(),
     'priceRange' => null,
-    'ajax' => false,
 ])
 
 @php
-    $activeBrands = request()->input('brand', []);
-    $minPrice = request('min_price', $priceRange?->min_price ? floor($priceRange->min_price) : 0);
-    $maxPrice = request('max_price', $priceRange?->max_price ? ceil($priceRange->max_price) : 10000);
+    $minBound = $priceRange && $priceRange->min_price !== null ? floor($priceRange->min_price) : 0;
+    $maxBound = $priceRange && $priceRange->max_price !== null ? ceil($priceRange->max_price) : 10000;
+    $minValue = ($this->minPrice !== null && $this->minPrice !== '') ? (int) $this->minPrice : $minBound;
+    $maxValue = ($this->maxPrice !== null && $this->maxPrice !== '') ? (int) $this->maxPrice : $maxBound;
 @endphp
 
 <div
-    x-data="{
-        mobileOpen: false,
-        minPrice: {{ $minPrice }},
-        maxPrice: {{ $maxPrice }},
-        selectedBrands: @js($activeBrands),
-        inStock: {{ request()->boolean('in_stock') ? 'true' : 'false' }},
-        onSale: {{ request()->boolean('on_sale') ? 'true' : 'false' }},
-        featured: {{ request()->boolean('featured') ? 'true' : 'false' }},
-        newArrivals: {{ request()->boolean('new_arrivals') ? 'true' : 'false' }},
-        applyFilters() {
-            const url = new URL(window.location);
-            const params = new URLSearchParams(url.search);
-
-            params.delete('brand');
-            this.selectedBrands.forEach(b => params.append('brand', b));
-
-            params.delete('min_price');
-            params.delete('max_price');
-            if (this.minPrice > {{ $minPrice }}) params.set('min_price', this.minPrice);
-            if (this.maxPrice < {{ $maxPrice }}) params.set('max_price', this.maxPrice);
-
-            ['in_stock', 'on_sale', 'featured', 'new_arrivals'].forEach(key => {
-                params.delete(key);
-                if (this[key]) params.set(key, '1');
-            });
-
-            params.delete('page');
-            const targetUrl = url.pathname + '?' + params.toString();
-
-            @if($ajax)
-            window.dispatchEvent(new CustomEvent('shop:apply', { detail: { url: targetUrl } }));
-            @else
-            window.location = targetUrl;
-            @endif
-        },
-        clearAll() {
-            const url = new URL(window.location);
-            const targetUrl = url.pathname;
-
-            @if($ajax)
-            window.dispatchEvent(new CustomEvent('shop:clear', { detail: { url: targetUrl } }));
-            @else
-            window.location = targetUrl;
-            @endif
-        },
-        hasActiveFilters() {
-            return this.selectedBrands.length > 0 || this.inStock || this.onSale || this.featured || this.newArrivals
-                || this.minPrice > {{ $minPrice }} || this.maxPrice < {{ $maxPrice }};
-        },
-        toggleBrand(slug) {
-            const idx = this.selectedBrands.indexOf(slug);
-            if (idx === -1) this.selectedBrands.push(slug);
-            else this.selectedBrands.splice(idx, 1);
-        },
-    }"
+    x-data="{ mobileOpen: false }"
     x-on:toggle-filter.window="mobileOpen = !mobileOpen"
     x-on:keydown.escape.window="mobileOpen = false"
 >
@@ -108,9 +54,9 @@
         <div class="space-y-6">
 
             {{-- Active Filters Summary --}}
-            <div x-show="hasActiveFilters()" class="flex items-center justify-between">
+            <div x-show="($wire.brand || []).length > 0 || $wire.inStock || $wire.onSale || $wire.featured || $wire.newArrivals || !!$wire.minPrice || !!$wire.maxPrice" class="flex items-center justify-between">
                 <span class="text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">Active Filters</span>
-                <button type="button" x-on:click="clearAll()" class="text-xs text-primary-600 dark:text-primary-400 hover:underline">Clear All</button>
+                <button type="button" x-on:click="$wire.call('resetFilters')" class="text-xs text-primary-600 dark:text-primary-400 hover:underline">Clear All</button>
             </div>
 
             {{-- Brands --}}
@@ -123,8 +69,7 @@
                                 <input
                                     type="checkbox"
                                     value="{{ $brand->slug }}"
-                                    x-on:change="toggleBrand('{{ $brand->slug }}')"
-                                    :checked="selectedBrands.includes('{{ $brand->slug }}')"
+                                    wire:model.live="brand"
                                     class="h-4 w-4 rounded border-secondary-300 dark:border-secondary-600 text-primary-500 focus:ring-primary-500/20"
                                 >
                                 <span class="text-sm text-secondary-700 dark:text-secondary-300 group-hover:text-secondary-900 dark:group-hover:text-white transition-colors flex-1">{{ $brand->name }}</span>
@@ -144,10 +89,10 @@
                         <input
                             type="number"
                             id="min-price"
-                            x-model.number="minPrice"
-                            min="{{ $minPrice }}"
-                            max="{{ $maxPrice }}"
-                            placeholder="Min"
+                            wire:model.live.debounce.500ms="minPrice"
+                            min="{{ $minBound }}"
+                            max="{{ $maxBound }}"
+                            placeholder="{{ $minValue }}"
                             class="input text-sm py-2"
                         >
                     </div>
@@ -157,10 +102,10 @@
                         <input
                             type="number"
                             id="max-price"
-                            x-model.number="maxPrice"
-                            min="{{ $minPrice }}"
-                            max="{{ $maxPrice }}"
-                            placeholder="Max"
+                            wire:model.live.debounce.500ms="maxPrice"
+                            min="{{ $minBound }}"
+                            max="{{ $maxBound }}"
+                            placeholder="{{ $maxValue }}"
                             class="input text-sm py-2"
                         >
                     </div>
@@ -175,13 +120,13 @@
                     <button
                         type="button"
                         role="switch"
-                        x-on:click="inStock = !inStock"
-                        :aria-checked="inStock"
-                        :class="inStock ? 'bg-primary-500' : 'bg-secondary-300 dark:bg-secondary-600'"
+                        x-on:click="$wire.inStock = ! $wire.inStock"
+                        :aria-checked="$wire.inStock"
+                        :class="$wire.inStock ? 'bg-primary-500' : 'bg-secondary-300 dark:bg-secondary-600'"
                         class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:ring-offset-2 dark:focus:ring-offset-secondary-900"
                     >
                         <span
-                            :class="inStock ? 'translate-x-5' : 'translate-x-1'"
+                            :class="$wire.inStock ? 'translate-x-5' : 'translate-x-1'"
                             class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out mt-1"
                         ></span>
                     </button>
@@ -191,13 +136,13 @@
                     <button
                         type="button"
                         role="switch"
-                        x-on:click="onSale = !onSale"
-                        :aria-checked="onSale"
-                        :class="onSale ? 'bg-primary-500' : 'bg-secondary-300 dark:bg-secondary-600'"
+                        x-on:click="$wire.onSale = ! $wire.onSale"
+                        :aria-checked="$wire.onSale"
+                        :class="$wire.onSale ? 'bg-primary-500' : 'bg-secondary-300 dark:bg-secondary-600'"
                         class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:ring-offset-2 dark:focus:ring-offset-secondary-900"
                     >
                         <span
-                            :class="onSale ? 'translate-x-5' : 'translate-x-1'"
+                            :class="$wire.onSale ? 'translate-x-5' : 'translate-x-1'"
                             class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out mt-1"
                         ></span>
                     </button>
@@ -207,13 +152,13 @@
                     <button
                         type="button"
                         role="switch"
-                        x-on:click="featured = !featured"
-                        :aria-checked="featured"
-                        :class="featured ? 'bg-primary-500' : 'bg-secondary-300 dark:bg-secondary-600'"
+                        x-on:click="$wire.featured = ! $wire.featured"
+                        :aria-checked="$wire.featured"
+                        :class="$wire.featured ? 'bg-primary-500' : 'bg-secondary-300 dark:bg-secondary-600'"
                         class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:ring-offset-2 dark:focus:ring-offset-secondary-900"
                     >
                         <span
-                            :class="featured ? 'translate-x-5' : 'translate-x-1'"
+                            :class="$wire.featured ? 'translate-x-5' : 'translate-x-1'"
                             class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out mt-1"
                         ></span>
                     </button>
@@ -223,25 +168,22 @@
                     <button
                         type="button"
                         role="switch"
-                        x-on:click="newArrivals = !newArrivals"
-                        :aria-checked="newArrivals"
-                        :class="newArrivals ? 'bg-primary-500' : 'bg-secondary-300 dark:bg-secondary-600'"
+                        x-on:click="$wire.newArrivals = ! $wire.newArrivals"
+                        :aria-checked="$wire.newArrivals"
+                        :class="$wire.newArrivals ? 'bg-primary-500' : 'bg-secondary-300 dark:bg-secondary-600'"
                         class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:ring-offset-2 dark:focus:ring-offset-secondary-900"
                     >
                         <span
-                            :class="newArrivals ? 'translate-x-5' : 'translate-x-1'"
+                            :class="$wire.newArrivals ? 'translate-x-5' : 'translate-x-1'"
                             class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out mt-1"
                         ></span>
                     </button>
                 </label>
             </div>
 
-            {{-- Apply / Clear --}}
+            {{-- Clear --}}
             <div class="flex gap-3 pt-2">
-                <button type="button" x-on:click="applyFilters()" class="btn-primary flex-1">
-                    Apply Filters
-                </button>
-                <button type="button" x-on:click="clearAll()" class="btn-outline">
+                <button type="button" x-on:click="$wire.call('resetFilters')" class="btn-outline flex-1">
                     Clear
                 </button>
             </div>

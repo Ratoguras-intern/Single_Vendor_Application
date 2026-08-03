@@ -49,6 +49,7 @@
             <table class="w-full">
                 <thead>
                     <tr class="border-b border-gray-200 dark:border-gray-800">
+                        <th class="px-5 py-3 text-left"><input type="checkbox" id="select-all" class="rounded border-gray-300 text-brand-500 focus:ring-brand-500"></th>
                         <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">#</th>
                         <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Logo</th>
                         <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Name</th>
@@ -60,6 +61,7 @@
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
                     @forelse ($brands as $brand)
                         <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02]">
+                            <td class="px-5 py-4"><input type="checkbox" name="brand_ids[]" value="{{ $brand->id }}" class="brand-cb rounded border-gray-300 text-brand-500 focus:ring-brand-500"></td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $brand->id }}</td>
                             <td class="px-5 py-4">
                                 @if ($brand->logo)
@@ -75,10 +77,18 @@
                             </td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $brand->slug }}</td>
                             <td class="px-5 py-4">
-                                <span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium
-                                    {{ $brand->status === 'active' ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400' }}">
-                                    {{ ucfirst($brand->status) }}
-                                </span>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleBrand({{ $brand->id }})"
+                                        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors
+                                            {{ $brand->status === 'active' ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600' }}"
+                                        title="{{ $brand->status === 'active' ? 'Deactivate' : 'Activate' }}">
+                                        <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform
+                                            {{ $brand->status === 'active' ? 'translate-x-6' : 'translate-x-1' }}"></span>
+                                    </button>
+                                    <span class="text-xs font-medium {{ $brand->status === 'active' ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400' }}">
+                                        {{ ucfirst($brand->status) }}
+                                    </span>
+                                </div>
                             </td>
                             <td class="px-5 py-4">
                                 <div class="flex items-center gap-2">
@@ -100,7 +110,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-5 py-12 text-center">
+                            <td colspan="7" class="px-5 py-12 text-center">
                                 <div class="flex flex-col items-center">
                                     <div class="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-gray-400"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -118,8 +128,58 @@
                 </tbody>
             </table>
         </div>
-        <div class="px-5 py-3 border-t border-gray-200 dark:border-gray-800">
+        <div class="flex items-center justify-between border-t border-gray-200 px-5 py-3 dark:border-gray-800">
+            <button type="button" onclick="bulkDeleteBrands()" class="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6H21M19 6V20C19 21.1 18.1 22 17 22H7C5.9 22 5 21.1 5 20V6M8 6V4C8 2.9 8.9 2 10 2H14C15.1 2 16 2.9 16 4V6"/></svg>
+                Delete Selected
+            </button>
             {{ $brands->links() }}
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script type="text/turbo-script">
+function toggleBrand(id) {
+    fetch(`/admin/brands/${id}/toggle-status`, {
+        method: 'PATCH',
+        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' }
+    }).then(r => r.json()).then(data => {
+        Turbo.visit(location.href, { action: 'replace' });
+    }).catch(() => alert('Failed to update brand status.'));
+}
+
+document.getElementById('select-all')?.addEventListener('change', function() {
+    document.querySelectorAll('.brand-cb').forEach(cb => cb.checked = this.checked);
+});
+
+function bulkDeleteBrands() {
+    const ids = [...document.querySelectorAll('.brand-cb:checked')].map(cb => cb.value);
+
+    if (ids.length === 0) {
+        alert('Please select at least one brand.');
+        return;
+    }
+
+    if (!confirm(`Delete ${ids.length} selected brand(s)? This action cannot be undone.`)) {
+        return;
+    }
+
+    fetch('{{ route('admin.brands.bulkDestroy') }}', {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({ brand_ids: ids }),
+    }).then(async r => {
+        if (!r.ok) {
+            const data = await r.json().catch(() => ({}));
+            throw new Error(data.message || 'Failed to delete brands.');
+        }
+        Turbo.visit(location.href, { action: 'replace' });
+    }).catch(err => alert(err.message));
+}
+</script>
+@endpush

@@ -12,6 +12,7 @@
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
 
     @vite(['resources/css/app.css', 'resources/css/frontend.css', 'resources/js/app.js'])
+    @livewireStyles
     @stack('styles')
 
     <script>
@@ -116,6 +117,7 @@
         @include('frontend.partials.footer')
     @endif
     @include('frontend.partials.scripts')
+    @livewireScriptConfig
     @stack('scripts')
 </body>
 </html>

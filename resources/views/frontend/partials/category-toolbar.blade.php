@@ -4,19 +4,17 @@
     'lastPage' => 1,
     'perPage' => 24,
     'sort' => 'latest',
-    'viewMode' => 'grid',
+    'activeFilters' => false,
     'viewStorageKey' => 'shopView',
     'categoryName' => '',
-    'ajax' => false,
 ])
 
 @php
     $from = max(1, ($currentPage - 1) * $perPage + 1);
     $to = min($currentPage * $perPage, $total);
-    $activeFilters = collect(request()->query())->except(['page', 'sort', 'view'])->filter()->isNotEmpty();
 @endphp
 
-<div class="flex flex-wrap items-center justify-between gap-4 mb-6" x-data="{ sort: '{{ $sort }}' }">
+<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
     <div class="flex items-center gap-3">
         <button
             type="button"
@@ -31,12 +29,11 @@
             @endif
         </button>
 
-        <p class="text-sm text-secondary-500 dark:text-secondary-400">
-            <span x-show="total > 0">
-                <span x-text="from">1</span>–<span x-text="to">24</span>
-                of <span x-text="total">{{ number_format($total) }}</span> Products
-            </span>
-        </p>
+        @if($total > 0)
+            <p class="text-sm text-secondary-500 dark:text-secondary-400">
+                <span>{{ number_format($from) }}–{{ number_format($to) }} of {{ number_format($total) }} Products</span>
+            </p>
+        @endif
     </div>
 
     <div class="flex items-center gap-3">
@@ -72,20 +69,21 @@
                     'name_desc' => 'Name: Z to A',
                     'discount' => 'Biggest Discount',
                 ] as $value => $label)
-                    <a
-                        href="{{ request()->fullUrlWithQuery(['sort' => $value, 'page' => null]) }}"
-                        @if($ajax) @click.prevent="$dispatch('shop:apply', { url: '{{ request()->fullUrlWithQuery(['sort' => $value, 'page' => null]) }}' })" @endif
-                        class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-secondary-50 dark:hover:bg-white/5 transition-colors {{ request('sort', 'latest') === $value ? 'text-primary-600 dark:text-primary-400 font-medium' : 'text-secondary-700 dark:text-secondary-300' }}"
+                    <button
+                        type="button"
+                        wire:click="setSort('{{ $value }}')"
+                        x-on:click="open = false"
+                        class="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-secondary-50 dark:hover:bg-white/5 transition-colors {{ $sort === $value ? 'text-primary-600 dark:text-primary-400 font-medium' : 'text-secondary-700 dark:text-secondary-300' }}"
                         role="option"
-                        aria-selected="{{ request('sort', 'latest') === $value }}"
+                        aria-selected="{{ $sort === $value ? 'true' : 'false' }}"
                     >
-                        @if(request('sort', 'latest') === $value)
+                        @if($sort === $value)
                             <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
                         @else
                             <span class="w-4 shrink-0"></span>
                         @endif
                         {{ $label }}
-                    </a>
+                    </button>
                 @endforeach
             </div>
         </div>

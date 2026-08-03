@@ -4,7 +4,7 @@
     $buttonText = $section?->config['button_text'] ?? 'Subscribe';
 @endphp
 
-<section class="relative py-16 sm:py-20 overflow-hidden">
+<section class="relative home-section overflow-hidden">
     <img src="{{ $bgImage }}" alt="Newsletter" class="absolute inset-0 w-full h-full object-cover" loading="lazy" />
     <div class="absolute inset-0 bg-secondary-900/80 backdrop-blur-sm"></div>
 
@@ -13,7 +13,7 @@
             <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">{{ $section?->title ?? 'Stay in the Loop' }}</h2>
             <p class="mt-4 text-lg text-secondary-300">{{ $section?->subtitle ?? 'Subscribe to our newsletter for exclusive offers, new arrivals, and style inspiration.' }}</p>
 
-            <form class="mt-8 flex max-w-md mx-auto gap-3" x-data="{ email: '', submitted: false }" x-on:submit.prevent="submitted = true; email = ''">
+            <form class="mt-6 flex max-w-md mx-auto gap-3" x-data="{ email: '', submitted: false }" x-on:submit.prevent="submitted = true; email = ''">
                 <input type="email" x-model="email" placeholder="Enter your email address" required x-show="!submitted"
                     class="flex-1 rounded-input border-white/20 bg-white/10 text-white placeholder:text-white/50 px-4 py-3 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 backdrop-blur-sm transition-colors" />
                 <button type="submit" x-show="!submitted" class="btn-primary btn-lg whitespace-nowrap">

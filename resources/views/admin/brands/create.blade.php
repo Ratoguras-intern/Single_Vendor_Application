@@ -71,8 +71,8 @@
     </div>
 
     @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+    <script type="text/turbo-script">
+        {
             const nameInput = document.getElementById('name');
             const slugInput = document.getElementById('slug');
             const logoInput = document.getElementById('logo');
@@ -103,7 +103,7 @@
                     reader.readAsDataURL(this.files[0]);
                 }
             });
-        });
+        }
     </script>
     @endpush
 @endsection

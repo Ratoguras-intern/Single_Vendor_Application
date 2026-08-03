@@ -29,8 +29,8 @@
                 <select name="category_id" id="category_id"
                     class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
                     <option value="">All</option>
-                    @foreach ($categories as $category)
-                        <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                    @foreach ($categories as $categoryOption)
+                        <option value="{{ $categoryOption['id'] }}" {{ request('category_id') == $categoryOption['id'] ? 'selected' : '' }}>{{ $categoryOption['name'] }}</option>
                     @endforeach
                 </select>
             </div>
@@ -84,6 +84,7 @@
             <table class="w-full">
                 <thead>
                     <tr class="border-b border-gray-200 dark:border-gray-800">
+                        <th class="px-5 py-3 text-left"><input type="checkbox" id="select-all" class="rounded border-gray-300 text-brand-500 focus:ring-brand-500"></th>
                         <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">#</th>
                         <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Image</th>
                         <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Name</th>
@@ -99,6 +100,7 @@
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
                     @forelse ($products as $product)
                         <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02]">
+                            <td class="px-5 py-4"><input type="checkbox" name="product_ids[]" value="{{ $product->id }}" class="product-cb rounded border-gray-300 text-brand-500 focus:ring-brand-500"></td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $product->id }}</td>
                             <td class="px-5 py-4">
                                 @if ($product->primaryImage())
@@ -122,10 +124,18 @@
                             </td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $product->stock }}</td>
                             <td class="px-5 py-4">
-                                <span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium
-                                    {{ $product->status === 'active' ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400' }}">
-                                    {{ ucfirst($product->status) }}
-                                </span>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleProductStatus({{ $product->id }})"
+                                        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors
+                                            {{ $product->status === 'active' ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600' }}"
+                                        title="{{ $product->status === 'active' ? 'Deactivate' : 'Activate' }}">
+                                        <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform
+                                            {{ $product->status === 'active' ? 'translate-x-6' : 'translate-x-1' }}"></span>
+                                    </button>
+                                    <span class="text-xs font-medium {{ $product->status === 'active' ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400' }}">
+                                        {{ ucfirst($product->status) }}
+                                    </span>
+                                </div>
                             </td>
                             <td class="px-5 py-4">
                                 <div class="flex flex-wrap gap-1">
@@ -178,7 +188,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="11" class="px-5 py-12 text-center">
+                            <td colspan="12" class="px-5 py-12 text-center">
                                 <div class="flex flex-col items-center">
                                     <div class="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-gray-400"><path d="M21 8V21H3V8" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 3H23V8H1V3Z" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -196,14 +206,27 @@
                 </tbody>
             </table>
         </div>
-        <div class="px-5 py-3 border-t border-gray-200 dark:border-gray-800">
+        <div class="flex items-center justify-between border-t border-gray-200 px-5 py-3 dark:border-gray-800">
+            <button type="button" onclick="bulkDeleteProducts()" class="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6H21M19 6V20C19 21.1 18.1 22 17 22H7C5.9 22 5 21.1 5 20V6M8 6V4C8 2.9 8.9 2 10 2H14C15.1 2 16 2.9 16 4V6"/></svg>
+                Delete Selected
+            </button>
             {{ $products->links() }}
         </div>
     </div>
 @endsection
 
 @push('scripts')
-<script>
+<script type="text/turbo-script">
+function toggleProductStatus(productId) {
+    fetch(`/admin/products/${productId}/toggle-status`, {
+        method: 'PATCH',
+        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' }
+    }).then(r => r.json()).then(data => {
+        Turbo.visit(location.href, { action: 'replace' });
+    }).catch(() => alert('Failed to update product status.'));
+}
+
 function toggleProductFlag(productId, flag) {
     fetch(`/admin/products/${productId}/toggle-flag/${flag}`, {
         method: 'PATCH',
@@ -212,8 +235,41 @@ function toggleProductFlag(productId, flag) {
             'Accept': 'application/json',
         },
     }).then(r => r.json()).then(data => {
-        location.reload();
+        Turbo.visit(location.href, { action: 'replace' });
     });
+}
+
+document.getElementById('select-all')?.addEventListener('change', function() {
+    document.querySelectorAll('.product-cb').forEach(cb => cb.checked = this.checked);
+});
+
+function bulkDeleteProducts() {
+    const ids = [...document.querySelectorAll('.product-cb:checked')].map(cb => cb.value);
+
+    if (ids.length === 0) {
+        alert('Please select at least one product.');
+        return;
+    }
+
+    if (!confirm(`Delete ${ids.length} selected product(s)? This action cannot be undone.`)) {
+        return;
+    }
+
+    fetch('{{ route('admin.products.bulkDestroy') }}', {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({ product_ids: ids }),
+    }).then(async r => {
+        if (!r.ok) {
+            const data = await r.json().catch(() => ({}));
+            throw new Error(data.message || 'Failed to delete products.');
+        }
+        Turbo.visit(location.href, { action: 'replace' });
+    }).catch(err => alert(err.message));
 }
 </script>
 @endpush

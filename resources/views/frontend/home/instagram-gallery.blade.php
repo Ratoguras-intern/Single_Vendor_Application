@@ -11,14 +11,14 @@
 @endphp
 
 @if(!empty($galleryImages))
-<section class="py-12 sm:py-16 lg:py-20">
+<section class="home-section">
     <div class="section">
-        <div class="text-center mb-10">
+        <div class="text-center mb-6">
             <h2 class="section-heading">{{ $section?->title ?? 'Follow Us on Instagram' }}</h2>
             <p class="section-subheading">{{ $section?->subtitle ?? '@nbkvertex' }}</p>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4" style="grid-auto-rows: 200px;">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3" style="grid-auto-rows: 200px;">
             @foreach($galleryImages as $img)
                 <a href="#" target="_blank" rel="noopener noreferrer" class="gallery-item group {{ $img['span'] }}">
                     <img src="{{ $img['url'] }}" alt="{{ $img['alt'] }}" loading="lazy" />

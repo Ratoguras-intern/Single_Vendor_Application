@@ -66,13 +66,13 @@
                 {{-- Desktop nav links --}}
                 <nav class="hidden lg:flex items-center ml-8 xl:ml-12" role="navigation" aria-label="Main navigation">
                     <div class="flex items-center gap-1">
-                        <a href="{{ route('frontend.home') }}"
+                        <a href="{{ route('frontend.home') }}" wire:navigate.prefetch
                             class="relative px-3 py-2 rounded-btn text-sm font-medium transition-colors duration-150 {{ request()->routeIs('frontend.home') ? 'text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-500/10' : 'text-secondary-600 hover:text-secondary-900 hover:bg-secondary-100 dark:text-secondary-400 dark:hover:text-white dark:hover:bg-white/5' }}"
                             {{ request()->routeIs('frontend.home') ? 'aria-current="page"' : '' }}>
                             <span data-i18n="Home" x-text="$store.i18n.t('Home')">Home</span>
                         </a>
 
-                        <a href="{{ route('frontend.shop') }}"
+                        <a href="{{ route('frontend.shop') }}" wire:navigate.prefetch
                             class="relative px-3 py-2 rounded-btn text-sm font-medium transition-colors duration-150 {{ request()->routeIs('frontend.shop') ? 'text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-500/10' : 'text-secondary-600 hover:text-secondary-900 hover:bg-secondary-100 dark:text-secondary-400 dark:hover:text-white dark:hover:bg-white/5' }}"
                             {{ request()->routeIs('frontend.shop') ? 'aria-current="page"' : '' }}>
                             <span data-i18n="Shop" x-text="$store.i18n.t('Shop')">Shop</span>
@@ -127,8 +127,8 @@
                                                 @forelse($topCategories as $category)
                                                     <li class="mega-cat-item" x-on:mouseenter="hoveredCat = {{ $category->id }}"
                                                         x-on:mouseleave="hoveredCat = null">
-                                                        <a href="{{ route('frontend.category', $category->slug) }}"
-                                                            class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors group
+                        <a href="{{ route('frontend.category', $category->slug) }}" wire:navigate
+                            class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors group
                                                                 {{ $activeCategory && ($activeCategory->id === $category->id || $activeCategory->parent_id === $category->id)
                                                                     ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-400 font-semibold'
                                                                     : 'text-secondary-700 dark:text-secondary-300 hover:bg-primary-50 dark:hover:bg-primary-500/10 hover:text-primary-700 dark:hover:text-primary-400' }}"
@@ -151,7 +151,7 @@
                                                     <li class="px-3 py-2 text-sm text-secondary-400 dark:text-secondary-500">No categories yet</li>
                                                 @endforelse
                                             </ul>
-                                            <a href="{{ route('frontend.shop') }}"
+                                            <a href="{{ route('frontend.shop') }}" wire:navigate
                                                 class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors">
                                                 View All Products
                                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
@@ -169,8 +169,8 @@
                                                     @if($category->children->isNotEmpty())
                                                         <div class="grid grid-cols-2 gap-2">
                                                             @foreach($category->children as $child)
-                                                                <a href="{{ route('frontend.category', $child->slug) }}"
-                                                                    class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors
+                                                            <a href="{{ route('frontend.category', $child->slug) }}" wire:navigate
+                                                                class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors
                                                                         {{ $activeCategory && $activeCategory->id === $child->id
                                                                             ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-400 font-semibold'
                                                                             : 'text-secondary-700 dark:text-secondary-300 hover:bg-primary-50 dark:hover:bg-primary-500/10' }}">
@@ -187,7 +187,7 @@
                                                     @else
                                                         <p class="text-sm text-secondary-400 dark:text-secondary-500 py-2">No subcategories yet.</p>
                                                     @endif
-                                                    <a href="{{ route('frontend.category', $category->slug) }}"
+                                                    <a href="{{ route('frontend.category', $category->slug) }}" wire:navigate
                                                         class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors">
                                                         View All
                                                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
@@ -199,7 +199,7 @@
                                                 <h3 class="text-xs font-bold uppercase tracking-wider text-secondary-400 dark:text-secondary-500 mb-4">Shop by Category</h3>
                                                 <div class="grid grid-cols-2 gap-3">
                         @forelse($topCategories->take(4) as $category)
-                                                    <a href="{{ route('frontend.category', $category->slug) }}"
+                                                    <a href="{{ route('frontend.category', $category->slug) }}" wire:navigate
                                                         class="mega-cat-card">
                                                         @if($category->display_image)
                                                             <img src="{{ $category->display_image }}" alt="{{ $category->name }}"
@@ -222,7 +222,7 @@
 
                                         {{-- Promo Banner --}}
                                         <div class="col-span-4">
-                                            <a href="{{ route('frontend.shop') }}" class="mega-promo-card block h-full">
+                                            <a href="{{ route('frontend.shop') }}" wire:navigate class="mega-promo-card block h-full">
                                                 <div class="relative">
                                                     <span class="inline-block px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold mb-3">Featured</span>
                                                     <h4 class="text-xl font-bold text-white mb-2">Explore Our Collection</h4>
@@ -240,12 +240,12 @@
                             </div>
                         </div>
 
-                        <a href="{{ route('frontend.shop') }}?sort=newest"
+                        <a href="{{ route('frontend.shop') }}?sort=newest" wire:navigate
                             class="relative px-3 py-2 rounded-btn text-sm font-medium transition-colors duration-150 text-secondary-600 hover:text-secondary-900 hover:bg-secondary-100 dark:text-secondary-400 dark:hover:text-white dark:hover:bg-white/5">
                             <span data-i18n="New Arrivals" x-text="$store.i18n.t('New Arrivals')">New Arrivals</span>
                         </a>
 
-                        <a href="{{ route('frontend.shop') }}?sort=sale"
+                        <a href="{{ route('frontend.shop') }}?sort=sale" wire:navigate
                             class="relative px-3 py-2 rounded-btn text-sm font-medium transition-colors duration-150 text-red-500 hover:text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-500/10">
                             <span data-i18n="Sale" x-text="$store.i18n.t('Sale')">Sale</span>
                         </a>
@@ -364,7 +364,7 @@
                 </div>
 
                 {{-- Wishlist --}}
-                <a href="{{ route('frontend.favorites') }}"
+                <a href="{{ route('frontend.favorites') }}" wire:navigate
                     class="relative p-2 rounded-full hover:bg-secondary-100 dark:hover:bg-white/5 transition-all duration-200 group text-secondary-600 dark:text-secondary-400"
                     aria-label="Favorites">
                     <svg class="h-5 w-5 group-hover:text-secondary-900 dark:group-hover:text-white transition-colors"
@@ -430,12 +430,12 @@
                                 </div>
 
                                 @if (auth()->user()->role === 'customer')
-                                    <a href="{{ route('customer.orders.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-secondary-700 dark:text-secondary-300 hover:bg-secondary-50 dark:hover:bg-white/5 transition-colors">
+                                    <a href="{{ route('customer.orders.index') }}" wire:navigate class="flex items-center gap-3 px-4 py-2.5 text-sm text-secondary-700 dark:text-secondary-300 hover:bg-secondary-50 dark:hover:bg-white/5 transition-colors">
                                         <svg class="h-4 w-4 text-secondary-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15a2.25 2.25 0 0 1 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z"/></svg>
                                         <span data-i18n="My Orders" x-text="$store.i18n.t('My Orders')">{{ __('My Orders') }}</span>
                                     </a>
                                 @endif
-                                <a href="{{ route('frontend.favorites') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-secondary-700 dark:text-secondary-300 hover:bg-secondary-50 dark:hover:bg-white/5 transition-colors">
+                                <a href="{{ route('frontend.favorites') }}" wire:navigate class="flex items-center gap-3 px-4 py-2.5 text-sm text-secondary-700 dark:text-secondary-300 hover:bg-secondary-50 dark:hover:bg-white/5 transition-colors">
                                     <svg class="h-4 w-4 text-secondary-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"/></svg>
                                     <span data-i18n="My Favorites" x-text="$store.i18n.t('My Favorites')">{{ __('My Favorites') }}</span>
                                 </a>
@@ -445,7 +445,7 @@
                                         <span data-i18n="Admin Panel" x-text="$store.i18n.t('Admin Panel')">{{ __('Admin Panel') }}</span>
                                     </a>
                                 @endif
-                                <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-secondary-700 dark:text-secondary-300 hover:bg-secondary-50 dark:hover:bg-white/5 transition-colors">
+                                <a href="{{ route('profile.edit') }}" wire:navigate class="flex items-center gap-3 px-4 py-2.5 text-sm text-secondary-700 dark:text-secondary-300 hover:bg-secondary-50 dark:hover:bg-white/5 transition-colors">
                                     <svg class="h-4 w-4 text-secondary-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
                                     <span data-i18n="Profile" x-text="$store.i18n.t('Profile')">{{ __('Profile') }}</span>
                                 </a>

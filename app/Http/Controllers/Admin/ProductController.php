@@ -47,16 +47,16 @@ class ProductController extends Controller
         }
 
         $products = $query->latest()->paginate(10)->withQueryString();
-        $categories = Category::where('status', true)->get();
-        $brands = Brand::where('status', true)->get();
+        $categories = Category::nestedOptionsList(false);
+        $brands = Brand::orderBy('name')->get();
 
         return view('admin.products.index', compact('products', 'categories', 'brands'));
     }
 
     public function create()
     {
-        $categories = Category::where('status', true)->get();
-        $brands = Brand::where('status', true)->get();
+        $categories = Category::nestedOptionsList(false);
+        $brands = Brand::orderBy('name')->get();
 
         return view('admin.products.create', compact('categories', 'brands'));
     }
@@ -91,7 +91,6 @@ class ProductController extends Controller
             $validated['slug'] = Str::slug($validated['name']);
         }
 
-        $validated['status'] = $validated['status'] === 'active';
         unset($validated['images'], $validated['primary_image']);
 
         $flags = [
@@ -136,8 +135,8 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $product->load('images');
-        $categories = Category::where('status', true)->get();
-        $brands = Brand::where('status', true)->get();
+        $categories = Category::nestedOptionsList(false);
+        $brands = Brand::orderBy('name')->get();
 
         return view('admin.products.edit', compact('product', 'categories', 'brands'));
     }
@@ -174,7 +173,6 @@ class ProductController extends Controller
             $validated['slug'] = Str::slug($validated['name']);
         }
 
-        $validated['status'] = $validated['status'] === 'active';
         unset($validated['images'], $validated['primary_image'], $validated['remove_images']);
 
         $flags = [
@@ -238,6 +236,40 @@ class ProductController extends Controller
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Product deleted successfully.');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $validated = $request->validate([
+            'product_ids' => ['required', 'array'],
+            'product_ids.*' => ['integer', 'exists:products,id'],
+        ]);
+
+        $products = Product::whereIn('id', $validated['product_ids'])->with('images')->get();
+
+        foreach ($products as $product) {
+            foreach ($product->images as $image) {
+                if (Storage::disk('public')->exists($image->image)) {
+                    Storage::disk('public')->delete($image->image);
+                }
+            }
+        }
+
+        $count = Product::whereIn('id', $validated['product_ids'])->delete();
+
+        return redirect()->route('admin.products.index')
+            ->with('success', "$count products deleted successfully.");
+    }
+
+    public function toggleStatus(Product $product)
+    {
+        $product->status = $product->status === 'active' ? 'inactive' : 'active';
+        $product->save();
+
+        return response()->json([
+            'status' => $product->status,
+            'message' => 'Product status updated.',
+        ]);
     }
 
     public function toggleFlag(Product $product, string $flag)

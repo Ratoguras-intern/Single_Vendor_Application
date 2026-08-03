@@ -34,7 +34,6 @@ class Product extends Model
     protected function casts(): array
     {
         return [
-            'status' => 'boolean',
             'price' => 'decimal:2',
             'discount_price' => 'decimal:2',
             'stock' => 'integer',
@@ -47,6 +46,16 @@ class Product extends Model
             'is_popular' => 'boolean',
             'is_limited_edition' => 'boolean',
         ];
+    }
+
+    public function getStatusAttribute(): string
+    {
+        return $this->attributes['status'] ? 'active' : 'inactive';
+    }
+
+    public function setStatusAttribute(string $value): void
+    {
+        $this->attributes['status'] = $value === 'active';
     }
 
     public static function boot(): void

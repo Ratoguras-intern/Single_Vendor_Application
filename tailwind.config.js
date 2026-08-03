@@ -10,6 +10,15 @@ export default {
         './resources/views/**/*.blade.php',
     ],
 
+    safelist: [
+        'hidden',
+        'block',
+        'md:block',
+        'md:hidden',
+        'lg:block',
+        'lg:hidden',
+    ],
+
     theme: {
         extend: {
             fontFamily: {

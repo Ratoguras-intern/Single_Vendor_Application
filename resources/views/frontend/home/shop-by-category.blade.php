@@ -3,9 +3,9 @@
 @endphp
 
 @if(!empty($categories) && count($categories) > 0)
-<section class="py-12 sm:py-16 lg:py-20">
+<section class="home-section">
     <div class="section">
-        <div class="flex items-end justify-between mb-10">
+        <div class="flex items-end justify-between mb-6">
             <div>
                 <h2 class="section-heading">{{ $section?->title ?? 'Shop by Category' }}</h2>
                 <p class="section-subheading">{{ $section?->subtitle ?? 'Browse our curated collections' }}</p>
@@ -16,7 +16,7 @@
             </a>
         </div>
 
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
             @foreach($categories as $category)
                 @php
                     $cat = $category instanceof \App\Models\Category ? $category : null;

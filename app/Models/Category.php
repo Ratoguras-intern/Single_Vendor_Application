@@ -115,6 +115,43 @@ class Category extends Model
         return !is_null($this->parent_id);
     }
 
+    public static function nestedOptionsList(bool $activeOnly = true): array
+    {
+        $query = static::query();
+        if ($activeOnly) {
+            $query->where('status', true);
+        }
+
+        $all = $query->ordered()->with('children')->get()->keyBy('id');
+
+        $roots = $all->filter(fn (Category $category) => is_null($category->parent_id));
+
+        $options = [];
+        $seen = [];
+
+        $walk = function (Category $category, int $depth) use (&$walk, &$options, &$seen) {
+            if (isset($seen[$category->id])) {
+                return;
+            }
+            $seen[$category->id] = true;
+
+            $options[] = [
+                'id' => $category->id,
+                'name' => str_repeat('— ', $depth) . $category->name,
+            ];
+
+            foreach ($category->children as $child) {
+                $walk($child, $depth + 1);
+            }
+        };
+
+        foreach ($roots as $root) {
+            $walk($root, 0);
+        }
+
+        return $options;
+    }
+
     public function getBannerUrlAttribute(): ?string
     {
         if ($this->banner_image && \Storage::disk('public')->exists($this->banner_image)) {

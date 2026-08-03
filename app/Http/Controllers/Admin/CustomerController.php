@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -72,5 +73,25 @@ class CustomerController extends Controller
 
         return redirect()->route('admin.customers.index')
             ->with('success', 'Customer deleted successfully.');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $validated = $request->validate([
+            'customer_ids' => ['required', 'array'],
+            'customer_ids.*' => ['integer', 'exists:users,id'],
+        ]);
+
+        $ids = array_values(array_filter($validated['customer_ids'], fn ($id) => (int) $id !== Auth::id()));
+
+        if (empty($ids)) {
+            return redirect()->route('admin.customers.index')
+                ->with('error', 'You cannot delete your own account.');
+        }
+
+        $count = User::where('role', 'customer')->whereIn('id', $ids)->delete();
+
+        return redirect()->route('admin.customers.index')
+            ->with('success', "$count customers deleted successfully.");
     }
 }

@@ -448,8 +448,8 @@
 @endsection
 
 @push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
+<script type="text/turbo-script">
+{
     const isDark = document.documentElement.classList.contains('dark');
     const textColor = isDark ? '#e5e7eb' : '#374151';
     const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
@@ -501,7 +501,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const index = elements[0].index;
                         const monthKey = Object.keys({!! json_encode($salesData->toArray()) !!})[index];
                         if (monthKey) {
-                            window.location.href = ordersUrl + '?month=' + monthKey;
+                            Turbo.visit(ordersUrl + '?month=' + monthKey);
                         }
                     }
                 },
@@ -579,7 +579,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const index = elements[0].index;
                         const productId = productData[index]?.id;
                         if (productId) {
-                            window.location.href = '{{ url("admin/products") }}/' + productId;
+                            Turbo.visit('{{ url("admin/products") }}/' + productId);
                         }
                     }
                 },
@@ -601,6 +601,6 @@ document.addEventListener('DOMContentLoaded', function() {
             },
         });
     }
-});
+}
 </script>
 @endpush

@@ -184,16 +184,15 @@
     </div>
 
     @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    <script>
+    <script type="text/turbo-script">
         function toggleBanner(id) {
             fetch(`/admin/banners/${id}/toggle`, {
                 method: 'PATCH',
                 headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' }
-            }).then(r => r.json()).then(() => location.reload());
+            }).then(r => r.json()).then(() => Turbo.visit(location.href, { action: 'replace' }));
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        {
             const container = document.getElementById('sortable-container');
             if (container && container.children.length > 1) {
                 new Sortable(container, {
@@ -218,7 +217,7 @@
                     }
                 });
             }
-        });
+        }
     </script>
     @endpush
 @endsection
