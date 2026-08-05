@@ -68,6 +68,17 @@
                     <option value="is_limited_edition" {{ request('visibility') === 'is_limited_edition' ? 'selected' : '' }}>Limited Edition</option>
                 </select>
             </div>
+            <div class="min-w-[130px]">
+                <label for="per_page" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Show</label>
+                <select name="per_page" id="per_page"
+                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+                    <option value="10" {{ $perPage === '10' ? 'selected' : '' }}>10 / page</option>
+                    <option value="25" {{ $perPage === '25' ? 'selected' : '' }}>25 / page</option>
+                    <option value="50" {{ $perPage === '50' ? 'selected' : '' }}>50 / page</option>
+                    <option value="100" {{ $perPage === '100' ? 'selected' : '' }}>100 / page</option>
+                    <option value="all" {{ $perPage === 'all' ? 'selected' : '' }}>All</option>
+                </select>
+            </div>
             <div class="flex gap-2">
                 <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600">
                     Filter
@@ -207,11 +218,28 @@
             </table>
         </div>
         <div class="flex items-center justify-between border-t border-gray-200 px-5 py-3 dark:border-gray-800">
-            <button type="button" onclick="bulkDeleteProducts()" class="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6H21M19 6V20C19 21.1 18.1 22 17 22H7C5.9 22 5 21.1 5 20V6M8 6V4C8 2.9 8.9 2 10 2H14C15.1 2 16 2.9 16 4V6"/></svg>
-                Delete Selected
-            </button>
-            {{ $products->links() }}
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="bulkDeleteProducts()" class="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6H21M19 6V20C19 21.1 18.1 22 17 22H7C5.9 22 5 21.1 5 20V6M8 6V4C8 2.9 8.9 2 10 2H14C15.1 2 16 2.9 16 4V6"/></svg>
+                    Delete Selected
+                </button>
+                <form action="{{ route('admin.products.destroyAll') }}" method="POST" onsubmit="return confirm('Delete ALL products? This cannot be undone.')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-100 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6H21M19 6V20C19 21.1 18.1 22 17 22H7C5.9 22 5 21.1 5 20V6M8 6V4C8 2.9 8.9 2 10 2H14C15.1 2 16 2.9 16 4V6"/></svg>
+                        Delete All
+                    </button>
+                </form>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="text-sm text-gray-500 dark:text-gray-400">
+                    {{ $products->total() ?? $products->count() }} products
+                </span>
+                @if ($products instanceof \Illuminate\Pagination\LengthAwarePaginator)
+                    {{ $products->links() }}
+                @endif
+            </div>
         </div>
     </div>
 @endsection

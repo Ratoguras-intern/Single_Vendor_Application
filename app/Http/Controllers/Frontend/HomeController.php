@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Banner;
 use App\Models\Brand;
 use App\Models\Category;
-use App\Models\Product;
-use App\Models\HomepageSection;
 use App\Models\FeaturedHomepageCategory;
-use App\Models\Banner;
+use App\Models\HomepageSection;
+use App\Models\Product;
 use Illuminate\Support\Facades\Storage;
 
 class HomeController extends Controller
@@ -18,6 +18,7 @@ class HomeController extends Controller
         $sections = HomepageSection::getCached()->filter(fn ($s) => $s->is_enabled);
 
         $featuredProducts = $this->getFlaggedProducts('featured', 8);
+        $featuredCollections = $this->getFeaturedCollections();
         $newArrivals = $this->getFlaggedProducts('newArrival', 10);
         $trendingProducts = $this->getFlaggedProducts('trending', 8);
         $flashSaleProducts = $this->getFlaggedProducts('flashSale', 8);
@@ -36,6 +37,7 @@ class HomeController extends Controller
         return view('frontend.home', compact(
             'sections',
             'featuredProducts',
+            'featuredCollections',
             'newArrivals',
             'trendingProducts',
             'flashSaleProducts',
@@ -63,6 +65,39 @@ class HomeController extends Controller
             ->get();
 
         return $this->mapProducts($products);
+    }
+
+    protected function getFeaturedCollections(): array
+    {
+        return FeaturedHomepageCategory::getCached()
+            ->map(function (FeaturedHomepageCategory $fc) {
+                $category = $fc->category;
+
+                if (! $category) {
+                    return null;
+                }
+
+                $products = $category->products()
+                    ->active()
+                    ->with(['images', 'brand'])
+                    ->latest()
+                    ->limit(4)
+                    ->get();
+
+                return [
+                    'id' => $fc->id,
+                    'name' => $category->name,
+                    'slug' => $category->slug,
+                    'image' => $category->banner_url ?: $category->display_image,
+                    'products_count' => $category->total_products_count,
+                    'display_style' => $fc->display_style,
+                    'url' => route('frontend.category', $category->slug),
+                    'products' => $this->mapProducts($products),
+                ];
+            })
+            ->filter()
+            ->values()
+            ->toArray();
     }
 
     protected function getCategories(): array

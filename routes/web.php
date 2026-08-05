@@ -116,6 +116,7 @@ Route::middleware(['auth', 'admin'])
         Route::patch('/products/{product}/toggle-flag/{flag}', [ProductController::class, 'toggleFlag'])->name('products.toggleFlag');
         Route::patch('/products/{product}/toggle-status', [ProductController::class, 'toggleStatus'])->name('products.toggleStatus');
         Route::delete('/products/bulk-destroy', [ProductController::class, 'bulkDestroy'])->name('products.bulkDestroy');
+        Route::delete('/products/destroy-all', [ProductController::class, 'destroyAll'])->name('products.destroyAll');
         Route::resource('products', ProductController::class);
         Route::resource('orders', OrderController::class)->only(['index', 'show']);
         Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');

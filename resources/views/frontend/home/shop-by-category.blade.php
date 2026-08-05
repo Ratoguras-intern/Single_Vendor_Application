@@ -16,7 +16,7 @@
             </a>
         </div>
 
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-4">
             @foreach($categories as $category)
                 @php
                     $cat = $category instanceof \App\Models\Category ? $category : null;
@@ -26,18 +26,23 @@
                     $catCount = $cat ? $cat->total_products_count : ($category['products_count'] ?? 0);
                     $catDesc = $cat ? $cat->description : null;
                     $catIcon = $cat?->icon_url;
+                    $catLucide = $cat?->lucide_icon;
                 @endphp
-                <a href="{{ route('frontend.category', $catSlug) }}" class="category-card group aspect-[4/5]">
+                <a href="{{ route('frontend.category', $catSlug) }}" class="category-card group aspect-[4/3]">
                     <img src="{{ $displayImage }}" alt="{{ $catName }}" loading="lazy" />
                     <div class="category-overlay">
-                        @if($catIcon)
-                            <img src="{{ $catIcon }}" alt="" class="h-8 w-8 rounded-lg object-cover mb-2 ring-2 ring-white/30">
+                        @if($catLucide)
+                            <span class="inline-flex items-center justify-center h-6 w-6 mb-1.5 text-white ring-2 ring-white/30 rounded-lg">
+                                <x-lucide :name="$catLucide" class="h-4 w-4" />
+                            </span>
+                        @elseif($catIcon)
+                            <img src="{{ $catIcon }}" alt="" class="h-6 w-6 rounded-lg object-cover mb-1.5 ring-2 ring-white/30">
                         @endif
-                        <h3 class="text-white font-bold text-lg sm:text-xl">{{ $catName }}</h3>
+                        <h3 class="text-white font-bold text-sm sm:text-base">{{ $catName }}</h3>
                         @if($catDesc)
-                            <p class="text-white/60 text-xs mt-1 line-clamp-2">{{ $catDesc }}</p>
+                            <p class="text-white/60 text-[11px] mt-0.5 line-clamp-1">{{ $catDesc }}</p>
                         @endif
-                        <p class="text-white/70 text-sm mt-1">{{ $catCount }} {{ Str::plural('product', $catCount) }}</p>
+                        <p class="text-white/70 text-xs mt-0.5">{{ $catCount }} {{ Str::plural('product', $catCount) }}</p>
                     </div>
                 </a>
             @endforeach

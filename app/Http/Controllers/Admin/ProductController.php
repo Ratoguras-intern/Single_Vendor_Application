@@ -46,11 +46,22 @@ class ProductController extends Controller
             $query->where($request->visibility, true);
         }
 
-        $products = $query->latest()->paginate(10)->withQueryString();
+        $perPage = $request->input('per_page', '10');
+        $allowedPerPage = ['10', '25', '50', '100', 'all'];
+        if (!in_array($perPage, $allowedPerPage, true)) {
+            $perPage = '10';
+        }
+
+        $query->latest();
+
+        $products = $perPage === 'all'
+            ? $query->get()
+            : $query->paginate((int) $perPage)->withQueryString();
+
         $categories = Category::nestedOptionsList(false);
         $brands = Brand::orderBy('name')->get();
 
-        return view('admin.products.index', compact('products', 'categories', 'brands'));
+        return view('admin.products.index', compact('products', 'categories', 'brands', 'perPage'));
     }
 
     public function create()
@@ -236,6 +247,24 @@ class ProductController extends Controller
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Product deleted successfully.');
+    }
+
+    public function destroyAll()
+    {
+        $products = Product::with('images')->get();
+
+        foreach ($products as $product) {
+            foreach ($product->images as $image) {
+                if (Storage::disk('public')->exists($image->image)) {
+                    Storage::disk('public')->delete($image->image);
+                }
+            }
+        }
+
+        $count = Product::query()->delete();
+
+        return redirect()->route('admin.products.index')
+            ->with('success', "$count products deleted successfully.");
     }
 
     public function bulkDestroy(Request $request)

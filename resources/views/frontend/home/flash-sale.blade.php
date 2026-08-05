@@ -2,9 +2,9 @@
     $section = $sections->get('flash-sale');
     $endDate = $section?->config['ends_at'] ?? now()->addDays(3)->endOfDay()->toIso8601String();
     $endTimestamp = \Carbon\Carbon::parse($endDate)->timestamp;
+    $hasProducts = !empty($flashSaleProducts) && count($flashSaleProducts) > 0;
 @endphp
 
-@if(!empty($flashSaleProducts) && count($flashSaleProducts) > 0)
 <section
     x-data="{
         endDate: {{ $endTimestamp }} * 1000,
@@ -52,11 +52,17 @@
             </div>
         </div>
 
-        <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-            @foreach(array_slice($flashSaleProducts, 0, $section?->max_products ?? 8) as $product)
-                @include('frontend.partials.product-card', ['product' => $product])
-            @endforeach
-        </div>
+        @if($hasProducts)
+            <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                @foreach(array_slice($flashSaleProducts, 0, $section?->max_products ?? 8) as $product)
+                    @include('frontend.partials.product-card', ['product' => $product])
+                @endforeach
+            </div>
+        @else
+            <div class="rounded-card border border-white/10 bg-white/5 px-6 py-10 text-center">
+                <p class="text-secondary-200 text-base">No flash sale products right now. Check back soon!</p>
+            </div>
+        @endif
 
         <div class="mt-6 text-center">
             <a href="{{ route('frontend.shop') }}" class="btn-primary btn-lg inline-flex">
@@ -66,4 +72,3 @@
         </div>
     </div>
 </section>
-@endif

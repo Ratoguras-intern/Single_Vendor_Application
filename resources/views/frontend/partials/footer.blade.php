@@ -24,6 +24,27 @@
         ['heading' => 'Legal', 'links' => ['Privacy Policy', 'Terms & Conditions', 'Cookie Policy', 'Accessibility']],
     ];
     $footerColumns = !empty($footerColumns) ? $footerColumns : $defaultColumns;
+
+    $footerLinkUrls = [
+        'All Products' => route('frontend.shop'),
+        'New Arrivals' => route('frontend.shop'),
+        'Sale' => route('frontend.shop'),
+        'Featured' => route('frontend.shop'),
+        'Contact Us' => route('frontend.contact'),
+        'Help Center' => route('frontend.contact'),
+        'Shipping Info' => route('frontend.contact'),
+        'Returns & Exchanges' => route('frontend.contact'),
+        'About Us' => route('frontend.about'),
+        'Careers' => route('frontend.about'),
+        'Blog' => route('frontend.about'),
+        'Press' => route('frontend.about'),
+        'Privacy Policy' => route('frontend.about'),
+        'Terms & Conditions' => route('frontend.about'),
+        'Cookie Policy' => route('frontend.about'),
+        'Accessibility' => route('frontend.about'),
+    ];
+
+    $paymentBadges = collect(config('payments.badges', []))->filter(fn ($badge) => !empty($badge['enabled']))->keys();
 @endphp
 
 <footer class="border-t border-secondary-200 bg-white dark:border-secondary-700 dark:bg-secondary-900">
@@ -79,7 +100,7 @@
                         <ul class="space-y-2.5">
                             @foreach($col['links'] as $link)
                                 <li>
-                                    <a href="#" class="text-sm text-secondary-500 dark:text-secondary-400 hover:text-secondary-900 dark:hover:text-white transition-colors inline-block">{{ $link }}</a>
+                                    <a href="{{ $footerLinkUrls[$link] ?? '#' }}" class="text-sm text-secondary-500 dark:text-secondary-400 hover:text-secondary-900 dark:hover:text-white transition-colors inline-block">{{ $link }}</a>
                                 </li>
                             @endforeach
                         </ul>
@@ -100,11 +121,20 @@
 
             <div class="flex items-center gap-4">
                 <div class="flex items-center gap-3 text-secondary-400 dark:bg-white/10 dark:rounded-lg dark:px-3 dark:py-1.5">
-                    <svg class="h-8 w-auto" viewBox="0 0 36 24" fill="currentColor"><rect width="36" height="24" rx="4" fill="#1A1F71"/><text x="50%" y="55%" text-anchor="middle" dominant-baseline="middle" font-size="8" font-weight="bold" fill="white">VISA</text></svg>
-                    <svg class="h-8 w-auto" viewBox="0 0 36 24" fill="currentColor"><rect width="36" height="24" rx="4" fill="#252525"/><circle cx="14" cy="12" r="7" fill="#EB001B"/><circle cx="22" cy="12" r="7" fill="#F79E1B"/></svg>
-                    <svg class="h-8 w-auto" viewBox="0 0 36 24" fill="currentColor"><rect width="36" height="24" rx="4" fill="#000"/><text x="50%" y="55%" text-anchor="middle" dominant-baseline="middle" font-size="7" font-weight="bold" fill="white">PayPal</text></svg>
-                    <svg class="h-8 w-auto" viewBox="0 0 36 24" fill="currentColor"><rect width="36" height="24" rx="4" fill="#635BFF"/><text x="50%" y="55%" text-anchor="middle" dominant-baseline="middle" font-size="7" font-weight="bold" fill="white">Stripe</text></svg>
-                </div>
+                @foreach($paymentBadges as $badge)
+                    @if($badge === 'visa')
+                        <svg class="h-8 w-auto" viewBox="0 0 36 24" fill="currentColor" role="img" aria-label="Visa"><rect width="36" height="24" rx="4" fill="#1A1F71"/><text x="50%" y="55%" text-anchor="middle" dominant-baseline="middle" font-size="8" font-weight="bold" fill="white">VISA</text></svg>
+                    @elseif($badge === 'mastercard')
+                        <svg class="h-8 w-auto" viewBox="0 0 36 24" fill="currentColor" role="img" aria-label="Mastercard"><rect width="36" height="24" rx="4" fill="#252525"/><circle cx="14" cy="12" r="7" fill="#EB001B"/><circle cx="22" cy="12" r="7" fill="#F79E1B"/></svg>
+                    @elseif($badge === 'paypal')
+                        <svg class="h-8 w-auto" viewBox="0 0 36 24" fill="currentColor" role="img" aria-label="PayPal"><rect width="36" height="24" rx="4" fill="#000"/><text x="50%" y="55%" text-anchor="middle" dominant-baseline="middle" font-size="7" font-weight="bold" fill="white">PayPal</text></svg>
+                    @elseif($badge === 'stripe')
+                        <svg class="h-8 w-auto" viewBox="0 0 36 24" fill="currentColor" role="img" aria-label="Stripe"><rect width="36" height="24" rx="4" fill="#635BFF"/><text x="50%" y="55%" text-anchor="middle" dominant-baseline="middle" font-size="7" font-weight="bold" fill="white">Stripe</text></svg>
+                    @elseif($badge === 'cod')
+                        <span class="inline-flex h-8 items-center rounded-md bg-secondary-800 px-3 text-[10px] font-bold uppercase tracking-wider text-white dark:bg-white/10 dark:text-white" role="img" aria-label="Cash on Delivery">COD</span>
+                    @endif
+                @endforeach
+            </div>
             </div>
         </div>
     </div>

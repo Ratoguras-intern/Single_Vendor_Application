@@ -24,7 +24,9 @@
                     role="menuitem"
                     {{ $isActive ? 'aria-current="page"' : '' }}>
                     <span class="flex items-center gap-2.5">
-                        @if($category->icon_url)
+                        @if($category->lucide_icon)
+                            <x-lucide :name="$category->lucide_icon" class="h-5 w-5 shrink-0 text-primary-500 dark:text-primary-400" />
+                        @elseif($category->icon_url)
                             <img src="{{ $category->icon_url }}" alt="" class="h-5 w-5 rounded object-cover shrink-0" loading="lazy">
                         @endif
                         <span class="font-medium">{{ $category->name }}</span>
@@ -47,7 +49,9 @@
                                 ? 'text-primary-700 dark:text-primary-400 font-semibold'
                                 : 'text-secondary-600 dark:text-secondary-400 hover:bg-secondary-50 dark:hover:bg-white/5' }}">
                         <span class="flex items-center gap-2">
-                            @if($category->icon_url)
+                            @if($category->lucide_icon)
+                                <x-lucide :name="$category->lucide_icon" class="h-4 w-4 shrink-0 text-primary-500 dark:text-primary-400" />
+                            @elseif($category->icon_url)
                                 <img src="{{ $category->icon_url }}" alt="" class="h-4 w-4 rounded object-cover shrink-0" loading="lazy">
                             @endif
                             <a href="{{ route('frontend.category', $category->slug) }}" x-on:click.stop="mobileOpen = false" class="hover:text-primary-600">{{ $category->name }}</a>
@@ -70,7 +74,9 @@
                                 ? 'text-primary-700 dark:text-primary-400 font-semibold'
                                 : 'text-secondary-600 dark:text-secondary-400 hover:bg-secondary-50 dark:hover:bg-white/5' }}">
                         <span class="flex items-center gap-2">
-                            @if($category->icon_url)
+                            @if($category->lucide_icon)
+                                <x-lucide :name="$category->lucide_icon" class="h-4 w-4 shrink-0 text-primary-500 dark:text-primary-400" />
+                            @elseif($category->icon_url)
                                 <img src="{{ $category->icon_url }}" alt="" class="h-4 w-4 rounded object-cover shrink-0" loading="lazy">
                             @endif
                             <span class="font-medium">{{ $category->name }}</span>

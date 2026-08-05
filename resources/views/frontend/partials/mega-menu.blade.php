@@ -42,7 +42,9 @@
                                 role="menuitem"
                                 {{ $activeCategory && ($activeCategory->id === $category->id || $activeCategory->parent_id === $category->id) ? 'aria-current="page"' : '' }}>
                                 <span class="flex items-center gap-2.5">
-                                    @if($category->icon_url)
+                                    @if($category->lucide_icon)
+                                        <x-lucide :name="$category->lucide_icon" class="h-5 w-5 shrink-0 text-primary-500 dark:text-primary-400" />
+                                    @elseif($category->icon_url)
                                         <img src="{{ $category->icon_url }}" alt="" class="h-5 w-5 rounded object-cover shrink-0" loading="lazy">
                                     @endif
                                     <span class="font-medium">{{ $category->name }}</span>
@@ -83,7 +85,9 @@
                                                 ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-400 font-semibold'
                                                 : 'text-secondary-700 dark:text-secondary-300 hover:bg-primary-50 dark:hover:bg-primary-500/10' }}">
                                         <span class="flex items-center gap-2">
-                                            @if($child->icon_url)
+                                            @if($child->lucide_icon)
+                                                <x-lucide :name="$child->lucide_icon" class="h-4 w-4 shrink-0 text-primary-500 dark:text-primary-400" />
+                                            @elseif($child->icon_url)
                                                 <img src="{{ $child->icon_url }}" alt="" class="h-4 w-4 rounded object-cover shrink-0" loading="lazy">
                                             @endif
                                             <span>{{ $child->name }}</span>

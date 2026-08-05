@@ -2,13 +2,7 @@
 <div x-data="announcementBar()" x-cloak
     class="announcement-bar"
     :class="dismissed ? 'h-0 py-0 overflow-hidden border-0' : ''"
-    x-show="!dismissed"
-    x-transition:enter="transition-all duration-300"
-    x-transition:enter-start="opacity-0 -translate-y-full"
-    x-transition:enter-end="opacity-100 translate-y-0"
-    x-transition:leave="transition-all duration-200"
-    x-transition:leave-start="opacity-100"
-    x-transition:leave-end="opacity-0 h-0 py-0">
+    x-show="!dismissed">
     <div class="section flex items-center justify-center relative">
         <div class="flex items-center gap-2">
             <template x-for="(msg, i) in messages" :key="i">
@@ -44,7 +38,6 @@ function announcementBar() {
         ],
         interval: null,
         init() {
-            this.dismissed = localStorage.getItem('announcement_dismissed') === '1';
             if (!this.dismissed) {
                 this.interval = setInterval(() => {
                     this.active = (this.active + 1) % this.messages.length;
@@ -53,7 +46,6 @@ function announcementBar() {
         },
         dismiss() {
             this.dismissed = true;
-            localStorage.setItem('announcement_dismissed', '1');
             if (this.interval) clearInterval(this.interval);
         }
     }

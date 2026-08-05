@@ -12,21 +12,21 @@ class ProductSectionController extends Controller
     protected array $sectionMap = [
         'featured-products' => ['slug' => 'featured-products', 'flag' => 'is_featured'],
         'new-arrivals' => ['slug' => 'new-arrivals', 'flag' => 'is_new_arrival'],
-        'trending' => ['slug' => 'trending-products', 'flag' => 'is_trending'],
+        'trending-products' => ['slug' => 'trending-products', 'flag' => 'is_trending'],
         'best-sellers' => ['slug' => 'best-sellers', 'flag' => 'is_best_seller'],
         'flash-sale' => ['slug' => 'flash-sale', 'flag' => 'is_flash_sale'],
-        'recommended' => ['slug' => 'recommended-products', 'flag' => 'is_recommended'],
-        'popular' => ['slug' => 'popular-products', 'flag' => 'is_popular'],
+        'recommended-products' => ['slug' => 'recommended-products', 'flag' => 'is_recommended'],
+        'popular-products' => ['slug' => 'popular-products', 'flag' => 'is_popular'],
     ];
 
     protected array $sectionLabels = [
         'featured-products' => 'Featured Products',
         'new-arrivals' => 'New Arrivals',
-        'trending' => 'Trending',
+        'trending-products' => 'Trending',
         'best-sellers' => 'Best Sellers',
         'flash-sale' => 'Flash Sale',
-        'recommended' => 'Recommended',
-        'popular' => 'Popular',
+        'recommended-products' => 'Recommended',
+        'popular-products' => 'Popular',
     ];
 
     public function index(string $section)
@@ -86,7 +86,7 @@ class ProductSectionController extends Controller
             ->update([$map['flag'] => true]);
 
         return redirect()->route('admin.product-sections.index', $section)
-            ->with('success', count($validated['product_ids']) . ' products added.');
+            ->with('success', count($validated['product_ids']).' products added.');
     }
 
     public function destroy(string $section, Product $product)
@@ -115,6 +115,6 @@ class ProductSectionController extends Controller
             ->update([$map['flag'] => false]);
 
         return redirect()->route('admin.product-sections.index', $section)
-            ->with('success', count($validated['product_ids']) . ' products removed.');
+            ->with('success', count($validated['product_ids']).' products removed.');
     }
 }

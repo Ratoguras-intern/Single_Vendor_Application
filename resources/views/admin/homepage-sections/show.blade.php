@@ -31,7 +31,7 @@
         </div>
     </div>
 
-    <form method="POST" action="{{ route('admin.homepage-sections.update', $section) }}" x-data="sectionForm()">
+    <form method="POST" action="{{ route('admin.homepage-sections.update', $section) }}" x-data="sectionForm()" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
@@ -110,8 +110,19 @@
 @push('scripts')
 <script type="text/turbo-script">
 function sectionForm() {
+    const normalizeSlides = (slides) => (slides || []).map(s => ({
+        ...s,
+        image_path: s.image_path || null,
+        brightness: s.brightness ?? 100,
+        overlay_enabled: s.overlay_enabled !== false,
+        overlay_opacity: s.overlay_opacity ?? 40,
+        overlay_color: s.overlay_color || '#000000',
+        remove_image: false,
+        preview: null,
+    }));
+
     return {
-        slides: @json($section->config['slides'] ?? []),
+        slides: normalizeSlides(@json($section->config['slides'] ?? [])),
         trustItems: @json($section->config['items'] ?? []),
         features: @json($section->config['features'] ?? []),
         testimonials: @json($section->config['testimonials'] ?? []),
@@ -119,8 +130,14 @@ function sectionForm() {
         footerColumns: @json($section->config['footer_columns'] ?? []),
         socialLinks: @json($section->config['social_links'] ?? []),
 
+        slidePreview(slide) {
+            if (slide.preview) return slide.preview;
+            if (slide.image_path) return slide.image_path.startsWith('http') ? slide.image_path : '{{ asset('storage') }}' + '/' + slide.image_path;
+            return slide.image || '';
+        },
+
         addSlide() {
-            this.slides.push({ badge: 'NEW', badge_color: 'bg-green-500', heading: '', description: '', image: '', cta_primary: 'Shop Now', cta_secondary: 'Learn More', link_primary: '/shop', link_secondary: '/about' });
+            this.slides.push({ badge: 'NEW', badge_color: 'bg-green-500', heading: '', description: '', image: '', image_path: null, brightness: 100, overlay_enabled: true, overlay_opacity: 40, overlay_color: '#000000', cta_primary: 'Shop Now', cta_secondary: 'Learn More', link_primary: '/shop', link_secondary: '/about', remove_image: false, preview: null });
         },
         removeSlide(i) { this.slides.splice(i, 1); },
 

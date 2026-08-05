@@ -19,6 +19,9 @@ class Category extends Model
         'description',
         'image',
         'banner_image',
+        'banner_mobile_image',
+        'banner_image_fit',
+        'banner_image_position',
         'thumbnail_image',
         'icon',
         'parent_id',
@@ -152,33 +155,83 @@ class Category extends Model
         return $options;
     }
 
+    protected function mediaDisk(): string
+    {
+        return (string) config('categories.image.disk');
+    }
+
     public function getBannerUrlAttribute(): ?string
     {
-        if ($this->banner_image && \Storage::disk('public')->exists($this->banner_image)) {
-            return \Storage::disk('public')->url($this->banner_image);
+        if ($this->banner_image && \Storage::disk($this->mediaDisk())->exists($this->banner_image)) {
+            return \Storage::disk($this->mediaDisk())->url($this->banner_image);
+        }
+        return null;
+    }
+
+    public function getBannerMobileUrlAttribute(): ?string
+    {
+        if ($this->banner_mobile_image && \Storage::disk($this->mediaDisk())->exists($this->banner_mobile_image)) {
+            return \Storage::disk($this->mediaDisk())->url($this->banner_mobile_image);
         }
         return null;
     }
 
     public function getThumbnailUrlAttribute(): ?string
     {
-        if ($this->thumbnail_image && \Storage::disk('public')->exists($this->thumbnail_image)) {
-            return \Storage::disk('public')->url($this->thumbnail_image);
+        if ($this->thumbnail_image && \Storage::disk($this->mediaDisk())->exists($this->thumbnail_image)) {
+            return \Storage::disk($this->mediaDisk())->url($this->thumbnail_image);
         }
         return null;
     }
 
-    public function getIconUrlAttribute(): ?string
+    public function getImageUrlAttribute(): ?string
     {
-        if ($this->icon && \Storage::disk('public')->exists($this->icon)) {
-            return \Storage::disk('public')->url($this->icon);
+        if ($this->getRawOriginal('image') && \Storage::disk($this->mediaDisk())->exists($this->getRawOriginal('image'))) {
+            return \Storage::disk($this->mediaDisk())->url($this->getRawOriginal('image'));
         }
         return null;
+    }
+
+    /**
+     * Legacy icon upload path (kept for backwards compatibility). New
+     * categories store a Lucide icon name in the `icon` column instead.
+     */
+    public function getIconUrlAttribute(): ?string
+    {
+        $icon = $this->getRawOriginal('icon');
+
+        if ($icon && $this->looksLikePath($icon) && \Storage::disk($this->mediaDisk())->exists($icon)) {
+            return \Storage::disk($this->mediaDisk())->url($icon);
+        }
+        return null;
+    }
+
+    /**
+     * Lucide icon name when the `icon` column holds a valid icon key.
+     */
+    public function getLucideIconAttribute(): ?string
+    {
+        $icon = $this->getRawOriginal('icon');
+
+        if ($icon && !$this->looksLikePath($icon) && array_key_exists($icon, (array) config('categories.icons', []))) {
+            return $icon;
+        }
+        return null;
+    }
+
+    public function getHasIconAttribute(): bool
+    {
+        return $this->lucide_icon !== null || $this->icon_url !== null;
+    }
+
+    protected function looksLikePath(string $value): bool
+    {
+        return str_contains($value, '/') || str_contains($value, '.');
     }
 
     public function getImageAttribute(): ?string
     {
-        return $this->thumbnail_url ?? $this->banner_url ?? null;
+        return $this->thumbnail_url ?? $this->image_url ?? $this->banner_url ?? null;
     }
 
     public function getPlaceholder(string $type = 'thumbnail'): string
@@ -186,9 +239,9 @@ class Category extends Model
         $slug = $this->slug ?? 'fashion';
         $placeholders = config("categories.placeholders.{$slug}.{$type}");
         if ($placeholders) {
-            return $placeholders;
+            return asset($placeholders);
         }
-        return config("categories.default_placeholder.{$type}", '');
+        return asset(config("categories.default_placeholder.{$type}", ''));
     }
 
     public function getDisplayImageAttribute(): string
@@ -200,12 +253,33 @@ class Category extends Model
     {
         $uploaded = match ($type) {
             'banner' => $this->banner_url,
-            'thumbnail' => $this->thumbnail_url,
+            'banner_mobile' => $this->banner_mobile_url,
+            'thumbnail' => $this->thumbnail_url ?? $this->image_url,
             'icon' => $this->icon_url,
             default => null,
         };
 
         return $uploaded ?? $this->getPlaceholder($type);
+    }
+
+    /**
+     * Banner object-fit value (validated against config).
+     */
+    public function getBannerObjectFitAttribute(): string
+    {
+        $fit = $this->banner_image_fit ?? 'cover';
+
+        return in_array($fit, (array) config('categories.object_fits', []), true) ? $fit : 'cover';
+    }
+
+    /**
+     * Banner object-position value (validated against config).
+     */
+    public function getBannerObjectPositionAttribute(): string
+    {
+        $position = $this->banner_image_position ?? 'center';
+
+        return in_array($position, (array) config('categories.object_positions', []), true) ? $position : 'center';
     }
 
     public function getTotalProductsCountAttribute(): int

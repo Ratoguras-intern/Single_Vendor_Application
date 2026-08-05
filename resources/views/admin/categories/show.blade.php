@@ -92,8 +92,12 @@
             {{-- Subcategories --}}
             @if($category->children->isNotEmpty())
             <div class="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
                     <h3 class="text-sm font-semibold text-gray-800 dark:text-white">Subcategories ({{ $category->children_count ?? $category->children->count() }})</h3>
+                    <a href="{{ route('admin.categories.create', ['parent' => $category->id]) }}" class="inline-flex items-center gap-1 rounded-lg bg-primary-50 text-primary-700 dark:bg-primary-500/10 dark:text-primary-400 px-2.5 py-1.5 text-xs font-medium hover:bg-primary-100 dark:hover:bg-primary-500/20 transition-colors">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                        Add Subcategory
+                    </a>
                 </div>
                 <div class="divide-y divide-gray-200 dark:divide-gray-800">
                     @foreach($category->children as $child)
@@ -147,10 +151,22 @@
                     </div>
                     <div>
                         <label class="mb-1.5 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Icon</label>
-                        @if($category->icon_url)
+                        @if($category->lucide_icon)
+                            <div class="h-16 w-16 rounded-lg bg-brand-50 dark:bg-brand-900/20 flex items-center justify-center text-brand-500">
+                                <x-lucide :name="$category->lucide_icon" class="h-8 w-8" />
+                            </div>
+                        @elseif($category->icon_url)
                             <img src="{{ $category->icon_url }}" alt="Icon" class="h-16 w-16 rounded-lg object-cover">
                         @else
                             <div class="h-16 w-16 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-xs text-gray-400">No icon</div>
+                        @endif
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Banner (Mobile)</label>
+                        @if($category->banner_mobile_url)
+                            <img src="{{ $category->banner_mobile_url }}" alt="Mobile banner" class="w-full aspect-[3/4] rounded-lg object-cover">
+                        @else
+                            <div class="w-full aspect-[3/4] rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-xs text-gray-400">No mobile banner</div>
                         @endif
                     </div>
                 </div>

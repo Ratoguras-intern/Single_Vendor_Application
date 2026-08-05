@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\HomepageSection;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class HomepageSectionController extends Controller
 {
@@ -27,6 +29,15 @@ class HomepageSectionController extends Controller
             'subtitle' => 'nullable|string|max:255',
             'max_products' => 'nullable|integer|min:1|max:50',
             'layout' => 'nullable|string|in:grid,carousel,list',
+            'config.slides' => 'nullable|array',
+            'config.slides.*.image' => 'nullable|string|max:2048',
+            'config.slides.*.image_path' => 'nullable|string|max:255',
+            'config.slides.*.image_file' => 'nullable|image|mimes:jpg,jpeg,png,webp,avif,gif|max:10240',
+            'config.slides.*.remove_image' => 'nullable|boolean',
+            'config.slides.*.brightness' => 'nullable|integer|min:0|max:200',
+            'config.slides.*.overlay_enabled' => 'nullable|boolean',
+            'config.slides.*.overlay_opacity' => 'nullable|integer|min:0|max:100',
+            'config.slides.*.overlay_color' => 'nullable|string|regex:/^#[0-9a-fA-F]{6}$/',
         ]);
 
         $config = $homepageSection->config ?? [];
@@ -86,9 +97,65 @@ class HomepageSectionController extends Controller
 
     private function updateHeroCarousel(array &$config, Request $request): void
     {
-        if ($request->filled('config.slides')) {
-            $config['slides'] = $request->input('config.slides');
+        $slides = $request->input('config.slides', []);
+        $files = $request->file('config.slides');
+
+        if (empty($slides)) {
+            foreach ((array) ($files ?? []) as $file) {
+                if ($file instanceof UploadedFile && $file->isValid()) {
+                    Storage::disk('public')->delete($file);
+                }
+            }
+
+            return;
         }
+
+        $storedPaths = collect($config['slides'] ?? [])
+            ->pluck('image_path')
+            ->filter()
+            ->values()
+            ->all();
+
+        $newSlides = [];
+
+        foreach ($slides as $index => $slide) {
+            $imagePath = $slide['image_path'] ?? null;
+
+            if (!empty($slide['remove_image'])) {
+                if ($imagePath && Storage::disk('public')->exists($imagePath)) {
+                    Storage::disk('public')->delete($imagePath);
+                }
+                $slide['image_path'] = null;
+                $slide['image'] = null;
+            } elseif (isset($files[$index]) && $files[$index] instanceof UploadedFile && $files[$index]->isValid()) {
+                if ($imagePath && Storage::disk('public')->exists($imagePath)) {
+                    Storage::disk('public')->delete($imagePath);
+                }
+                $slide['image_path'] = $files[$index]->store('homepage/hero', 'public');
+                $slide['image'] = null;
+            }
+
+            $slide['image_path'] = $slide['image_path'] ?? null;
+            $slide['image'] = $slide['image'] ?? null;
+            $slide['brightness'] = isset($slide['brightness']) && $slide['brightness'] !== '' ? (int) $slide['brightness'] : 100;
+            $slide['overlay_enabled'] = !empty($slide['overlay_enabled']);
+            $slide['overlay_opacity'] = isset($slide['overlay_opacity']) && $slide['overlay_opacity'] !== '' ? (int) $slide['overlay_opacity'] : 40;
+            $slide['overlay_color'] = $slide['overlay_color'] ?? '#000000';
+
+            unset($slide['image_file'], $slide['remove_image']);
+
+            $newSlides[] = $slide;
+        }
+
+        $referenced = collect($newSlides)->pluck('image_path')->filter()->values()->all();
+
+        foreach (array_diff($storedPaths, $referenced) as $path) {
+            if (Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+        }
+
+        $config['slides'] = $newSlides;
     }
 
     private function updateTrustBar(array &$config, Request $request): void

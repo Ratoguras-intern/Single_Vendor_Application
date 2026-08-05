@@ -11,8 +11,11 @@
     @else
         {{-- ═══ Category Hero ═══ --}}
         <section class="relative overflow-hidden bg-gradient-to-br from-secondary-900 via-secondary-800 to-primary-900">
+            @if($category->banner_mobile_url)
+                <img src="{{ $category->banner_mobile_url }}" alt="{{ $category->name }}" class="absolute inset-0 w-full h-full object-{{ $category->banner_object_fit }} opacity-30 sm:hidden" style="object-position: {{ $category->banner_object_position }}" loading="lazy">
+            @endif
             @if($category->banner_url)
-                <img src="{{ $category->banner_url }}" alt="{{ $category->name }}" class="absolute inset-0 w-full h-full object-cover opacity-30" loading="lazy">
+                <img src="{{ $category->banner_url }}" alt="{{ $category->name }}" class="absolute inset-0 w-full h-full object-{{ $category->banner_object_fit }} opacity-30 hidden sm:block" style="object-position: {{ $category->banner_object_position }}" loading="lazy">
             @endif
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
             <div class="section relative py-12 sm:py-16 lg:py-20">
@@ -30,7 +33,11 @@
                 </nav>
 
                 <div class="flex flex-col sm:flex-row sm:items-center gap-6">
-                    @if($category->icon_url)
+                    @if($category->lucide_icon)
+                        <span class="hidden sm:inline-flex items-center justify-center h-16 w-16 rounded-xl bg-white/10 border border-white/20 text-white shadow-lg shrink-0">
+                            <x-lucide :name="$category->lucide_icon" class="h-8 w-8" />
+                        </span>
+                    @elseif($category->icon_url)
                         <img src="{{ $category->icon_url }}" alt="{{ $category->name }}" class="h-16 w-16 rounded-xl object-cover shadow-lg shrink-0 hidden sm:block">
                     @endif
                     <div class="flex-1">

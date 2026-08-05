@@ -3,15 +3,21 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreCategoryRequest;
+use App\Http\Requests\Admin\UpdateCategoryRequest;
 use App\Models\Category;
+use App\Models\FeaturedHomepageCategory;
+use App\Services\CategoryImageService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
+    public function __construct(protected CategoryImageService $imageService)
+    {
+    }
+
     public function index(Request $request)
     {
         $query = Category::with(['children', 'parent']);
@@ -53,49 +59,41 @@ class CategoryController extends Controller
         return view('admin.categories.index', compact('topLevel', 'trashed'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $parentCategories = Category::topLevel()->active()->ordered()->get();
 
-        return view('admin.categories.create', compact('parentCategories'));
+        $selectedParent = null;
+        if ($request->filled('parent')) {
+            $selectedParent = $parentCategories->firstWhere('id', $request->integer('parent'));
+        }
+
+        return view('admin.categories.create', compact('parentCategories', 'selectedParent'));
     }
 
-    public function store(Request $request)
+    public function store(StoreCategoryRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:categories,slug',
-            'description' => 'nullable|string',
-            'parent_id' => 'nullable|exists:categories,id',
-            'banner_image' => 'nullable|image|mimetypes:image/jpeg,image/png,image/webp,image/avif|mimes:jpg,jpeg,png,webp,avif|max:4096',
-            'thumbnail_image' => 'nullable|image|mimetypes:image/jpeg,image/png,image/webp,image/avif|mimes:jpg,jpeg,png,webp,avif|max:2048',
-            'icon' => 'nullable|image|mimetypes:image/jpeg,image/png,image/webp,image/avif|mimes:jpg,jpeg,png,webp,avif|max:1024',
-            'sort_order' => 'nullable|integer|min:0',
-            'featured' => 'boolean',
-            'status' => 'required|in:active,inactive',
-            'seo_title' => 'nullable|string|max:255',
-            'seo_description' => 'nullable|string|max:500',
-        ]);
+        $validated = $this->prepareValidated($request->validated());
 
-        if (empty($validated['slug'])) {
-            $validated['slug'] = Str::slug($validated['name']);
+        if ($request->hasFile('image')) {
+            $validated = array_merge($validated, $this->imageService->storeMainImage($request->file('image')));
         }
-
-        $validated['sort_order'] = $validated['sort_order'] ?? 0;
-        $validated['featured'] = $request->boolean('featured');
 
         if ($request->hasFile('banner_image')) {
-            $validated['banner_image'] = $request->file('banner_image')->store('categories/banners', 'public');
+            $validated = array_merge($validated, $this->imageService->storeBanner(
+                $request->file('banner_image'),
+                $request->file('banner_mobile_image'),
+            ));
+        } elseif ($request->hasFile('banner_mobile_image')) {
+            $validated['banner_mobile_image'] = $this->imageService->storeMobileBanner($request->file('banner_mobile_image'));
         }
-        if ($request->hasFile('thumbnail_image')) {
-            $validated['thumbnail_image'] = $request->file('thumbnail_image')->store('categories/thumbnails', 'public');
-        }
-        if ($request->hasFile('icon')) {
-            $validated['icon'] = $request->file('icon')->store('categories/icons', 'public');
-        }
+
+        $validated['banner_image_fit'] = $validated['banner_image_fit'] ?? 'cover';
+        $validated['banner_image_position'] = $validated['banner_image_position'] ?? 'center';
 
         Category::create($validated);
         Cache::forget('frontend_categories');
+        \App\Models\FeaturedHomepageCategory::clearCache();
 
         return redirect()->route('admin.categories.index')
             ->with('success', 'Category created successfully.');
@@ -120,74 +118,44 @@ class CategoryController extends Controller
         return view('admin.categories.edit', compact('category', 'parentCategories'));
     }
 
-    public function update(Request $request, Category $category)
+    public function update(UpdateCategoryRequest $request, Category $category)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:categories,slug,' . $category->id,
-            'description' => 'nullable|string',
-            'parent_id' => 'nullable|exists:categories,id',
-            'banner_image' => 'nullable|image|mimetypes:image/jpeg,image/png,image/webp,image/avif|mimes:jpg,jpeg,png,webp,avif|max:4096',
-            'thumbnail_image' => 'nullable|image|mimetypes:image/jpeg,image/png,image/webp,image/avif|mimes:jpg,jpeg,png,webp,avif|max:2048',
-            'icon' => 'nullable|image|mimetypes:image/jpeg,image/png,image/webp,image/avif|mimes:jpg,jpeg,png,webp,avif|max:1024',
-            'sort_order' => 'nullable|integer|min:0',
-            'featured' => 'boolean',
-            'status' => 'required|in:active,inactive',
-            'seo_title' => 'nullable|string|max:255',
-            'seo_description' => 'nullable|string|max:500',
-        ]);
+        $validated = $this->prepareValidated($request->validated());
 
-        if ($category->id == ($validated['parent_id'] ?? null)) {
-            return back()->withErrors(['parent_id' => 'Category cannot be its own parent.'])->withInput();
-        }
-
-        if (empty($validated['slug'])) {
-            $validated['slug'] = Str::slug($validated['name']);
-        }
-
-        $validated['sort_order'] = $validated['sort_order'] ?? 0;
-        $validated['featured'] = $request->boolean('featured');
-
-        $disk = Storage::disk('public');
-
-        if ($request->boolean('remove_banner_image')) {
-            if ($category->banner_image && $disk->exists($category->banner_image)) {
-                $disk->delete($category->banner_image);
-            }
-            $validated['banner_image'] = null;
-        } elseif ($request->hasFile('banner_image')) {
-            if ($category->banner_image && $disk->exists($category->banner_image)) {
-                $disk->delete($category->banner_image);
-            }
-            $validated['banner_image'] = $request->file('banner_image')->store('categories/banners', 'public');
-        }
-
-        if ($request->boolean('remove_thumbnail_image')) {
-            if ($category->thumbnail_image && $disk->exists($category->thumbnail_image)) {
-                $disk->delete($category->thumbnail_image);
-            }
+        // Main image + auto-generated thumbnail.
+        if ($request->boolean('remove_image')) {
+            $this->imageService->deleteMainImage($category);
+            $validated['image'] = null;
             $validated['thumbnail_image'] = null;
-        } elseif ($request->hasFile('thumbnail_image')) {
-            if ($category->thumbnail_image && $disk->exists($category->thumbnail_image)) {
-                $disk->delete($category->thumbnail_image);
-            }
-            $validated['thumbnail_image'] = $request->file('thumbnail_image')->store('categories/thumbnails', 'public');
+        } elseif ($request->hasFile('image')) {
+            $this->imageService->deleteMainImage($category);
+            $validated = array_merge($validated, $this->imageService->storeMainImage($request->file('image')));
         }
 
-        if ($request->boolean('remove_icon')) {
-            if ($category->icon && $disk->exists($category->icon)) {
-                $disk->delete($category->icon);
-            }
-            $validated['icon'] = null;
-        } elseif ($request->hasFile('icon')) {
-            if ($category->icon && $disk->exists($category->icon)) {
-                $disk->delete($category->icon);
-            }
-            $validated['icon'] = $request->file('icon')->store('categories/icons', 'public');
+        // Banner (desktop + optional mobile).
+        if ($request->boolean('remove_banner_image')) {
+            $this->imageService->deleteBanner($category);
+            $validated['banner_image'] = null;
+            $validated['banner_mobile_image'] = null;
+        } elseif ($request->hasFile('banner_image')) {
+            $this->imageService->deleteBanner($category);
+            $validated = array_merge($validated, $this->imageService->storeBanner(
+                $request->file('banner_image'),
+                $request->file('banner_mobile_image'),
+            ));
+        } elseif ($request->hasFile('banner_mobile_image')) {
+            $this->imageService->deleteMobileBanner($category);
+            $validated['banner_mobile_image'] = $this->imageService->storeMobileBanner($request->file('banner_mobile_image'));
+        }
+
+        if ($request->boolean('remove_banner_mobile_image')) {
+            $this->imageService->deleteMobileBanner($category);
+            $validated['banner_mobile_image'] = null;
         }
 
         $category->update($validated);
         Cache::forget('frontend_categories');
+        \App\Models\FeaturedHomepageCategory::clearCache();
 
         return redirect()->route('admin.categories.index')
             ->with('success', 'Category updated successfully.');
@@ -199,16 +167,11 @@ class CategoryController extends Controller
             return back()->with('error', 'Cannot delete category with subcategories. Remove subcategories first.');
         }
 
-        $disk = Storage::disk('public');
-
-        foreach (['banner_image', 'thumbnail_image', 'icon'] as $field) {
-            if ($category->{$field} && $disk->exists($category->{$field})) {
-                $disk->delete($category->{$field});
-            }
-        }
+        $this->imageService->deleteAll($category);
 
         $category->delete();
         Cache::forget('frontend_categories');
+        \App\Models\FeaturedHomepageCategory::clearCache();
 
         return redirect()->route('admin.categories.index')
             ->with('success', 'Category deleted successfully.');
@@ -229,8 +192,13 @@ class CategoryController extends Controller
             ], 422);
         }
 
+        foreach ($categories as $category) {
+            $this->imageService->deleteAll($category);
+        }
+
         Category::whereIn('id', $validated['category_ids'])->delete();
         Cache::forget('frontend_categories');
+        \App\Models\FeaturedHomepageCategory::clearCache();
 
         $count = count($validated['category_ids']);
 
@@ -243,6 +211,7 @@ class CategoryController extends Controller
         $category = Category::onlyTrashed()->findOrFail($id);
         $category->restore();
         Cache::forget('frontend_categories');
+        \App\Models\FeaturedHomepageCategory::clearCache();
 
         return redirect()->route('admin.categories.index')
             ->with('success', 'Category restored successfully.');
@@ -252,6 +221,7 @@ class CategoryController extends Controller
     {
         $category->update(['status' => $category->attributes['status'] ? 'inactive' : 'active']);
         Cache::forget('frontend_categories');
+        \App\Models\FeaturedHomepageCategory::clearCache();
 
         return response()->json([
             'status' => $category->status,
@@ -263,6 +233,7 @@ class CategoryController extends Controller
     {
         $category->update(['featured' => !$category->featured]);
         Cache::forget('frontend_categories');
+        \App\Models\FeaturedHomepageCategory::clearCache();
 
         return response()->json([
             'featured' => $category->featured,
@@ -281,7 +252,19 @@ class CategoryController extends Controller
             Category::where('id', $id)->update(['sort_order' => $index]);
         }
         Cache::forget('frontend_categories');
+        \App\Models\FeaturedHomepageCategory::clearCache();
 
         return response()->json(['message' => 'Order updated.']);
+    }
+
+    protected function prepareValidated(array $validated): array
+    {
+        if (empty($validated['slug'])) {
+            $validated['slug'] = Str::slug($validated['name']);
+        }
+
+        $validated['sort_order'] = $validated['sort_order'] ?? 0;
+
+        return $validated;
     }
 }

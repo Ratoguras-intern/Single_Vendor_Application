@@ -1,0 +1,35 @@
+:root {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --font-display: 'Fraunces', ui-serif, Georgia, 'Times New Roman', serif;
+
+    --color-primary-50: 254 249 236;
+    --color-primary-100: 253 240 204;
+    --color-primary-200: 251 224 153;
+    --color-primary-300: 248 204 85;
+    --color-primary-400: 245 184 34;
+    --color-primary-500: 232 155 45;
+    --color-primary-600: 196 122 24;
+    --color-primary-700: 160 92 18;
+    --color-primary-800: 124 69 13;
+    --color-primary-900: 88 47 8;
+    --color-primary-950: 51 26 4;
+
+    --color-secondary-50: 248 250 252;
+    --color-secondary-100: 241 245 249;
+    --color-secondary-200: 226 232 240;
+    --color-secondary-300: 203 213 225;
+    --color-secondary-400: 148 163 184;
+    --color-secondary-500: 100 116 139;
+    --color-secondary-600: 71 85 105;
+    --color-secondary-700: 51 65 85;
+    --color-secondary-800: 31 41 55;
+    --color-secondary-900: 17 24 39;
+    --color-secondary-950: 3 7 18;
+
+    --radius-card: 0.75rem;
+    --radius-btn: 0.5rem;
+    --radius-input: 0.5rem;
+}
+
+.dark {
+}

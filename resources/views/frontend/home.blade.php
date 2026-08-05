@@ -18,6 +18,7 @@
         @include('frontend.home.trust-bar')
     @elseif($slug === 'shop-by-category')
         @include('frontend.home.shop-by-category')
+        @include('frontend.home.featured-collections')
     @elseif($slug === 'featured-products')
         @include('frontend.home.featured-products')
     @elseif($slug === 'new-arrivals')

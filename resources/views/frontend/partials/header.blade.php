@@ -1,4 +1,4 @@
-﻿<header x-data="{
+<header x-data="{
         isScrolled: false,
         mobileOpen: false,
         mobileCategoriesOpen: false,
@@ -56,7 +56,7 @@
     class="navbar"
     role="banner">
 
-    <div class="section py-3">
+    <div class="section py-0.5">
         <div class="flex items-center justify-between gap-4 lg:gap-6">
 
             {{-- LEFT: Logo + Nav Links --}}
@@ -67,13 +67,13 @@
                 <nav class="hidden lg:flex items-center ml-8 xl:ml-12" role="navigation" aria-label="Main navigation">
                     <div class="flex items-center gap-1">
                         <a href="{{ route('frontend.home') }}" wire:navigate.prefetch
-                            class="relative px-3 py-2 rounded-btn text-sm font-medium transition-colors duration-150 {{ request()->routeIs('frontend.home') ? 'text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-500/10' : 'text-secondary-600 hover:text-secondary-900 hover:bg-secondary-100 dark:text-secondary-400 dark:hover:text-white dark:hover:bg-white/5' }}"
+                            class="relative px-3 py-1 rounded-btn text-sm font-medium transition-colors duration-150 {{ request()->routeIs('frontend.home') ? 'text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-500/10' : 'text-secondary-600 hover:text-secondary-900 hover:bg-secondary-100 dark:text-secondary-400 dark:hover:text-white dark:hover:bg-white/5' }}"
                             {{ request()->routeIs('frontend.home') ? 'aria-current="page"' : '' }}>
                             <span data-i18n="Home" x-text="$store.i18n.t('Home')">Home</span>
                         </a>
 
                         <a href="{{ route('frontend.shop') }}" wire:navigate.prefetch
-                            class="relative px-3 py-2 rounded-btn text-sm font-medium transition-colors duration-150 {{ request()->routeIs('frontend.shop') ? 'text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-500/10' : 'text-secondary-600 hover:text-secondary-900 hover:bg-secondary-100 dark:text-secondary-400 dark:hover:text-white dark:hover:bg-white/5' }}"
+                            class="relative px-3 py-1 rounded-btn text-sm font-medium transition-colors duration-150 {{ request()->routeIs('frontend.shop') ? 'text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-500/10' : 'text-secondary-600 hover:text-secondary-900 hover:bg-secondary-100 dark:text-secondary-400 dark:hover:text-white dark:hover:bg-white/5' }}"
                             {{ request()->routeIs('frontend.shop') ? 'aria-current="page"' : '' }}>
                             <span data-i18n="Shop" x-text="$store.i18n.t('Shop')">Shop</span>
                         </a>
@@ -95,7 +95,7 @@
                                 :aria-expanded="megaOpen"
                                 aria-haspopup="true"
                                 aria-controls="mega-menu-panel"
-                                class="relative inline-flex items-center gap-1 px-3 py-2 rounded-btn text-sm font-medium transition-colors duration-150 text-secondary-600 hover:text-secondary-900 hover:bg-secondary-100 dark:text-secondary-400 dark:hover:text-white dark:hover:bg-white/5">
+                                class="relative inline-flex items-center gap-1 px-3 py-1 rounded-btn text-sm font-medium transition-colors duration-150 text-secondary-600 hover:text-secondary-900 hover:bg-secondary-100 dark:text-secondary-400 dark:hover:text-white dark:hover:bg-white/5">
                                 <span data-i18n="Categories" x-text="$store.i18n.t('Categories')">Categories</span>
                                 <svg class="h-3.5 w-3.5 transition-transform duration-200" :class="megaOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
@@ -135,7 +135,9 @@
                                                             role="menuitem"
                                                             {{ $activeCategory && ($activeCategory->id === $category->id || $activeCategory->parent_id === $category->id) ? 'aria-current="page"' : '' }}>
                                                             <span class="flex items-center gap-2.5">
-                                                                @if($category->icon_url)
+                                                                @if($category->lucide_icon)
+                                                                    <x-lucide :name="$category->lucide_icon" class="h-5 w-5 shrink-0 text-primary-500 dark:text-primary-400" />
+                                                                @elseif($category->icon_url)
                                                                     <img src="{{ $category->icon_url }}" alt="" class="h-5 w-5 rounded object-cover shrink-0" loading="lazy">
                                                                 @endif
                                                                 <span class="font-medium">{{ $category->name }}</span>
@@ -175,7 +177,9 @@
                                                                             ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-400 font-semibold'
                                                                             : 'text-secondary-700 dark:text-secondary-300 hover:bg-primary-50 dark:hover:bg-primary-500/10' }}">
                                                                     <span class="flex items-center gap-2">
-                                                                        @if($child->icon_url)
+                                                                        @if($child->lucide_icon)
+                                                                            <x-lucide :name="$child->lucide_icon" class="h-4 w-4 shrink-0 text-primary-500 dark:text-primary-400" />
+                                                                        @elseif($child->icon_url)
                                                                             <img src="{{ $child->icon_url }}" alt="" class="h-4 w-4 rounded object-cover shrink-0" loading="lazy">
                                                                         @endif
                                                                         <span>{{ $child->name }}</span>
@@ -241,12 +245,12 @@
                         </div>
 
                         <a href="{{ route('frontend.shop') }}?sort=newest" wire:navigate
-                            class="relative px-3 py-2 rounded-btn text-sm font-medium transition-colors duration-150 text-secondary-600 hover:text-secondary-900 hover:bg-secondary-100 dark:text-secondary-400 dark:hover:text-white dark:hover:bg-white/5">
+                            class="relative px-3 py-1 rounded-btn text-sm font-medium transition-colors duration-150 text-secondary-600 hover:text-secondary-900 hover:bg-secondary-100 dark:text-secondary-400 dark:hover:text-white dark:hover:bg-white/5">
                             <span data-i18n="New Arrivals" x-text="$store.i18n.t('New Arrivals')">New Arrivals</span>
                         </a>
 
                         <a href="{{ route('frontend.shop') }}?sort=sale" wire:navigate
-                            class="relative px-3 py-2 rounded-btn text-sm font-medium transition-colors duration-150 text-red-500 hover:text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-500/10">
+                            class="relative px-3 py-1 rounded-btn text-sm font-medium transition-colors duration-150 text-red-500 hover:text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-500/10">
                             <span data-i18n="Sale" x-text="$store.i18n.t('Sale')">Sale</span>
                         </a>
 
@@ -271,7 +275,7 @@
                                 x-ref="desktopSearchInput"
                                 placeholder="Search products, brands, categories..."
                                 data-i18n-placeholder="Search products..."
-                                class="w-full pl-11 pr-4 py-2.5 rounded-xl border border-secondary-200 dark:border-secondary-600 bg-secondary-50 dark:bg-secondary-800 text-sm text-secondary-900 dark:text-white placeholder:text-secondary-400 dark:placeholder:text-secondary-500 focus:border-primary-400 dark:focus:border-primary-400 focus:bg-white dark:focus:bg-secondary-700 focus:ring-2 focus:ring-primary-500/10 dark:focus:ring-primary-400/10 transition-all duration-200"
+                                class="w-full pl-11 pr-4 py-1.5 rounded-xl border border-secondary-200 dark:border-secondary-600 bg-secondary-50 dark:bg-secondary-800 text-sm text-secondary-900 dark:text-white placeholder:text-secondary-400 dark:placeholder:text-secondary-500 focus:border-primary-400 dark:focus:border-primary-400 focus:bg-white dark:focus:bg-secondary-700 focus:ring-2 focus:ring-primary-500/10 dark:focus:ring-primary-400/10 transition-all duration-200"
                                 autocomplete="off"
                                 aria-label="Search products">
                             <button type="button" x-show="searchQuery.length > 0" x-on:click="searchQuery = ''; searchResults = []; searchCategories = []"
@@ -493,7 +497,7 @@
         {{-- Mobile Search Bar --}}
         <div x-show="searchOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2"
             x-effect="if (searchOpen && window.innerWidth < 768 && $refs.mobileSearchInput) { $nextTick(() => $refs.mobileSearchInput.focus()) }"
-            class="md:hidden border-t border-secondary-100 dark:border-secondary-700 bg-white dark:bg-secondary-900 px-4 py-3 relative"
+            class="md:hidden border-t border-secondary-100 dark:border-secondary-700 bg-white dark:bg-secondary-900 px-4 py-1.5 relative"
             style="display: none;">
             <form action="{{ route('frontend.shop') }}" method="GET" class="relative">
                 <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-secondary-400 dark:text-secondary-500 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -505,7 +509,7 @@
                     x-on:blur="setTimeout(() => { searchFocused = false }, 200)"
                     x-ref="mobileSearchInput"
                     placeholder="Search products..." autocomplete="off"
-                    class="w-full pl-10 pr-10 py-2.5 rounded-xl border border-secondary-200 dark:border-secondary-600 bg-secondary-50 dark:bg-secondary-800 text-sm text-secondary-900 dark:text-white placeholder:text-secondary-400 dark:placeholder:text-secondary-500 focus:border-primary-500 dark:focus:border-primary-400 focus:bg-white dark:focus:bg-secondary-700 transition-all"
+                    class="w-full pl-10 pr-10 py-2 rounded-xl border border-secondary-200 dark:border-secondary-600 bg-secondary-50 dark:bg-secondary-800 text-sm text-secondary-900 dark:text-white placeholder:text-secondary-400 dark:placeholder:text-secondary-500 focus:border-primary-500 dark:focus:border-primary-400 focus:bg-white dark:focus:bg-secondary-700 transition-all"
                     aria-label="Search products">
                 <button type="button" x-show="searchQuery.length > 0" x-on:click="searchQuery = ''; searchResults = []; searchCategories = []"
                     class="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-secondary-200 dark:hover:bg-secondary-700 transition-colors text-secondary-400 dark:text-secondary-500"

@@ -18,6 +18,10 @@
             <input type="hidden" :name="'config[slides][' + index + '][heading]'" :value="slide.heading">
             <input type="hidden" :name="'config[slides][' + index + '][description]'" :value="slide.description">
             <input type="hidden" :name="'config[slides][' + index + '][image]'" :value="slide.image">
+            <input type="hidden" :name="'config[slides][' + index + '][image_path]'" :value="slide.image_path">
+            <input type="hidden" :name="'config[slides][' + index + '][brightness]'" :value="slide.brightness">
+            <input type="hidden" :name="'config[slides][' + index + '][overlay_opacity]'" :value="slide.overlay_opacity">
+            <input type="hidden" :name="'config[slides][' + index + '][overlay_color]'" :value="slide.overlay_color">
             <input type="hidden" :name="'config[slides][' + index + '][cta_primary]'" :value="slide.cta_primary">
             <input type="hidden" :name="'config[slides][' + index + '][cta_secondary]'" :value="slide.cta_secondary">
             <input type="hidden" :name="'config[slides][' + index + '][link_primary]'" :value="slide.link_primary">
@@ -46,8 +50,58 @@
                     <textarea x-model="slide.description" rows="2" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white"></textarea>
                 </div>
                 <div class="md:col-span-2">
-                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Image URL</label>
-                    <input type="url" x-model="slide.image" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Slide Image</label>
+                    <div class="flex items-start gap-3">
+                        <div class="flex-1">
+                            <input
+                                type="file"
+                                :name="'config[slides][' + index + '][image_file]'"
+                                accept="image/*"
+                                class="block w-full text-sm text-gray-600 dark:text-gray-400 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-500 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-brand-600"
+                                @change="slide.preview = $event.target.files.length ? URL.createObjectURL($event.target.files[0]) : null"
+                            >
+                            <p class="mt-1 text-xs text-gray-400">Optional — upload image from your panel. Both image upload and URL are optional.</p>
+                            <div class="mt-2">
+                                <label class="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">Or Image URL (optional)</label>
+                                <input type="url" x-model="slide.image" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white" placeholder="https://example.com/image.jpg">
+                            </div>
+                            <label class="mt-2 inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                <input type="checkbox" x-model="slide.remove_image" :name="'config[slides][' + index + '][remove_image]'" value="1" class="rounded border-gray-300 text-red-500 focus:ring-red-500">
+                                Remove current image
+                            </label>
+                        </div>
+                        <div class="shrink-0 w-36">
+                            <div class="w-36 h-20 rounded-lg bg-gray-100 dark:bg-gray-800 overflow-hidden border border-gray-200 dark:border-gray-700 flex items-center justify-center">
+                                <template x-if="slidePreview(slide)">
+                                    <img :src="slidePreview(slide)" alt="Preview" class="w-full h-full object-cover">
+                                </template>
+                                <template x-if="!slidePreview(slide)">
+                                    <span class="text-xs text-gray-400">No image</span>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Image Lighting</label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="mb-1 block text-xs text-gray-500 dark:text-gray-400">Brightness <span class="font-medium" x-text="slide.brightness + '%'"></span></label>
+                            <input type="range" min="0" max="200" step="1" x-model.number="slide.brightness" class="w-full accent-brand-500">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-xs text-gray-500 dark:text-gray-400">Dark Overlay <span class="font-medium" x-text="slide.overlay_opacity + '%'"></span></label>
+                            <input type="range" min="0" max="100" step="1" x-model.number="slide.overlay_opacity" class="w-full accent-brand-500">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-xs text-gray-500 dark:text-gray-400">Overlay Color</label>
+                            <input type="color" x-model="slide.overlay_color" class="h-9 w-full rounded-lg border border-gray-300 bg-white p-1 dark:border-gray-700 dark:bg-gray-900">
+                        </div>
+                    </div>
+                    <label class="mt-2 inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                        <input type="checkbox" x-model="slide.overlay_enabled" :name="'config[slides][' + index + '][overlay_enabled]'" value="1" class="rounded border-gray-300 text-brand-500 focus:ring-brand-500">
+                        Enable dark overlay (helps text readability)
+                    </label>
                 </div>
                 <div>
                     <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Primary CTA Text</label>
