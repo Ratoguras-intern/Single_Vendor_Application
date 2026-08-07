@@ -22,7 +22,7 @@
     class="py-6 sm:py-8 lg:py-10 bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-900"
 >
     <div class="section">
-        <div class="flex flex-col lg:flex-row items-center justify-between gap-6 mb-6">
+        <div class="flex flex-col lg:flex-row items-center justify-between gap-6 mb-4">
             <div class="text-center lg:text-left">
                 <span class="inline-flex items-center gap-2 rounded-full bg-red-500/10 border border-red-500/20 px-4 py-1.5 mb-4">
                     <span class="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse"></span>
@@ -53,7 +53,7 @@
         </div>
 
         @if($hasProducts)
-            <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-7">
                 @foreach(array_slice($flashSaleProducts, 0, $section?->max_products ?? 8) as $product)
                     @include('frontend.partials.product-card', ['product' => $product])
                 @endforeach

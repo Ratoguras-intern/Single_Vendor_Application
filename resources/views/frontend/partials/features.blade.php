@@ -1,4 +1,4 @@
-<div class="card mb-16">
+<div class="card mb-10">
     <div class="grid md:grid-cols-3 gap-8">
         <div class="flex items-start gap-4">
             <div class="p-3 rounded-card bg-primary-50 dark:bg-primary-950/30">

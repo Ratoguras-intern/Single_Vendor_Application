@@ -13,4 +13,22 @@ class NotificationController extends Controller
 
         return back()->with('success', 'All notifications marked as read.');
     }
+
+    public function redirect(Request $request, string $notificationId)
+    {
+        $notification = Auth::user()->notifications()->findOrFail($notificationId);
+        $notification->markAsRead();
+
+        $orderId = $notification->data['order_id'] ?? null;
+
+        if ($orderId && auth()->user()->role === 'admin') {
+            return redirect()->route('admin.orders.show', $orderId);
+        }
+
+        if ($orderId) {
+            return redirect()->route('customer.orders.show', $orderId);
+        }
+
+        return redirect()->back();
+    }
 }

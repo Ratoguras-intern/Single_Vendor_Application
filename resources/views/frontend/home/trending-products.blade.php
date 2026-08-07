@@ -5,7 +5,7 @@
 @if(!empty($trendingProducts) && count($trendingProducts) > 0)
 <section class="home-section home-section--alt">
     <div class="section">
-        <div class="flex items-end justify-between mb-6">
+        <div class="flex items-end justify-between mb-4">
             <div>
                 <h2 class="section-heading">{{ $section?->title ?? 'Trending Now' }}</h2>
                 <p class="section-subheading">{{ $section?->subtitle ?? "What everyone's talking about" }}</p>
@@ -16,7 +16,7 @@
             </a>
         </div>
 
-        <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <div x-data="{ viewMode: 'grid' }" class="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-7">
             @foreach(array_slice($trendingProducts, 0, $section?->max_products ?? 8) as $product)
                 @include('frontend.partials.product-card', ['product' => $product])
             @endforeach

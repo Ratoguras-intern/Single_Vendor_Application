@@ -6,7 +6,7 @@
 @if(!empty($testimonialItems))
 <section class="home-section">
     <div class="section">
-        <div class="text-center mb-6">
+        <div class="text-center mb-4">
             <h2 class="section-heading">{{ $section?->title ?? 'What Our Customers Say' }}</h2>
             <p class="section-subheading">{{ $section?->subtitle ?? 'Real reviews from real people' }}</p>
         </div>

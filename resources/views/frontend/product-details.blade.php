@@ -7,7 +7,7 @@
     <div class="section">
         @include('frontend.partials.breadcrumb', ['backUrl' => route('frontend.shop'), 'backLabel' => 'Back to Shop'])
 
-        <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 mb-16">
+        <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 mb-10">
             <div class="space-y-4">
                 <div class="rounded-card overflow-hidden bg-secondary-100 dark:bg-white/5">
                     <img src="{{ $product['image'] }}" alt="{{ $product['name'] }}" class="w-full h-auto max-h-[500px] object-cover" loading="eager" onerror="this.src='{{ asset('frontend-assets/images/no-image.jpg') }}'" />
@@ -79,12 +79,12 @@
         @include('frontend.partials.features')
 
         <div>
-            <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center justify-between mb-4">
                 <h2 class="section-heading" data-i18n="Related Products" x-text="$store.i18n.t('Related Products')">{{ __('Related Products') }}</h2>
                 <a href="{{ route('frontend.shop') }}" class="text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"><span data-i18n="View All" x-text="$store.i18n.t('View All')">{{ __('View All') }}</span></a>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 @foreach($relatedProducts as $related)
                     @include('frontend.partials.product-card', ['product' => $related])
                 @endforeach

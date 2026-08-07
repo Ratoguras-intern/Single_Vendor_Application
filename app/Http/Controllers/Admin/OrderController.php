@@ -61,8 +61,10 @@ class OrderController extends Controller
 
         $order->update([$field => $value]);
 
-        $adminName = auth()->user()->name;
-        $order->user->notify(new OrderStatusUpdatedNotification($order, $oldValue, $value, $adminName));
+        if ($order->user_id !== auth()->id()) {
+            $adminName = auth()->user()->name;
+            $order->user->notify(new OrderStatusUpdatedNotification($order, $oldValue, $value, $adminName));
+        }
 
         return response()->json([
             'message' => ucfirst(str_replace('_', ' ', $field)) . ' updated to ' . ucfirst($value) . '.',

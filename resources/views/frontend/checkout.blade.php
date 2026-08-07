@@ -5,7 +5,7 @@
 @section('content')
 <section x-data="checkout()" x-init="init()" class="py-8 sm:py-12">
     <div class="section">
-        <div class="mb-8">
+        <div class="mb-6">
             <h1 class="page-heading" data-i18n="Checkout" x-text="$store.i18n.t('Checkout')">Checkout</h1>
             <p class="section-subheading mt-1" data-i18n="Complete your order" x-text="$store.i18n.t('Complete your order')">Complete your order</p>
         </div>

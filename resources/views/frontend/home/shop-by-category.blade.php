@@ -5,7 +5,7 @@
 @if(!empty($categories) && count($categories) > 0)
 <section class="home-section">
     <div class="section">
-        <div class="flex items-end justify-between mb-6">
+        <div class="flex items-end justify-between mb-4">
             <div>
                 <h2 class="section-heading">{{ $section?->title ?? 'Shop by Category' }}</h2>
                 <p class="section-subheading">{{ $section?->subtitle ?? 'Browse our curated collections' }}</p>

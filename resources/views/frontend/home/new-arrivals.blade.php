@@ -5,7 +5,7 @@
 @if(!empty($newArrivals) && count($newArrivals) > 0)
 <section class="home-section">
     <div class="section">
-        <div class="flex items-end justify-between mb-6">
+        <div class="flex items-end justify-between mb-4">
             <div>
                 <h2 class="section-heading">{{ $section?->title ?? 'New Arrivals' }}</h2>
                 <p class="section-subheading">{{ $section?->subtitle ?? 'Fresh drops, just landed' }}</p>

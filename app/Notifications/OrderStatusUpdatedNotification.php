@@ -3,15 +3,10 @@
 namespace App\Notifications;
 
 use App\Models\Order;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
-class OrderStatusUpdatedNotification extends Notification implements ShouldQueue
-{
-    use Queueable;
-
-    public function __construct(
+class OrderStatusUpdatedNotification extends Notification
+{    public function __construct(
         public Order $order,
         public string $oldStatus,
         public string $newStatus,

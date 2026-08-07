@@ -5,7 +5,7 @@
 @if(!empty($brands) && count($brands) > 0)
 <section class="home-section home-section--alt">
     <div class="section">
-        <div class="text-center mb-6">
+        <div class="text-center mb-4">
             <h2 class="section-heading">{{ $section?->title ?? 'Top Brands' }}</h2>
             <p class="section-subheading">{{ $section?->subtitle ?? 'Trusted by our customers worldwide' }}</p>
         </div>

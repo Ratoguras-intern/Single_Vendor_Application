@@ -6,7 +6,7 @@
 @if(!empty($features))
 <section class="home-section">
     <div class="section">
-        <div class="text-center mb-6">
+        <div class="text-center mb-4">
             <h2 class="section-heading">{{ $section?->title ?? 'Why Choose Us' }}</h2>
             <p class="section-subheading">{{ $section?->subtitle ?? "We're committed to delivering the best experience" }}</p>
         </div>

@@ -13,7 +13,7 @@
 @if(!empty($galleryImages))
 <section class="home-section">
     <div class="section">
-        <div class="text-center mb-6">
+        <div class="text-center mb-4">
             <h2 class="section-heading">{{ $section?->title ?? 'Follow Us on Instagram' }}</h2>
             <p class="section-subheading">{{ $section?->subtitle ?? '@nbkvertex' }}</p>
         </div>

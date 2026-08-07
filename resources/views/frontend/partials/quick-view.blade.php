@@ -29,10 +29,6 @@
                     <img :src="$store.quickView.product.image" :alt="$store.quickView.product.name"
                         class="w-full h-full object-cover" loading="lazy" decoding="async"
                         onerror="this.src='{{ asset('frontend-assets/images/no-image.jpg') }}'">
-                    <template x-if="$store.quickView.hasDiscount()">
-                        <span class="absolute top-3 left-3 badge-danger text-[10px] font-bold px-2 py-0.5"
-                            x-text="'-' + Math.round(((($store.quickView.product.original_price - $store.quickView.product.price) / $store.quickView.product.original_price) * 100)) + '%'"></span>
-                    </template>
                 </div>
 
                 <div class="flex flex-col">

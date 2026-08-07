@@ -10,11 +10,9 @@
 ])
 
 @php
-    $from = max(1, ($currentPage - 1) * $perPage + 1);
-    $to = min($currentPage * $perPage, $total);
 @endphp
 
-<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+<div class="flex flex-wrap items-center justify-between gap-4 mb-4">
     <div class="flex items-center gap-3">
         <button
             type="button"
@@ -28,12 +26,6 @@
                 <span class="badge-danger text-[10px] px-1.5 py-0">!</span>
             @endif
         </button>
-
-        @if($total > 0)
-            <p class="text-sm text-secondary-500 dark:text-secondary-400">
-                <span>{{ number_format($from) }}–{{ number_format($to) }} of {{ number_format($total) }} Products</span>
-            </p>
-        @endif
     </div>
 
     <div class="flex items-center gap-3">

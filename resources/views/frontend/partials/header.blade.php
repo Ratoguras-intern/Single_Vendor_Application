@@ -390,16 +390,18 @@
                         class="relative p-2 rounded-full hover:bg-secondary-100 dark:hover:bg-white/5 transition-all duration-200 group text-secondary-600 dark:text-secondary-400"
                         aria-label="Shopping cart"
                         @click.prevent="if(window.innerWidth >= 1024) { cartOpen = !cartOpen } else { window.location='{{ route('frontend.cart') }}' }">
-                        <svg class="h-5 w-5 group-hover:text-secondary-900 dark:group-hover:text-white transition-colors"
-                            fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                            <circle cx="8" cy="21" r="1"/>
-                            <circle cx="19" cy="21" r="1"/>
-                            <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
-                        </svg>
-                        <span x-show="$store.cart.count() > 0"
-                            x-text="$store.cart.count() > 99 ? '99+' : $store.cart.count()"
-                            x-transition
-                            class="absolute -top-0.5 -right-0.5 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 bg-primary-500 shadow-sm"></span>
+                        <span class="relative inline-flex">
+                            <svg class="h-5 w-5 group-hover:text-secondary-900 dark:group-hover:text-white transition-colors"
+                                fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <circle cx="8" cy="21" r="1"/>
+                                <circle cx="19" cy="21" r="1"/>
+                                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+                            </svg>
+                            <span x-show="$store.cart.count() > 0"
+                                x-text="$store.cart.count() > 99 ? '99+' : $store.cart.count()"
+                                x-transition
+                                class="absolute -top-1.5 -right-1.5 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 bg-primary-500 shadow-sm ring-2 ring-white dark:ring-secondary-900"></span>
+                        </span>
                     </a>
                     @include('frontend.partials.cart-dropdown')
                 </div>

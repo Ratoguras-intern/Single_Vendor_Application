@@ -5,13 +5,13 @@
 @section('content')
 <section x-data class="py-8 sm:py-12">
     <div class="section">
-        <div x-show="$store.cart.loading" class="py-32">
+        <div x-show="$store.cart.loading" class="py-20">
             <div class="max-w-2xl mx-auto text-center">
                 <p class="text-secondary-500 dark:text-secondary-400">Loading your cart...</p>
             </div>
         </div>
 
-        <div x-show="!$store.cart.loading && $store.cart.count() === 0" style="display: none;" class="py-32">
+        <div x-show="!$store.cart.loading && $store.cart.count() === 0" style="display: none;" class="py-20">
             <div class="max-w-2xl mx-auto text-center">
                 <div class="w-20 h-20 rounded-full bg-secondary-100 dark:bg-white/5 flex items-center justify-center mx-auto mb-6">
                     <svg class="h-10 w-10 text-secondary-400 dark:text-secondary-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/></svg>
@@ -37,7 +37,7 @@
         </div>
 
         <div x-show="!$store.cart.loading && $store.cart.count() > 0" style="display: none;">
-            <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center justify-between mb-6">
                 <div>
                     <h1 class="page-heading" data-i18n="Shopping Cart" x-text="$store.i18n.t('Shopping Cart')">{{ __('Shopping Cart') }}</h1>
                     <p class="section-subheading mt-1">
@@ -172,7 +172,7 @@
                 </div>
             </div>
 
-            <div class="mt-16">
+            <div class="mt-10">
                 <div class="card">
                     <h2 class="text-lg font-semibold text-secondary-900 dark:text-white mb-4" data-i18n="You might also like" x-text="$store.i18n.t('You might also like')">{{ __('You might also like') }}</h2>
                     <div class="text-center py-8">

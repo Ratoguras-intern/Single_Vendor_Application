@@ -28,7 +28,8 @@
         </div>
         <div class="space-y-3 max-h-80 overflow-y-auto">
             @forelse($notifications as $notification)
-            <div class="flex items-start gap-3 p-2 rounded-lg {{ $notification->read_at ? 'bg-white' : 'bg-blue-50 dark:bg-white/[0.03]' }} hover:bg-gray-50 dark:hover:bg-white/[0.03]">
+            <a href="{{ route('notifications.redirect', $notification->id) }}"
+                class="flex items-start gap-3 p-2 rounded-lg {{ $notification->read_at ? 'bg-white' : 'bg-blue-50 dark:bg-white/[0.03]' }} hover:bg-gray-50 dark:hover:bg-white/[0.03]">
                 <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-green-50 text-green-600">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
@@ -36,7 +37,7 @@
                     <p class="text-sm text-gray-700 dark:text-gray-300 {{ $notification->read_at ? '' : 'font-medium' }}">{{ $notification->data['message'] ?? 'New notification' }}</p>
                     <p class="text-xs text-gray-400">{{ $notification->created_at->diffForHumans() }}</p>
                 </div>
-            </div>
+            </a>
             @empty
             <div class="text-center py-4">
                 <p class="text-sm text-gray-400">No notifications yet</p>

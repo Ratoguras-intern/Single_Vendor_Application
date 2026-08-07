@@ -1,14 +1,5 @@
 <div>
-    @if(!$category)
-        {{-- Shop breadcrumb --}}
-        <nav class="section pt-6 pb-2" aria-label="Breadcrumb">
-            <ol class="flex items-center gap-2 text-sm text-secondary-500 dark:text-secondary-400">
-                <li><a href="{{ route('frontend.home') }}" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">Home</a></li>
-                <li>/</li>
-                <li class="text-secondary-900 dark:text-white font-medium">Shop</li>
-            </ol>
-        </nav>
-    @else
+    @if($category)
         {{-- ═══ Category Hero ═══ --}}
         <section class="relative overflow-hidden bg-gradient-to-br from-secondary-900 via-secondary-800 to-primary-900">
             @if($category->banner_mobile_url)
@@ -104,7 +95,7 @@
     @endif
 
     {{-- ═══ Products Section (Toolbar + Filters + Grid) ═══ --}}
-    <section class="py-8 sm:py-10 lg:py-12" x-data="{ viewMode: localStorage.getItem('{{ $viewStorageKey }}') || 'grid' }">
+    <section class="{{ !$category ? 'py-3 sm:py-4 lg:py-5' : 'py-8 sm:py-10 lg:py-12' }}" x-data="{ viewMode: localStorage.getItem('{{ $viewStorageKey }}') || 'grid' }">
         <div class="section">
 
             @include('frontend.partials.category-toolbar', [
@@ -139,7 +130,7 @@
                 {{-- Product Grid --}}
                 <div class="flex-1 min-w-0 relative">
                     @if($products->count() > 0)
-                        <div :class="viewMode === 'list' ? 'grid grid-cols-1 gap-4' : 'grid gap-6 grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4'">
+                        <div :class="viewMode === 'list' ? 'grid grid-cols-1 gap-3 sm:gap-4' : 'grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4'">
                             @foreach($products as $product)
                                 <div wire:key="product-{{ $product['id'] }}" class="h-full">
                                     @include('frontend.partials.product-card', ['product' => $product])
@@ -151,6 +142,14 @@
                         <div class="mt-10">
                             @include('frontend.partials.category-pagination', ['paginator' => $products])
                         </div>
+
+                        @php
+                            $from = max(1, ($products->currentPage() - 1) * $products->perPage() + 1);
+                            $to = min($products->currentPage() * $products->perPage(), $products->total());
+                        @endphp
+                        <p class="mt-4 text-center text-sm text-secondary-500 dark:text-secondary-400">
+                            <span>{{ number_format($from) }}–{{ number_format($to) }} of {{ number_format($products->total()) }} Products</span>
+                        </p>
                     @else
                         {{-- Empty State --}}
                         <div class="text-center py-20">
@@ -190,13 +189,13 @@
         @if(!empty($recommendations['trending']) && count($recommendations['trending']) > 1)
             <section class="py-10 sm:py-12 border-t border-secondary-200 dark:border-secondary-800">
                 <div class="section">
-                    <div class="flex items-end justify-between mb-8">
+                    <div class="flex items-end justify-between mb-4">
                         <div>
                             <h2 class="text-xl sm:text-2xl font-bold text-secondary-900 dark:text-white">Trending in {{ $category->name }}</h2>
                             <p class="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Most popular products in this category</p>
                         </div>
                     </div>
-                    <div class="grid gap-6 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+                    <div x-data="{ viewMode: 'grid' }" class="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
                         @foreach(array_slice($recommendations['trending'], 0, 8) as $product)
                             @include('frontend.partials.product-card', ['product' => $product])
                         @endforeach
@@ -208,13 +207,13 @@
         @if(!empty($recommendations['new_arrivals']) && count($recommendations['new_arrivals']) > 1)
             <section class="py-10 sm:py-12 border-t border-secondary-200 dark:border-secondary-800">
                 <div class="section">
-                    <div class="flex items-end justify-between mb-8">
+                    <div class="flex items-end justify-between mb-4">
                         <div>
                             <h2 class="text-xl sm:text-2xl font-bold text-secondary-900 dark:text-white">New Arrivals in {{ $category->name }}</h2>
                             <p class="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Fresh products just added</p>
                         </div>
                     </div>
-                    <div class="grid gap-6 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+                    <div x-data="{ viewMode: 'grid' }" class="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
                         @foreach(array_slice($recommendations['new_arrivals'], 0, 8) as $product)
                             @include('frontend.partials.product-card', ['product' => $product])
                         @endforeach
