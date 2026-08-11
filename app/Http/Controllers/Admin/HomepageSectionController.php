@@ -45,6 +45,7 @@ class HomepageSectionController extends Controller
         match ($homepageSection->slug) {
             'flash-sale' => $this->updateFlashSale($config, $request),
             'hero-carousel' => $this->updateHeroCarousel($config, $request),
+            'sale-banner' => $this->updateSaleBanner($config, $request),
             'trust-bar' => $this->updateTrustBar($config, $request),
             'why-choose-us' => $this->updateWhyChooseUs($config, $request),
             'testimonials' => $this->updateTestimonials($config, $request),
@@ -63,12 +64,12 @@ class HomepageSectionController extends Controller
 
     public function toggleEnabled(HomepageSection $homepageSection)
     {
-        $homepageSection->update(['is_enabled' => !$homepageSection->is_enabled]);
+        $homepageSection->update(['is_enabled' => ! $homepageSection->is_enabled]);
         HomepageSection::clearCache();
 
         return response()->json([
             'is_enabled' => $homepageSection->is_enabled,
-            'message' => 'Section ' . ($homepageSection->is_enabled ? 'enabled' : 'disabled') . '.',
+            'message' => 'Section '.($homepageSection->is_enabled ? 'enabled' : 'disabled').'.',
         ]);
     }
 
@@ -121,7 +122,7 @@ class HomepageSectionController extends Controller
         foreach ($slides as $index => $slide) {
             $imagePath = $slide['image_path'] ?? null;
 
-            if (!empty($slide['remove_image'])) {
+            if (! empty($slide['remove_image'])) {
                 if ($imagePath && Storage::disk('public')->exists($imagePath)) {
                     Storage::disk('public')->delete($imagePath);
                 }
@@ -138,7 +139,7 @@ class HomepageSectionController extends Controller
             $slide['image_path'] = $slide['image_path'] ?? null;
             $slide['image'] = $slide['image'] ?? null;
             $slide['brightness'] = isset($slide['brightness']) && $slide['brightness'] !== '' ? (int) $slide['brightness'] : 100;
-            $slide['overlay_enabled'] = !empty($slide['overlay_enabled']);
+            $slide['overlay_enabled'] = ! empty($slide['overlay_enabled']);
             $slide['overlay_opacity'] = isset($slide['overlay_opacity']) && $slide['overlay_opacity'] !== '' ? (int) $slide['overlay_opacity'] : 40;
             $slide['overlay_color'] = $slide['overlay_color'] ?? '#000000';
 
@@ -163,6 +164,15 @@ class HomepageSectionController extends Controller
         if ($request->filled('config.items')) {
             $config['items'] = $request->input('config.items');
         }
+    }
+
+    private function updateSaleBanner(array &$config, Request $request): void
+    {
+        if ($request->filled('config.transition_speed')) {
+            $config['transition_speed'] = max(2000, min(30000, (int) $request->input('config.transition_speed')));
+        }
+        $config['autoplay'] = (bool) $request->input('config.autoplay');
+        $config['pause_on_hover'] = (bool) $request->input('config.pause_on_hover');
     }
 
     private function updateWhyChooseUs(array &$config, Request $request): void

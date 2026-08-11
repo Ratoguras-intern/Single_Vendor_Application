@@ -84,6 +84,8 @@
             @include('admin.homepage-sections._instagram-gallery')
         @elseif($section->slug === 'flash-sale')
             @include('admin.homepage-sections._flash-sale')
+        @elseif($section->slug === 'sale-banner')
+            @include('admin.homepage-sections._sale-banner')
         @elseif($section->slug === 'premium-footer')
             @include('admin.homepage-sections._premium-footer')
         @elseif(in_array($section->slug, ['featured-products','new-arrivals','trending-products','best-sellers','recommended-products','popular-products']))

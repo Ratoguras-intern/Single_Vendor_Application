@@ -37,7 +37,7 @@
         function bannerCountdown(endDate, autoHide) {
             autoHide = autoHide !== undefined ? autoHide : true;
             return {
-                show: !autoHide, days: 0, hours: 0, minutes: 0, seconds: 0, timer: null,
+                show: !autoHide, days: 0, hours: 0, minutes: 0, seconds: 0, expired: false, timer: null,
                 init() {
                     if (!endDate) return;
                     this.tick();
@@ -46,12 +46,17 @@
                 tick() {
                     if (!endDate) return;
                     const diff = new Date(endDate) - new Date();
-                    if (diff <= 0) { this.show = false; clearInterval(this.timer); return; }
-                    if (autoHide) this.show = true;
+                    if (diff <= 0) {
+                        this.expired = true;
+                        this.show = !autoHide;
+                        clearInterval(this.timer);
+                        return;
+                    }
                     this.days = Math.floor(diff / 86400000);
                     this.hours = Math.floor((diff % 86400000) / 3600000);
                     this.minutes = Math.floor((diff % 3600000) / 60000);
                     this.seconds = Math.floor((diff % 60000) / 1000);
+                    if (autoHide) this.show = true;
                 }
             };
         }
@@ -78,7 +83,7 @@
         });
     </script>
 </head>
-<body class="font-sans antialiased flex flex-col min-h-screen ">
+<body class="font-sans antialiased flex flex-col min-h-screen overflow-x-clip">
     <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:bg-primary-500 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:font-semibold">Skip to content</a>
     @include('frontend.partials.announcement-bar')
     @include('frontend.partials.header')

@@ -28,6 +28,9 @@ class HomeController extends Controller
         $categories = $this->getCategories();
         $brands = $this->getBrands();
         $heroBanners = Banner::forPosition('hero')->active()->ordered()->get();
+        $saleBanners = Banner::forPosition('sale')->running()->ordered()
+            ->with('featuredProduct.images')
+            ->get();
         $promotionalBanners = Banner::forPosition('promotional')->active()->ordered()->get();
         $middleBanners = Banner::forPosition('middle')->active()->ordered()->get();
         $featuredBanners = Banner::forPosition('featured-section')->active()->ordered()->get();
@@ -47,6 +50,7 @@ class HomeController extends Controller
             'categories',
             'brands',
             'heroBanners',
+            'saleBanners',
             'promotionalBanners',
             'middleBanners',
             'featuredBanners',

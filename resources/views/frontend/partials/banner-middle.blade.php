@@ -12,27 +12,16 @@
                         $tileStyle = trim($banner->section_margin_css . ' ' . $banner->banner_height_css . ' ' . $banner->border_radius_css);
                         $textWidthStyle = $banner->text_width_css;
                         $visibility = $banner->visibility_classes;
+                        $overlayBackground = $banner->overlay_enabled
+                            ? 'linear-gradient(to top, ' . $banner->overlay_rgba . ' 60%, transparent 100%)'
+                            : null;
                     @endphp
                     <a href="{{ $banner->link ?? '#' }}"
                         x-data="bannerCountdown('{{ $endDate }}', {{ $autoHide }})"
                         x-init="init()"
-                        x-show="show"
-                        x-transition:leave="transition ease-in duration-500"
-                        x-transition:leave-start="opacity-100 scale-100"
-                        x-transition:leave-end="opacity-0 scale-95"
-                        class="group relative block overflow-hidden rounded-card bg-secondary-900 min-h-[200px] sm:min-h-[240px] {{ $loop->first ? 'sm:col-span-2 lg:col-span-1' : '' }} {{ $visibility }}" @if($tileStyle) style="{{ $tileStyle }}" @endif>
-                        @if($banner->image_url)
-                            <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full transition-transform duration-500 group-hover:scale-105 hidden md:block" style="{{ $banner->image_css }}" loading="lazy">
-                        @endif
-                        @if($banner->mobile_image_url)
-                            <img src="{{ $banner->mobile_image_url }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full transition-transform duration-500 group-hover:scale-105 md:hidden" style="{{ $banner->image_css }}" loading="lazy">
-                        @elseif($banner->image_url)
-                            <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="absolute inset-0 w-full h-full transition-transform duration-500 group-hover:scale-105 md:hidden" style="{{ $banner->image_css }}" loading="lazy">
-                        @endif
-                        @if($banner->overlay_enabled)
-                            <div class="absolute inset-0" style="background: linear-gradient(to top, {{ $banner->overlay_rgba }} 60%, transparent 100%);"></div>
-                        @endif
-                        <div class="relative h-full flex flex-col {{ $verticalClass }} p-5" @if($banner->content_padding_css) style="{{ $banner->content_padding_css }}" @endif>
+                        class="group relative flex overflow-hidden rounded-card bg-secondary-900 min-h-[200px] sm:min-h-[240px] {{ $loop->first ? 'sm:col-span-2 lg:col-span-1' : '' }} {{ $visibility }}" @if($tileStyle) style="{{ $tileStyle }}" @endif>
+                        @include('frontend.partials.banner-media', ['banner' => $banner, 'overlayBackground' => $overlayBackground])
+                        <div class="relative z-10 w-full flex flex-col {{ $verticalClass }} p-5" @if($banner->content_padding_css) style="{{ $banner->content_padding_css }}" @endif>
                             <div class="flex flex-col {{ $alignClass }}" @if($textWidthStyle) style="{{ $textWidthStyle }}" @endif>
                                 @if($banner->badge)
                                     <span class="inline-flex items-center self-start rounded-full {{ $banner->badge_color ?? 'bg-primary-500' }} px-2.5 py-0.5 mb-2">

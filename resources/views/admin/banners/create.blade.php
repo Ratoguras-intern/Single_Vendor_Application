@@ -13,10 +13,11 @@
         <h2 class="text-xl font-bold text-gray-800 dark:text-white">Create Banner</h2>
     </div>
 
-    <div x-data="{ tab: 'content', tabs: ['content','images','buttons','schedule','targeting','display','style'], nextTab() { const i = this.tabs.indexOf(this.tab); if (i < this.tabs.length - 1) { this.tab = this.tabs[i + 1]; } } }" class="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+    <div x-data="{ tab: 'content', tabs: ['content','sale','images','buttons','schedule','targeting','display','style'], nextTab() { const i = this.tabs.indexOf(this.tab); if (i < this.tabs.length - 1) { this.tab = this.tabs[i + 1]; } } }" class="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div class="border-b border-gray-200 dark:border-gray-800">
             <nav class="flex flex-wrap gap-0 px-6" role="tablist">
                 <button @click="tab = 'content'" :class="tab === 'content' ? 'border-brand-500 text-brand-600 dark:text-brand-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'" class="px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap">Content</button>
+                <button @click="tab = 'sale'" :class="tab === 'sale' ? 'border-brand-500 text-brand-600 dark:text-brand-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'" class="px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap">Sale</button>
                 <button @click="tab = 'images'" :class="tab === 'images' ? 'border-brand-500 text-brand-600 dark:text-brand-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'" class="px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap">Images</button>
                 <button @click="tab = 'buttons'" :class="tab === 'buttons' ? 'border-brand-500 text-brand-600 dark:text-brand-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'" class="px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap">Buttons</button>
                 <button @click="tab = 'schedule'" :class="tab === 'schedule' ? 'border-brand-500 text-brand-600 dark:text-brand-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'" class="px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap">Schedule</button>
@@ -48,6 +49,10 @@
                         </div>
 
                     </div>
+                </div>
+
+                <div x-show="tab === 'sale'" x-cloak>
+                    @include('admin.banners._sale_settings')
                 </div>
 
                 <div x-show="tab === 'images'" x-cloak>
@@ -224,10 +229,10 @@
 
     @push('scripts')
     <script type="text/turbo-script">
-        ['image', 'mobile_image'].forEach(function(id) {
+        ['image', 'mobile_image', 'product_image'].forEach(function(id) {
             document.getElementById(id)?.addEventListener('change', function() {
-                const previewId = id === 'image' ? 'preview-img' : 'preview-mobile-img';
-                const containerId = id === 'image' ? 'image-preview' : 'mobile-image-preview';
+                const previewId = id === 'image' ? 'preview-img' : id === 'mobile_image' ? 'preview-mobile-img' : 'preview-product-img';
+                const containerId = id === 'image' ? 'image-preview' : id === 'mobile_image' ? 'mobile-image-preview' : 'product-image-preview';
                 if (this.files && this.files[0]) {
                     const reader = new FileReader();
                     reader.onload = function(e) {

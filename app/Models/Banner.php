@@ -2,8 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
@@ -21,12 +25,25 @@ class Banner extends Model
         'secondary_button_url',
         'badge',
         'badge_color',
+        'featured_product_id',
+        'product_image',
+        'background_color',
+        'gradient_from',
+        'gradient_to',
         'text_alignment',
         'image_position',
         'overlay_opacity',
         'style_settings',
         'text_color',
         'show_countdown',
+        'countdown_end_date',
+        'countdown_end_time',
+        'countdown_timezone',
+        'enable_badge',
+        'enable_product_image',
+        'enable_prices',
+        'enable_buttons',
+        'enable_overlay',
         'position',
         'target_pages',
         'is_enabled',
@@ -40,6 +57,11 @@ class Banner extends Model
         return [
             'is_enabled' => 'boolean',
             'show_countdown' => 'boolean',
+            'enable_badge' => 'boolean',
+            'enable_product_image' => 'boolean',
+            'enable_prices' => 'boolean',
+            'enable_buttons' => 'boolean',
+            'enable_overlay' => 'boolean',
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
             'target_pages' => 'array',
@@ -70,6 +92,17 @@ class Banner extends Model
             });
     }
 
+    public function scopeRunning(Builder $query): Builder
+    {
+        return $query->where('is_enabled', true)
+            ->where(function ($q) {
+                $q->whereNull('starts_at')->orWhere('starts_at', '<=', now());
+            })
+            ->where(function ($q) {
+                $q->whereNull('ends_at')->orWhere('ends_at', '>=', now());
+            });
+    }
+
     public function scopeScheduled(Builder $query): Builder
     {
         return $query->where('is_enabled', true)
@@ -86,7 +119,7 @@ class Banner extends Model
         return $query->orderBy('sort_order')->orderBy('id');
     }
 
-    public static function getCachedForPosition(string $position): \Illuminate\Support\Collection
+    public static function getCachedForPosition(string $position): Collection
     {
         return Cache::remember("banners_{$position}", 300, function () use ($position) {
             return static::active()
@@ -116,9 +149,104 @@ class Banner extends Model
         return $this->resolveImageUrl($this->mobile_image);
     }
 
+    public function featuredProduct(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'featured_product_id');
+    }
+
+    public function getProductImageUrlAttribute(): ?string
+    {
+        if ($this->product_image) {
+            return $this->resolveImageUrl($this->product_image);
+        }
+
+        $product = $this->featuredProduct;
+
+        if ($product && $product->relationLoaded('images') && $image = $product->primaryImage()) {
+            return $this->resolveImageUrl($image->image);
+        }
+
+        return null;
+    }
+
+    public function getCurrentPriceAttribute(): ?string
+    {
+        $product = $this->featuredProduct;
+
+        return $product ? (string) ($product->discount_price ?? $product->price) : null;
+    }
+
+    public function getOriginalPriceAttribute(): ?string
+    {
+        $product = $this->featuredProduct;
+
+        return $product && $product->discount_price ? (string) $product->price : null;
+    }
+
+    public function getDiscountPercentageAttribute(): ?int
+    {
+        $product = $this->featuredProduct;
+
+        if (! $product || ! $product->discount_price || ! $product->price) {
+            return null;
+        }
+
+        $original = (float) $product->price;
+        $current = (float) $product->discount_price;
+
+        if ($original <= 0 || $current >= $original) {
+            return null;
+        }
+
+        return (int) round((($original - $current) / $original) * 100);
+    }
+
+    public function getCountdownEndsAtAttribute(): ?CarbonInterface
+    {
+        if ($this->countdown_end_date && $this->countdown_end_time) {
+            $timezone = $this->countdown_timezone ?: config('app.timezone', 'UTC');
+            $date = Carbon::parse($this->countdown_end_date.' '.$this->countdown_end_time);
+
+            try {
+                return $date->setTimezone($timezone);
+            } catch (\Exception $e) {
+                return $date;
+            }
+        }
+
+        return $this->ends_at;
+    }
+
+    public function getCountdownEndsAtIsoAttribute(): ?string
+    {
+        return $this->countdown_ends_at?->toIso8601String();
+    }
+
+    public function getBackgroundStyleAttribute(): string
+    {
+        if ($this->image) {
+            return '';
+        }
+
+        if ($this->gradient_from && $this->gradient_to) {
+            return 'background: linear-gradient(120deg, '.e($this->gradient_from).' 0%, '.e($this->gradient_to).' 100%);';
+        }
+
+        if ($this->background_color) {
+            return 'background: '.e($this->background_color).';';
+        }
+
+        return '';
+    }
+
+    public function getIsSaleLayoutAttribute(): bool
+    {
+        return $this->position === 'sale';
+    }
+
     public function getStatusAttribute(): string
     {
-        if (!$this->is_enabled) {
+        if (! $this->is_enabled) {
             return 'inactive';
         }
         if ($this->starts_at && $this->starts_at->isFuture()) {
@@ -127,6 +255,7 @@ class Banner extends Model
         if ($this->ends_at && $this->ends_at->isPast()) {
             return 'expired';
         }
+
         return 'active';
     }
 
@@ -189,7 +318,7 @@ class Banner extends Model
         $color = ltrim($this->overlay_color, '#');
 
         if (strlen($color) === 3) {
-            $color = $color[0] . $color[0] . $color[1] . $color[1] . $color[2] . $color[2];
+            $color = $color[0].$color[0].$color[1].$color[1].$color[2].$color[2];
         }
 
         $r = hexdec(substr($color, 0, 2) ?: '00');
@@ -230,27 +359,27 @@ class Banner extends Model
         $settings = $this->styleSettings();
         $css = [];
 
-        $css[] = 'object-fit: ' . ($settings['image_fit'] ?? 'cover');
+        $css[] = 'object-fit: '.($settings['image_fit'] ?? 'cover');
 
-        $css[] = 'object-position: ' . $this->image_position_css;
+        $css[] = 'object-position: '.$this->image_position_css;
 
         $zoom = $settings['zoom'] ?? null;
         if ($zoom !== null && $zoom !== 100) {
-            $css[] = 'scale: ' . ($zoom / 100);
+            $css[] = 'scale: '.($zoom / 100);
         }
 
-        $css[] = 'filter: ' . $this->filterCss();
+        $css[] = 'filter: '.$this->filterCss();
 
         if (($settings['image_size'] ?? 'auto') === 'custom') {
             if ($settings['image_width']) {
-                $css[] = 'width: ' . (int) $settings['image_width'] . 'px';
+                $css[] = 'width: '.(int) $settings['image_width'].'px';
             }
             if ($settings['image_height']) {
-                $css[] = 'height: ' . (int) $settings['image_height'] . 'px';
+                $css[] = 'height: '.(int) $settings['image_height'].'px';
             }
         }
 
-        return implode('; ', $css) . ';';
+        return implode('; ', $css).';';
     }
 
     public function getBackgroundCssAttribute(): string
@@ -258,20 +387,20 @@ class Banner extends Model
         $settings = $this->styleSettings();
         $css = [];
 
-        $css[] = 'background-size: ' . $this->backgroundSizeCss();
+        $css[] = 'background-size: '.$this->backgroundSizeCss();
 
-        $css[] = 'background-position: ' . $this->image_position_css;
+        $css[] = 'background-position: '.$this->image_position_css;
 
-        $css[] = 'background-repeat: ' . ($settings['image_repeat'] ?? 'no-repeat');
+        $css[] = 'background-repeat: '.($settings['image_repeat'] ?? 'no-repeat');
 
         $zoom = $settings['zoom'] ?? null;
         if ($zoom !== null && $zoom !== 100) {
-            $css[] = 'scale: ' . ($zoom / 100);
+            $css[] = 'scale: '.($zoom / 100);
         }
 
-        $css[] = 'filter: ' . $this->filterCss();
+        $css[] = 'filter: '.$this->filterCss();
 
-        return implode('; ', $css) . ';';
+        return implode('; ', $css).';';
     }
 
     public function getBannerHeightCssAttribute(): string
@@ -279,7 +408,7 @@ class Banner extends Model
         $settings = $this->styleSettings();
         $height = $settings['banner_height'] ?? null;
 
-        if (!$height) {
+        if (! $height) {
             return '';
         }
 
@@ -298,7 +427,7 @@ class Banner extends Model
         }
 
         if ($px && $px >= 50) {
-            return 'min-height: ' . $px . 'px;';
+            return 'min-height: '.$px.'px;';
         }
 
         return '';
@@ -309,7 +438,7 @@ class Banner extends Model
         $settings = $this->styleSettings();
         $radius = $settings['border_radius'] ?? null;
 
-        if (!$radius) {
+        if (! $radius) {
             return '';
         }
 
@@ -327,7 +456,7 @@ class Banner extends Model
             return '';
         }
 
-        return 'border-radius: ' . $px . 'px;';
+        return 'border-radius: '.$px.'px;';
     }
 
     public function getContentPaddingCssAttribute(): string
@@ -342,7 +471,7 @@ class Banner extends Model
             return '';
         }
 
-        return 'padding: ' . (int) $top . 'px ' . (int) $right . 'px ' . (int) $bottom . 'px ' . (int) $left . 'px;';
+        return 'padding: '.(int) $top.'px '.(int) $right.'px '.(int) $bottom.'px '.(int) $left.'px;';
     }
 
     public function getSectionMarginCssAttribute(): string
@@ -355,7 +484,7 @@ class Banner extends Model
             return '';
         }
 
-        return 'margin-top: ' . (int) $top . 'px; margin-bottom: ' . (int) $bottom . 'px;';
+        return 'margin-top: '.(int) $top.'px; margin-bottom: '.(int) $bottom.'px;';
     }
 
     public function getContentVerticalAttribute(): ?string
@@ -383,16 +512,16 @@ class Banner extends Model
 
         $filters = [];
         if ($brightness !== null && $brightness !== 100) {
-            $filters[] = 'brightness(' . (int) $brightness . '%)';
+            $filters[] = 'brightness('.(int) $brightness.'%)';
         }
         if ($contrast !== null && $contrast !== 100) {
-            $filters[] = 'contrast(' . (int) $contrast . '%)';
+            $filters[] = 'contrast('.(int) $contrast.'%)';
         }
         if ($saturation !== null && $saturation !== 100) {
-            $filters[] = 'saturate(' . (int) $saturation . '%)';
+            $filters[] = 'saturate('.(int) $saturation.'%)';
         }
         if ($blur !== null && $blur > 0) {
-            $filters[] = 'blur(' . (int) $blur . 'px)';
+            $filters[] = 'blur('.(int) $blur.'px)';
         }
         if ($grayscale) {
             $filters[] = 'grayscale(1)';
@@ -412,8 +541,8 @@ class Banner extends Model
         }
 
         if ($size === 'custom') {
-            $width = $settings['image_width'] ? (int) $settings['image_width'] . 'px' : 'auto';
-            $height = $settings['image_height'] ? (int) $settings['image_height'] . 'px' : 'auto';
+            $width = $settings['image_width'] ? (int) $settings['image_width'].'px' : 'auto';
+            $height = $settings['image_height'] ? (int) $settings['image_height'].'px' : 'auto';
 
             return "{$width} {$height}";
         }
@@ -446,7 +575,7 @@ class Banner extends Model
             default => null,
         };
 
-        return $px ? 'max-width: ' . $px . 'px;' : '';
+        return $px ? 'max-width: '.$px.'px;' : '';
     }
 
     public function getVisibilityClassesAttribute(): string
@@ -466,11 +595,11 @@ class Banner extends Model
         }
         if ($tablet) {
             $classes[] = 'md:block';
-            if (!$desktop) {
+            if (! $desktop) {
                 $classes[] = 'lg:hidden';
             }
         }
-        if ($desktop && !$tablet) {
+        if ($desktop && ! $tablet) {
             $classes[] = 'lg:block';
         }
 
@@ -479,12 +608,13 @@ class Banner extends Model
 
     protected function resolveImageUrl(?string $path): ?string
     {
-        if (!$path) {
+        if (! $path) {
             return null;
         }
         if (str_starts_with($path, 'http')) {
             return $path;
         }
+
         return Storage::disk('public')->url($path);
     }
 }

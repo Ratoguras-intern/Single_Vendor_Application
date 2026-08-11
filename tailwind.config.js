@@ -16,6 +16,20 @@ export default {
         'md:hidden',
         'lg:block',
         'lg:hidden',
+        'object-cover',
+        'object-contain',
+        'object-fill',
+        'object-none',
+        'object-scale-down',
+        'object-center',
+        'object-top',
+        'object-bottom',
+        'object-left',
+        'object-right',
+        'object-left-top',
+        'object-right-top',
+        'object-left-bottom',
+        'object-right-bottom',
     ],
 
     theme: {
@@ -98,6 +112,14 @@ export default {
                     '0%':   { opacity: '0', transform: 'translateY(-8px)' },
                     '100%': { opacity: '1', transform: 'translateY(0)' },
                 },
+                'float': {
+                    '0%, 100%': { transform: 'translateY(0)' },
+                    '50%':      { transform: 'translateY(-10px)' },
+                },
+                'countdown-pulse': {
+                    '0%, 100%': { transform: 'scale(1)', opacity: '1' },
+                    '50%':      { transform: 'scale(1.08)', opacity: '0.85' },
+                },
             },
             animation: {
                 'mega-enter':     'mega-enter 0.2s ease-out',
@@ -106,6 +128,8 @@ export default {
                 'badge-bounce':   'badge-bounce 0.3s ease-in-out',
                 'search-expand':  'search-expand 0.3s ease-out',
                 'fade-down':      'fade-down 0.2s ease-out',
+                'float':          'float 4s ease-in-out infinite',
+                'countdown-pulse': 'countdown-pulse 1s ease-in-out infinite',
             },
             maxHeight: {
                 'hero': '650px',

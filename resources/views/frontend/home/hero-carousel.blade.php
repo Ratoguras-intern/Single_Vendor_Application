@@ -167,7 +167,7 @@
     class="pb-0"
     @if($heroSectionMargin) style="{{ $heroSectionMargin }}" @endif
 >
-    <div class="relative w-full h-[70svh] min-h-[480px] bg-secondary-900 overflow-hidden" @if($heroContainerStyle) style="{{ $heroContainerStyle }}" @endif>
+    <div class="relative w-full min-h-[max(70svh,480px)] bg-secondary-900 overflow-hidden" @if($heroContainerStyle) style="{{ $heroContainerStyle }}" @endif>
     @foreach($slides as $i => $slide)
         <div
             class="absolute inset-0 {{ $slide['visibility_classes'] }} {{ $i > 0 ? 'opacity-0' : '' }}"
@@ -210,6 +210,7 @@
                     class="hero-slide-bg hidden md:block w-full h-full object-cover {{ $objectPos }} {{ $i > 0 ? 'opacity-0' : '' }} transition-opacity duration-700"
                     :class="current === {{ $i }} ? 'opacity-100 ken-burns' : 'opacity-0'"
                     @if($i === 0) fetchpriority="high" @else loading="lazy" decoding="async" @endif
+                    onerror="this.onerror=null;this.src='{{ asset('frontend-assets/images/no-image.jpg') }}';"
                     @if($imgStyle) style="{{ $imgStyle }}" @endif
                 >
             @endif
@@ -220,6 +221,7 @@
                     class="hero-slide-bg md:hidden w-full h-full object-cover {{ $objectPos }} {{ $i > 0 ? 'opacity-0' : '' }} transition-opacity duration-700"
                     :class="current === {{ $i }} ? 'opacity-100 ken-burns' : 'opacity-0'"
                     @if($i === 0) fetchpriority="high" @else loading="lazy" decoding="async" @endif
+                    onerror="this.onerror=null;this.src='{{ asset('frontend-assets/images/no-image.jpg') }}';"
                     @if($imgStyle) style="{{ $imgStyle }}" @endif
                 >
             @elseif($desktopSrc)
@@ -229,6 +231,7 @@
                     class="hero-slide-bg md:hidden w-full h-full object-cover {{ $objectPos }} {{ $i > 0 ? 'opacity-0' : '' }} transition-opacity duration-700"
                     :class="current === {{ $i }} ? 'opacity-100 ken-burns' : 'opacity-0'"
                     @if($i === 0) fetchpriority="high" @else loading="lazy" decoding="async" @endif
+                    onerror="this.onerror=null;this.src='{{ asset('frontend-assets/images/no-image.jpg') }}';"
                     @if($imgStyle) style="{{ $imgStyle }}" @endif
                 >
             @endif

@@ -14,6 +14,8 @@
 
     @if($slug === 'hero-carousel')
         @include('frontend.home.hero-carousel')
+    @elseif($slug === 'sale-banner')
+        @include('frontend.home.sale-banner')
     @elseif($slug === 'trust-bar')
         @include('frontend.home.trust-bar')
     @elseif($slug === 'shop-by-category')
