@@ -122,6 +122,7 @@ Route::middleware(['auth', 'customer'])
     ->group(function () {
         Route::get('/orders', [CustomerOrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [CustomerOrderController::class, 'show'])->name('orders.show');
+        Route::post('/orders/{order}/cancel', [CustomerOrderController::class, 'cancel'])->name('orders.cancel');
     });
 
 Route::middleware(['auth', 'admin'])

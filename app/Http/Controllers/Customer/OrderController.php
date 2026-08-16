@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\User;
+use App\Notifications\OrderCancelledNotification;
 use App\Support\OrderStatuses;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -41,5 +43,30 @@ class OrderController extends Controller
         $order->load(['items.product', 'payments', 'statusHistory.changedBy']);
 
         return view('customer.orders.show', compact('order'));
+    }
+
+    public function cancel(Order $order)
+    {
+        if ($order->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        if (OrderStatuses::isTerminal($order->status)) {
+            return back()->with('error', 'This order cannot be cancelled.');
+        }
+
+        $order->update(['status' => OrderStatuses::CANCELLED]);
+
+        $order->statusHistory()->create([
+            'status' => OrderStatuses::CANCELLED,
+            'comment' => 'Cancelled by customer.',
+            'changed_by_user_id' => Auth::id(),
+        ]);
+
+        foreach (User::where('role', 'admin')->get() as $admin) {
+            $admin->notify(new OrderCancelledNotification($order, Auth::user()->name));
+        }
+
+        return back()->with('success', 'Order cancelled successfully.');
     }
 }
