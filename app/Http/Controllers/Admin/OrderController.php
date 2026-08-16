@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Notifications\OrderStatusUpdatedNotification;
+use App\Support\OrderStatuses;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -34,7 +35,11 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        $order->load(['user', 'items.product']);
+        $order->load([
+            'user',
+            'items.product',
+            'statusHistory.changedBy',
+        ]);
 
         return view('admin.orders.show', compact('order'));
     }
@@ -45,7 +50,7 @@ class OrderController extends Controller
         $value = $request->input('value');
 
         $validFields = [
-            'status' => ['pending', 'processing', 'shipped', 'completed', 'cancelled'],
+            'status' => OrderStatuses::all(),
             'payment_status' => ['pending', 'paid', 'failed', 'cod'],
         ];
 
@@ -61,6 +66,14 @@ class OrderController extends Controller
 
         $order->update([$field => $value]);
 
+        if ($field === 'status') {
+            $order->statusHistory()->create([
+                'status' => $value,
+                'comment' => $request->input('comment'),
+                'changed_by_user_id' => auth()->id(),
+            ]);
+        }
+
         if ($order->user_id !== auth()->id()) {
             $adminName = auth()->user()->name;
             $order->user->notify(new OrderStatusUpdatedNotification($order, $oldValue, $value, $adminName));
@@ -69,6 +82,23 @@ class OrderController extends Controller
         return response()->json([
             'message' => ucfirst(str_replace('_', ' ', $field)) . ' updated to ' . ucfirst($value) . '.',
             'value' => $value,
+            'status' => $order->status,
+        ]);
+    }
+
+    public function updateTracking(Request $request, Order $order)
+    {
+        $validated = $request->validate([
+            'tracking_carrier' => 'nullable|string|max:255',
+            'tracking_number' => 'nullable|string|max:255',
+        ]);
+
+        $order->update($validated);
+
+        return response()->json([
+            'message' => 'Tracking information saved.',
+            'tracking_carrier' => $order->tracking_carrier,
+            'tracking_number' => $order->tracking_number,
         ]);
     }
 }

@@ -3,7 +3,7 @@
         class="flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-400">
         <span class="hidden text-right lg:block">
             <span class="block text-sm font-semibold text-gray-800 dark:text-white">{{ Auth::user()->name ?? 'Admin' }}</span>
-            <span class="block text-xs text-gray-500 dark:text-gray-400">{{ Auth::user()->role ?? 'admin' }}</span>
+            <span class="block text-xs text-gray-500 dark:text-gray-400">{{ Str::headline(Auth::user()->role ?? 'admin') }}</span>
         </span>
         <svg class="hidden sm:block" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>

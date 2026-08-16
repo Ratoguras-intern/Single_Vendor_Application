@@ -3,7 +3,6 @@
 return [
     'positions' => [
         'hero',
-        'sale',
         'promotional',
         'middle',
         'featured-section',

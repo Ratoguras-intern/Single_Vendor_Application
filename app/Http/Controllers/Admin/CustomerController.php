@@ -34,7 +34,7 @@ class CustomerController extends Controller
 
         $stats = [
             'total_orders' => $customer->orders()->count(),
-            'completed_orders' => $customer->completedOrdersCount(),
+            'completed_orders' => $customer->deliveredOrdersCount(),
             'total_spent' => $customer->totalSpent(),
             'last_order' => $customer->lastOrder(),
         ];

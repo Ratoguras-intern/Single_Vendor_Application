@@ -44,7 +44,7 @@
                             </td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $customer->email }}</td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $customer->orders_count }}</td>
-                            <td class="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white">${{ number_format($customer->orders_sum_total_amount ?? 0, 2) }}</td>
+                            <td class="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white">{{ format_currency($customer->orders_sum_total_amount ?? 0) }}</td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $customer->created_at->format('M d, Y') }}</td>
                             <td class="px-5 py-4">
                                 <div class="flex items-center gap-2">

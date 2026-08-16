@@ -6,7 +6,6 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class CartService
 {
@@ -33,9 +32,7 @@ class CartService
             ->get();
 
         return $items->map(function ($item) {
-            $item->image = $item->image_path
-                ? Storage::disk('public')->url($item->image_path)
-                : asset('frontend-assets/images/no-image.jpg');
+            $item->image = product_image_url($item->image_path);
             unset($item->image_path);
             return $item;
         })->toArray();

@@ -30,7 +30,7 @@
     <div class="mt-4 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
         <p class="text-sm text-gray-500 dark:text-gray-400">
             Manage the banners shown in this slider from
-            <a href="{{ route('admin.banners.index', ['position' => 'sale']) }}" class="text-brand-500 hover:text-brand-600 dark:text-brand-400 dark:hover:text-brand-300 font-medium">Sale Banners</a>.
+            <a href="{{ route('admin.sale-banners.index') }}" class="text-brand-500 hover:text-brand-600 dark:text-brand-400 dark:hover:text-brand-300 font-medium">Sale Banners</a>.
             Only active banners with the <strong>sale</strong> position are displayed, in their sort order.
         </p>
     </div>

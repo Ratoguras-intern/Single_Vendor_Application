@@ -9,7 +9,21 @@ window.Turbo = Turbo;
 // ---------- Turbo Drive (SPA navigation without full page reload) ----------
 
 Turbo.start();
-Turbo.setProgressBarDelay(0);
+// Delay before the progress bar appears so fast SPA navigations don't flash it.
+Turbo.config.drive.progressBarDelay = 250;
+
+// The preloader must only run on real page loads. On Turbo SPA navigations the
+// body is swapped instantly; showing the spinner just flickers and makes the
+// backend look like it keeps refreshing.
+document.addEventListener('turbo:before-render', () => {
+    window.__preloaderSkip = true;
+});
+document.addEventListener('turbo:render', () => {
+    const preloader = document.getElementById('page-preloader');
+    if (preloader) {
+        preloader.style.display = 'none';
+    }
+});
 
 // Re-run per-page inline scripts after every Turbo render. Page scripts use
 // type="text/turbo-script" so neither the browser nor Turbo executes them

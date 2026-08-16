@@ -323,9 +323,7 @@ class ProductListing extends Component
             'slug' => $product->slug,
             'price' => (float) $effectivePrice,
             'original_price' => $product->discount_price ? (float) $product->price : null,
-            'image' => $image?->image
-                ? Storage::disk('public')->url($image->image)
-                : asset('frontend-assets/images/no-image.jpg'),
+            'image' => product_image_url($image?->image),
             'description' => $product->description,
             'brand' => $product->brand?->name,
             'stock' => $product->stock,

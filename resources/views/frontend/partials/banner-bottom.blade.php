@@ -1,4 +1,4 @@
-@if(!empty($bottomBanners) && $bottomBanners->isNotEmpty())
+﻿@if(!empty($bottomBanners) && $bottomBanners->isNotEmpty())
     @foreach($bottomBanners as $banner)
         @php
             $textColor = $banner->text_color ?? 'text-white';
@@ -18,8 +18,9 @@
             x-data="bannerCountdown('{{ $endDate }}', {{ $autoHide }})"
             x-init="init()">
             <div class="section py-0">
-                <a href="{{ $banner->link ?? '#' }}" class="group relative flex w-full overflow-hidden rounded-card bg-secondary-900 min-h-[160px] sm:min-h-[200px] lg:min-h-[250px]" @if($tileStyle) style="{{ $tileStyle }}" @endif>
+                <div class="group relative flex w-full overflow-hidden rounded-card bg-secondary-900 min-h-[160px] sm:min-h-[200px] lg:min-h-[250px]" @if($tileStyle) style="{{ $tileStyle }}" @endif>
                     @include('frontend.partials.banner-media', ['banner' => $banner, 'overlayBackground' => $overlayBackground])
+                    <a href="{{ $banner->link ?? '#' }}" class="absolute inset-0" style="z-index: 1;" aria-label="{{ $banner->title ?? 'Banner' }}"></a>
                     <div class="relative z-10 w-full flex flex-col {{ $justifyClass }} {{ $alignClass }} px-6 sm:px-10 lg:px-14 py-8 sm:py-10" @if($banner->content_padding_css) style="{{ $banner->content_padding_css }}" @endif>
                         <div class="w-full flex flex-col {{ $banner->text_alignment === 'center' ? 'mx-auto' : '' }} {{ $banner->text_alignment === 'right' ? 'ml-auto' : '' }}" @if($textWidthStyle) style="{{ $textWidthStyle }}" @endif>
                             @if($banner->badge)
@@ -60,7 +61,7 @@
                             @endif
                         </div>
                     </div>
-                </a>
+                </div>
             </div>
         </section>
     @endforeach

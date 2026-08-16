@@ -26,7 +26,8 @@ class DashboardController extends Controller
 
         $totalOrders = Order::count();
         $pendingOrders = Order::where('status', 'pending')->count();
-        $completedOrders = Order::where('status', 'completed')->count();
+        $packedOrders = Order::where('status', 'packed')->count();
+        $deliveredOrders = Order::where('status', 'delivered')->count();
         $cancelledOrders = Order::where('status', 'cancelled')->count();
 
         $totalRevenue = Order::where('payment_status', 'paid')->sum('total_amount');
@@ -38,6 +39,8 @@ class DashboardController extends Controller
             ->whereYear('created_at', $now->year)
             ->sum('total_amount');
         $averageOrderValue = Order::where('payment_status', 'paid')->avg('total_amount') ?? 0;
+
+        $lowStockProducts = Product::where('stock', '<=', 10)->orderBy('stock')->limit(10)->get();
 
         // --- Monthly Sales (last 12 months) ---
         $monthlySales = Order::where('payment_status', 'paid')
@@ -110,12 +113,14 @@ class DashboardController extends Controller
             'totalBrands',
             'totalOrders',
             'pendingOrders',
-            'completedOrders',
+            'packedOrders',
+            'deliveredOrders',
             'cancelledOrders',
             'totalRevenue',
             'revenueToday',
             'revenueThisMonth',
             'averageOrderValue',
+            'lowStockProducts',
             'salesLabels',
             'salesData',
             'salesRevenue',

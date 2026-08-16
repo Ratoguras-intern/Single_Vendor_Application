@@ -40,7 +40,7 @@
         @apply flex items-center gap-2 px-2.5 py-1.5 text-sm rounded-lg transition-all duration-200;
     }
     .menu-dropdown-item-active {
-        @apply bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400;
+        @apply bg-brand-50/70 text-brand-600 border-l-2 border-brand-400 pl-2 font-medium dark:bg-brand-500/10 dark:text-brand-400 dark:border-brand-500/50;
     }
     .menu-dropdown-item-inactive {
         @apply text-gray-600 hover:bg-gray-100 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03];

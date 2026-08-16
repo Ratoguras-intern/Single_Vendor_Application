@@ -4,26 +4,43 @@
 
     // Get current path
     $currentPath = request()->path();
+
+    // Collect all submenu keys so we can restore a persisted open state
+    $submenuKeys = [];
+    foreach ($menuGroups as $groupIndex => $menuGroup) {
+        foreach ($menuGroup['items'] as $itemIndex => $item) {
+            if (isset($item['subItems'])) {
+                $submenuKeys[] = $groupIndex . '-' . $itemIndex;
+            }
+        }
+    }
 @endphp
 
 <aside id="sidebar"
     class="fixed flex flex-col mt-0 top-0 px-3 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 dark:text-gray-300 h-screen transition-all duration-300 ease-in-out z-[99999] border-r border-gray-200"
     x-data="{
         openSubmenus: {},
+        submenuKeys: @js($submenuKeys),
         init() {
-            // Auto-open Dashboard menu on page load
             this.initializeActiveMenus();
         },
         initializeActiveMenus() {
+            // Restore a manually opened submenu so it never closes on navigation
+            const persisted = localStorage.getItem('sidebar.openSubmenu');
+            if (persisted && this.submenuKeys.includes(persisted)) {
+                this.openSubmenus[persisted] = true;
+                return;
+            }
+
             const currentPath = '{{ $currentPath }}';
-    
+
             @foreach ($menuGroups as $groupIndex => $menuGroup)
                 @foreach ($menuGroup['items'] as $itemIndex => $item)
                     @if (isset($item['subItems']))
                         // Check if any submenu item matches current path
                         @foreach ($item['subItems'] as $subItem)
                             if (currentPath === '{{ ltrim($subItem['path'], '/') }}' ||
-                                window.location.pathname === '{{ $subItem['path'] }}') {
+                                window.location.pathname === '{{ parse_url($subItem['path'], PHP_URL_PATH) }}') {
                                 this.openSubmenus['{{ $groupIndex }}-{{ $itemIndex }}'] = true;
                             } @endforeach
             @endif
@@ -33,20 +50,27 @@
         toggleSubmenu(groupIndex, itemIndex) {
             const key = groupIndex + '-' + itemIndex;
             const newState = !this.openSubmenus[key];
-    
-            // Close all other submenus when opening a new one
+
+            this.openSubmenus = {};
+
             if (newState) {
-                this.openSubmenus = {};
+                this.openSubmenus[key] = true;
+                // Keep the dropdown open until the admin closes it explicitly
+                localStorage.setItem('sidebar.openSubmenu', key);
+            } else {
+                localStorage.removeItem('sidebar.openSubmenu');
             }
-    
-            this.openSubmenus[key] = newState;
         },
         isSubmenuOpen(groupIndex, itemIndex) {
             const key = groupIndex + '-' + itemIndex;
             return this.openSubmenus[key] || false;
         },
         isActive(path) {
-            return window.location.pathname === path || '{{ $currentPath }}' === path.replace(/^\//, '');
+            let target = path;
+            try {
+                target = new URL(path, window.location.origin).pathname;
+            } catch (e) {}
+            return window.location.pathname === target;
         }
     }"
     :class="{
@@ -62,7 +86,7 @@
         :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ?
         'xl:justify-center' :
         'justify-start'">
-        <x-brand-logo sidebar subtitle="ADMIN SUITE" />
+        <x-brand-logo sidebar subtitle="{{ auth()->user()->role === 'super_admin' ? 'SUPER ADMIN' : 'ADMIN SUITE' }}" />
     </div>
 
     <!-- Navigation Menu -->

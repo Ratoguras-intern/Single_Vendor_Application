@@ -93,6 +93,54 @@
         <div :class="isApplicationMenuOpen ? 'flex' : 'hidden'"
             class="items-center justify-between w-full gap-4 px-5 py-4 xl:flex shadow-theme-md xl:justify-end xl:px-0 xl:shadow-none">
             <div class="flex items-center gap-2 2xsm:gap-3">
+                <!-- Currency Switcher -->
+                <div class="relative"
+                    x-data='{
+                        open: false,
+                        code: "{{ admin_currency() }}",
+                        config: @json(config('currency.supported')),
+                        async setCurrency(key) {
+                            this.code = key;
+                            this.open = false;
+                            await fetch("{{ route('admin.currency') }}", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                                    "Accept": "application/json",
+                                },
+                                body: JSON.stringify({ currency: key }),
+                            });
+                            if (window.Turbo) {
+                                window.Turbo.visit(window.location.href, { action: "replace" });
+                            } else {
+                                window.location.reload();
+                            }
+                        }
+                    }'>
+                    <button type="button" @click="open = !open" @click.outside="open = false"
+                        class="flex h-11 items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:text-white"
+                        aria-label="Select currency">
+                        <span x-text="config[code] ? config[code].symbol : '{{ currency_symbol() }}'"></span>
+                        <span x-text="code"></span>
+                        <svg :class="open ? 'rotate-180' : ''" class="transition-transform" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                            <path d="M2.5 4L6 7.5L9.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div x-show="open" x-transition x-cloak
+                        class="absolute right-0 z-50 mt-2 w-44 rounded-lg border border-gray-200 bg-white py-1 shadow-theme-md dark:border-gray-800 dark:bg-gray-900">
+                        <template x-for="(cfg, key) in config" :key="key">
+                            <button type="button" @click="setCurrency(key)"
+                                class="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/5"
+                                :class="code === key ? 'font-semibold text-brand-500 dark:text-brand-400' : ''">
+                                <span x-text="cfg.symbol" class="w-5"></span>
+                                <span x-text="key" class="flex-1 text-left"></span>
+                                <span x-show="code === key" class="text-brand-500">&#10003;</span>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
                 <!-- Theme Toggle Button -->
                 <button
                     class="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-dark-900 h-11 w-11 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"

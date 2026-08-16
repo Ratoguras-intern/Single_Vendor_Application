@@ -19,11 +19,16 @@ class BrandSeeder extends Seeder
     public function run(): void
     {
         foreach ($this->brands as $name) {
-            Brand::firstOrCreate([
-                'name' => $name,
-                'slug' => Str::slug($name),
-                'status' => 'active',
-            ]);
+            $slug = Str::slug($name);
+
+            Brand::updateOrCreate(
+                ['slug' => $slug],
+                [
+                    'name' => $name,
+                    'status' => 'active',
+                    'logo' => "brands/{$slug}.jpg",
+                ],
+            );
         }
     }
 }

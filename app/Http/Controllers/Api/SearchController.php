@@ -39,7 +39,7 @@ class SearchController extends Controller
                     'name'     => $product->name,
                     'price'    => $product->discount_price ?? $product->price,
                     'original_price' => $product->price,
-                    'image'    => $image ? asset('storage/' . $image->image) : asset('images/placeholder.jpg'),
+                    'image'    => product_image_url($image?->image),
                     'category' => $product->category?->name,
                     'brand'    => $product->brand?->name,
                 ];

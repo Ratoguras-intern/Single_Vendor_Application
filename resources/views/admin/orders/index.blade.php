@@ -9,7 +9,8 @@
 
 @section('content')
     @php
-        $allStatuses = ['pending', 'processing', 'shipped', 'completed', 'cancelled'];
+        use App\Support\OrderStatuses;
+        $allStatuses = OrderStatuses::all();
         $allPaymentStatuses = ['pending', 'paid', 'failed', 'cod'];
         $hasFilters = request()->filled('status') || request()->filled('payment_status') || request()->filled('month');
     @endphp
@@ -82,7 +83,7 @@
                         <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02]" x-data="orderActions({{ $order->id }}, '{{ $order->status }}', '{{ $order->payment_status }}')">
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">#{{ $order->id }}</td>
                             <td class="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white">{{ $order->user->name ?? 'Guest' }}</td>
-                            <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">${{ number_format($order->total_amount, 2) }}</td>
+                            <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ format_currency($order->total_amount) }}</td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $order->created_at->format('M d, Y') }}</td>
                             <td class="px-5 py-4">
                                 <div class="flex items-center gap-1.5">
@@ -142,6 +143,13 @@
                                         </span>
                                         <span x-text="isShipped ? 'Shipped' : 'Not shipped'">Not shipped</span>
                                     </button>
+
+                                    @if($order->tracking_number)
+                                        <a href="{{ route('admin.orders.show', $order) }}" title="Tracking: {{ $order->tracking_carrier }} {{ $order->tracking_number }}"
+                                            class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-500 shadow-sm transition hover:bg-gray-50 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-white/[0.06] dark:hover:text-gray-200">
+                                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18h4a1 1 0 0 0 1-1v-3.28a1 1 0 0 0-.684-.948l-1.923-.641a1 1 0 0 1-.578-.502l-1.539-3.076A1 1 0 0 0 14.382 8H11"/><path d="M8 18a2 2 0 1 1-4 0 2 2 0 0 1 4 0"/><path d="M20 18a2 2 0 1 1-4 0 2 2 0 0 1 4 0"/></svg>
+                                        </a>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -186,9 +194,9 @@
                     get statusColor() {
                         const colors = {
                             pending: 'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400',
-                            processing: 'bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400',
+                            packed: 'bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400',
                             shipped: 'bg-purple-50 text-purple-700 dark:bg-purple-500/10 dark:text-purple-400',
-                            completed: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400',
+                            delivered: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400',
                             cancelled: 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400',
                         };
                         return colors[this.currentStatus] || colors.pending;
@@ -207,9 +215,9 @@
                     get statusDot() {
                         const colors = {
                             pending: 'bg-amber-500',
-                            processing: 'bg-blue-500',
+                            packed: 'bg-blue-500',
                             shipped: 'bg-purple-500',
-                            completed: 'bg-emerald-500',
+                            delivered: 'bg-emerald-500',
                             cancelled: 'bg-red-500',
                         };
                         return (s) => colors[s] || colors.pending;
@@ -226,7 +234,7 @@
                     },
 
                     get isShipped() {
-                        return ['shipped', 'completed'].includes(this.currentStatus);
+                        return ['shipped', 'delivered'].includes(this.currentStatus);
                     },
 
                     toggleShipped() {

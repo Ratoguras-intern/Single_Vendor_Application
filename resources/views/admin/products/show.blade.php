@@ -47,9 +47,9 @@
                 <div>
                     <label class="mb-1.5 block text-sm font-medium text-gray-500 dark:text-gray-400">Price</label>
                     <p class="text-sm text-gray-800 dark:text-white">
-                        ${{ number_format($product->price, 2) }}
+                        {{ format_currency($product->price) }}
                         @if ($product->discount_price)
-                            <span class="ml-1 text-red-500">${{ number_format($product->discount_price, 2) }}</span>
+                            <span class="ml-1 text-red-500">{{ format_currency($product->discount_price) }}</span>
                         @endif
                     </p>
                 </div>
@@ -122,7 +122,7 @@
                     <div class="flex flex-wrap gap-3">
                         @foreach ($product->images as $image)
                             <div class="relative">
-                                <img src="{{ asset('storage/' . $image->image) }}" alt="" class="h-24 w-24 rounded-lg object-cover">
+                                <img src="{{ product_image_url($image->image) }}" alt="" class="h-24 w-24 rounded-lg object-cover">
                                 @if ($image->is_primary)
                                     <span class="absolute -top-1 -left-1 rounded bg-brand-500 px-1.5 py-0.5 text-[10px] font-medium text-white">Primary</span>
                                 @endif

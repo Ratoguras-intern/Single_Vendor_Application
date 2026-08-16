@@ -10,14 +10,27 @@
             <p class="section-subheading mt-1">Track and manage your orders</p>
         </div>
 
+        <div class="mb-6 flex flex-wrap items-center gap-2">
+            <a href="{{ route('customer.orders.index') }}"
+               class="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold transition-colors {{ is_null($status) ? 'bg-primary-500 text-white' : 'bg-secondary-100 text-secondary-600 dark:bg-white/5 dark:text-secondary-400 hover:bg-secondary-200 dark:hover:bg-white/10' }}">
+                All
+            </a>
+            @foreach (App\Support\OrderStatuses::all() as $st)
+                <a href="{{ route('customer.orders.index', ['status' => $st]) }}"
+                   class="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold transition-colors {{ $status === $st ? 'bg-primary-500 text-white' : 'bg-secondary-100 text-secondary-600 dark:bg-white/5 dark:text-secondary-400 hover:bg-secondary-200 dark:hover:bg-white/10' }}">
+                    {{ App\Support\OrderStatuses::label($st) }}
+                </a>
+            @endforeach
+        </div>
+
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div class="card">
                 <p class="text-sm font-medium text-secondary-500 dark:text-secondary-400">Total Orders</p>
                 <p class="mt-1 text-2xl font-bold text-secondary-900 dark:text-white">{{ $stats['total_orders'] }}</p>
             </div>
             <div class="card">
-                <p class="text-sm font-medium text-secondary-500 dark:text-secondary-400">Completed</p>
-                <p class="mt-1 text-2xl font-bold text-green-600 dark:text-green-400">{{ $stats['completed_orders'] }}</p>
+                <p class="text-sm font-medium text-secondary-500 dark:text-secondary-400">Delivered</p>
+                <p class="mt-1 text-2xl font-bold text-green-600 dark:text-green-400">{{ $stats['delivered_orders'] }}</p>
             </div>
             <div class="card">
                 <p class="text-sm font-medium text-secondary-500 dark:text-secondary-400">Total Spent</p>
@@ -46,8 +59,8 @@
                             <p class="font-bold text-secondary-900 dark:text-white"><span x-text="$store.currency.format({{ $order->total_amount }})"></span></p>
                             <p class="text-sm text-secondary-500 dark:text-secondary-400">{{ $order->items->count() }} item(s)</p>
                         </div>
-                        <span class="badge {{ $order->status === 'completed' ? 'badge-success' : ($order->status === 'cancelled' ? 'badge-danger' : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/30 dark:text-yellow-300') }}">
-                            {{ ucfirst($order->status) }}
+                        <span class="badge {{ $order->status === 'cancelled' ? 'badge-danger' : App\Support\OrderStatuses::frontendBadgeClasses($order->status) }}">
+                            {{ $order->status_label }}
                         </span>
                         <svg class="h-5 w-5 text-secondary-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
                     </div>

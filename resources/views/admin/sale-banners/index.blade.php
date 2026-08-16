@@ -1,0 +1,150 @@
+@extends('admin.layouts.app')
+
+@php
+    $breadcrumbs = [
+        ['label' => 'Dashboard', 'url' => route('admin.dashboard')],
+        ['label' => 'Sale Banners', 'url' => null],
+    ];
+@endphp
+
+@section('content')
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h2 class="text-xl font-bold text-gray-800 dark:text-white">Sale Banners</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Banners shown in the sale slider on the homepage.</p>
+        </div>
+        <a href="{{ route('admin.sale-banners.create') }}"
+            class="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Add Sale Banner
+        </a>
+    </div>
+
+    <div class="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+        <div class="overflow-x-auto">
+            <table class="w-full" id="sale-banner-table">
+                <thead>
+                    <tr class="border-b border-gray-200 dark:border-gray-800">
+                        <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400 w-10">#</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400 w-8">Sort</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Image</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Title</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Featured Product</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Status</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-800 sortable-container" id="sortable-container">
+                    @forelse($saleBanners as $saleBanner)
+                        <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02] sortable-row" data-id="{{ $saleBanner->id }}">
+                            <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $saleBanner->id }}</td>
+                            <td class="px-5 py-4">
+                                <span class="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 drag-handle inline-block">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 6h2v2H8V6zm6 0h2v2h-2V6zM8 11h2v2H8v-2zm6 0h2v2h-2v-2zm-6 5h2v2H8v-2zm6 0h2v2h-2v-2z"/></svg>
+                                </span>
+                            </td>
+                            <td class="px-5 py-4">
+                                @if($saleBanner->image_url)
+                                    <img src="{{ $saleBanner->image_url }}" alt="{{ $saleBanner->title }}" class="h-12 w-24 rounded-lg object-cover">
+                                @else
+                                    <div class="flex h-12 w-24 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">N/A</span>
+                                    </div>
+                                @endif
+                            </td>
+                            <td class="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white">{{ $saleBanner->title ?? '—' }}</td>
+                            <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $saleBanner->featuredProduct?->name ?? '—' }}</td>
+                            <td class="px-5 py-4">
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleSaleBanner({{ $saleBanner->id }})" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors
+                                        {{ $saleBanner->is_enabled ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600' }}">
+                                        <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform
+                                            {{ $saleBanner->is_enabled ? 'translate-x-6' : 'translate-x-1' }}"></span>
+                                    </button>
+                                    <span class="text-xs font-medium
+                                        {{ $saleBanner->status === 'active' ? 'text-green-600 dark:text-green-400' : '' }}
+                                        {{ $saleBanner->status === 'expired' ? 'text-red-600 dark:text-red-400' : '' }}
+                                        {{ $saleBanner->status === 'scheduled' ? 'text-amber-600 dark:text-amber-400' : '' }}
+                                        {{ $saleBanner->status === 'inactive' ? 'text-gray-500 dark:text-gray-400' : '' }}">
+                                        {{ ucfirst($saleBanner->status) }}
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-5 py-4">
+                                <div class="flex items-center gap-2">
+                                    <a href="{{ route('admin.sale-banners.edit', $saleBanner) }}" class="text-brand-500 hover:text-brand-600 dark:text-brand-400 dark:hover:text-brand-300">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    </a>
+                                    <form action="{{ route('admin.sale-banners.destroy', $saleBanner) }}" method="POST" onsubmit="return confirm('Delete this sale banner?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-500 hover:text-red-600 dark:hover:text-red-400">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 6H21M19 6V20C19 21.1 18.1 22 17 22H7C5.9 22 5 21.1 5 20V6M8 6V4C8 2.9 8.9 2 10 2H14C15.1 2 16 2.9 16 4V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-5 py-12 text-center">
+                                <div class="flex flex-col items-center">
+                                    <div class="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-gray-400"><path d="M21 3H3C1.89543 3 1 3.89543 1 5V19C1 20.1046 1.89543 21 3 21H21C22.1046 21 23 20.1046 23 19V5C23 3.89543 22.1046 3 21 3Z"/><path d="M1 12H23"/></svg>
+                                    </div>
+                                    <p class="text-sm font-medium text-gray-800 dark:text-white mb-1">No sale banners found</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">Add a sale banner for the homepage slider.</p>
+                                    <a href="{{ route('admin.sale-banners.create') }}" class="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5V19M5 12H19"/></svg>
+                                        Add Sale Banner
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        <div class="px-5 py-3 border-t border-gray-200 dark:border-gray-800">
+            {{ $saleBanners->links() }}
+        </div>
+    </div>
+
+    @push('scripts')
+    <script type="text/turbo-script">
+        function toggleSaleBanner(id) {
+            fetch(`/admin/sale-banners/${id}/toggle`, {
+                method: 'PATCH',
+                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' }
+            }).then(r => r.json()).then(() => Turbo.visit(location.href, { action: 'replace' }));
+        }
+
+        {
+            const container = document.getElementById('sortable-container');
+            if (container && container.children.length > 1) {
+                new Sortable(container, {
+                    handle: '.drag-handle',
+                    animation: 150,
+                    onEnd: function() {
+                        const items = [];
+                        document.querySelectorAll('.sortable-row').forEach((row, index) => {
+                            items.push({ id: row.dataset.id, sort_order: index });
+                        });
+                        fetch('{{ route("admin.sale-banners.reorder") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({ items })
+                        }).then(r => r.json()).then(d => {
+                            if (d.message) console.log(d.message);
+                        });
+                    }
+                });
+            }
+        }
+    </script>
+    @endpush
+@endsection

@@ -98,13 +98,13 @@
             </a>
         </div>
 
-        {{-- Completed Orders --}}
+        {{-- Delivered Orders --}}
         <div class="col-span-12 sm:col-span-6 xl:col-span-3">
-            <a href="{{ route('admin.orders.index', ['status' => 'completed']) }}" class="block rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 cursor-pointer">
+            <a href="{{ route('admin.orders.index', ['status' => 'delivered']) }}" class="block rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 cursor-pointer">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Completed Orders</p>
-                        <h4 class="mt-1 text-2xl font-bold text-green-600">{{ number_format($completedOrders) }}</h4>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Delivered Orders</p>
+                        <h4 class="mt-1 text-2xl font-bold text-green-600">{{ number_format($deliveredOrders) }}</h4>
                     </div>
                     <div class="flex h-12 w-12 items-center justify-center rounded-full bg-green-50 text-green-600 dark:bg-green-500/10">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M9 12.75L11.25 15L15 9.75M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -134,7 +134,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Revenue</p>
-                        <h4 class="mt-1 text-2xl font-bold text-gray-800 dark:text-white">${{ number_format($totalRevenue, 2) }}</h4>
+                        <h4 class="mt-1 text-2xl font-bold text-gray-800 dark:text-white">{{ format_currency($totalRevenue) }}</h4>
                     </div>
                     <div class="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2V22M17 5H9.5C8.11929 5 7 6.11929 7 7.5C7 8.88071 8.11929 10 9.5 10H14.5C15.8807 10 17 11.1193 17 12.5C17 13.8807 15.8807 15 14.5 15H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -149,7 +149,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Revenue Today</p>
-                        <h4 class="mt-1 text-2xl font-bold text-gray-800 dark:text-white">${{ number_format($revenueToday, 2) }}</h4>
+                        <h4 class="mt-1 text-2xl font-bold text-gray-800 dark:text-white">{{ format_currency($revenueToday) }}</h4>
                     </div>
                     <div class="flex h-12 w-12 items-center justify-center rounded-full bg-cyan-50 text-cyan-600 dark:bg-cyan-500/10">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M6.5 2.25C5.5335 2.25 4.75 3.0335 4.75 4V5.75C4.75 6.7165 3.9665 7.5 3 7.5H2.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M17.5 21.75C18.4665 21.75 19.25 20.9665 19.25 20V18.25C19.25 17.2835 20.0335 16.5 21 16.5H21.75" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5"/><path d="M12 7V12L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -164,7 +164,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Revenue This Month</p>
-                        <h4 class="mt-1 text-2xl font-bold text-gray-800 dark:text-white">${{ number_format($revenueThisMonth, 2) }}</h4>
+                        <h4 class="mt-1 text-2xl font-bold text-gray-800 dark:text-white">{{ format_currency($revenueThisMonth) }}</h4>
                     </div>
                     <div class="flex h-12 w-12 items-center justify-center rounded-full bg-violet-50 text-violet-600 dark:bg-violet-500/10">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 12H7L10 20L14 4L17 12H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -179,10 +179,25 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Avg Order Value</p>
-                        <h4 class="mt-1 text-2xl font-bold text-gray-800 dark:text-white">${{ number_format($averageOrderValue, 2) }}</h4>
+                        <h4 class="mt-1 text-2xl font-bold text-gray-800 dark:text-white">{{ format_currency($averageOrderValue) }}</h4>
                     </div>
                     <div class="flex h-12 w-12 items-center justify-center rounded-full bg-pink-50 text-pink-600 dark:bg-pink-500/10">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M16 4H8C5.79086 4 4 5.79086 4 8V16C4 18.2091 5.79086 20 8 20H16C18.2091 20 20 18.2091 20 16V8C20 5.79086 18.2091 4 16 4Z" stroke="currentColor" stroke-width="1.5"/><path d="M12 9V15M9 12H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        {{-- Packed Orders --}}
+        <div class="col-span-12 sm:col-span-6 xl:col-span-3">
+            <a href="{{ route('admin.orders.index', ['status' => 'packed']) }}" class="block rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 cursor-pointer">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Packed Orders</p>
+                        <h4 class="mt-1 text-2xl font-bold text-blue-600">{{ number_format($packedOrders) }}</h4>
+                    </div>
+                    <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-500/10">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M21 8V21H3V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 3H23V8H1V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 12H14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </div>
                 </div>
             </a>
@@ -295,7 +310,7 @@
                                         </a>
                                     </td>
                                     <td class="px-5 py-3 text-sm text-gray-600 dark:text-gray-400">{{ $customer->orders_count }}</td>
-                                    <td class="px-5 py-3 text-sm font-medium text-gray-800 dark:text-white">${{ number_format($customer->total_spent ?? 0, 2) }}</td>
+                                    <td class="px-5 py-3 text-sm font-medium text-gray-800 dark:text-white">{{ format_currency($customer->total_spent ?? 0) }}</td>
                                 </tr>
                             @empty
                                 <tr>
@@ -347,11 +362,11 @@
                                             <span class="text-sm text-gray-600 dark:text-gray-400">Guest</span>
                                         @endif
                                     </td>
-                                    <td class="px-5 py-3 text-sm font-medium text-gray-800 dark:text-white">${{ number_format($order->total_amount, 2) }}</td>
+                                    <td class="px-5 py-3 text-sm font-medium text-gray-800 dark:text-white">{{ format_currency($order->total_amount) }}</td>
                                     <td class="px-5 py-3">
                                         <span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium
-                                            {{ $order->status === 'completed' ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : ($order->status === 'cancelled' ? 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400' : 'bg-yellow-50 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-400') }}">
-                                            {{ ucfirst($order->status) }}
+                                            {{ \App\Support\OrderStatuses::badgeClasses($order->status) }}">
+                                            {{ $order->status_label }}
                                         </span>
                                     </td>
                                     <td class="px-5 py-3">
@@ -419,7 +434,7 @@
                                         </a>
                                     </td>
                                     <td class="px-5 py-3 text-sm text-gray-600 dark:text-gray-400">{{ $customer->orders_count }}</td>
-                                    <td class="px-5 py-3 text-sm font-medium text-gray-800 dark:text-white">${{ number_format($customer->total_spent ?? 0, 2) }}</td>
+                                    <td class="px-5 py-3 text-sm font-medium text-gray-800 dark:text-white">{{ format_currency($customer->total_spent ?? 0) }}</td>
                                     <td class="px-5 py-3 text-sm text-gray-500 dark:text-gray-400">
                                         {{ $customer->last_order_date ? \Carbon\Carbon::parse($customer->last_order_date)->format('M d, Y') : 'N/A' }}
                                     </td>
@@ -434,6 +449,46 @@
                                             </div>
                                             <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">No customers registered yet.</p>
                                         </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {{-- Low Stock Products --}}
+        <div class="col-span-12 xl:col-span-6">
+            <div class="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Low Stock Products</h3>
+                    <a href="{{ route('admin.products.index') }}" class="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400 dark:hover:text-brand-300 font-medium">View All &rarr;</a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-gray-200 dark:border-gray-800">
+                                <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Product</th>
+                                <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Stock</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                            @forelse ($lowStockProducts as $product)
+                                <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02]">
+                                    <td class="px-5 py-3">
+                                        <a href="{{ route('admin.products.show', $product) }}" class="text-sm font-medium text-gray-800 dark:text-white hover:text-brand-500 dark:hover:text-brand-400">{{ $product->name }}</a>
+                                    </td>
+                                    <td class="px-5 py-3">
+                                        <span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium {{ $product->stock <= 5 ? 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400' : 'bg-yellow-50 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-400' }}">
+                                            {{ $product->stock }} left
+                                        </span>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="2" class="px-5 py-12 text-center">
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">All products well stocked.</p>
                                     </td>
                                 </tr>
                             @endforelse
@@ -467,8 +522,8 @@
                 labels: salesLabels,
                 datasets: [
                     {
-                        label: 'Revenue ($)',
-                        data: {!! json_encode($salesRevenue->map(fn($v) => round($v, 2))) !!},
+                        label: 'Revenue ({{ currency_symbol() }})',
+                        data: {!! json_encode($salesRevenue->map(fn($v) => round(convert_amount((float) $v), 2))) !!},
                         backgroundColor: 'rgba(99, 102, 241, 0.8)',
                         borderColor: 'rgb(99, 102, 241)',
                         borderWidth: 1,
@@ -513,8 +568,8 @@
                     tooltip: {
                         callbacks: {
                             label: function(ctx) {
-                                if (ctx.dataset.label === 'Revenue ($)') {
-                                    return 'Revenue: $' + ctx.parsed.y.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                                if (ctx.dataset.label === 'Revenue ({{ currency_symbol() }})') {
+                                    return 'Revenue: {{ currency_symbol() }}' + ctx.parsed.y.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
                                 }
                                 return 'Orders: ' + ctx.parsed.y;
                             }

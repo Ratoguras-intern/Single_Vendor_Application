@@ -18,6 +18,9 @@ class Order extends Model
         'total_amount',
         'status',
         'shipping_address',
+        'billing_address',
+        'tracking_number',
+        'tracking_carrier',
         'phone',
         'payment_method',
         'payment_status',
@@ -40,5 +43,25 @@ class Order extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function statusHistory(): HasMany
+    {
+        return $this->hasMany(OrderStatusHistory::class)->latest();
+    }
+
+    public function getStatusLabelAttribute(): string
+    {
+        return \App\Support\OrderStatuses::label($this->status);
+    }
+
+    public function getStatusStepAttribute(): ?int
+    {
+        return \App\Support\OrderStatuses::step($this->status);
+    }
+
+    public function getNextStatusAttribute(): ?string
+    {
+        return \App\Support\OrderStatuses::next($this->status);
     }
 }

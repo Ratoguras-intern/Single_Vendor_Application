@@ -6,14 +6,18 @@ class MenuHelper
 {
     public static function getMenuGroups(): array
     {
-        return [
+        $role = auth()->user()->role ?? 'customer';
+
+        $menu = [
             [
                 'title' => 'Menu',
                 'items' => [
                     [
                         'name' => 'Dashboard',
                         'icon' => 'dashboard',
-                        'path' => route('admin.dashboard'),
+                        'path' => $role === 'super_admin'
+                            ? route('superadmin.dashboard')
+                            : route('admin.dashboard'),
                     ],
                 ],
             ],
@@ -51,6 +55,11 @@ class MenuHelper
                         'path' => route('admin.banners.index'),
                     ],
                     [
+                        'name' => 'Sale Banners',
+                        'icon' => 'sale',
+                        'path' => route('admin.sale-banners.index'),
+                    ],
+                    [
                         'name' => 'Featured Categories',
                         'icon' => 'featured',
                         'path' => route('admin.featured-categories.index'),
@@ -61,11 +70,11 @@ class MenuHelper
                         'subItems' => [
                             ['name' => 'Featured', 'path' => route('admin.product-sections.index', 'featured-products')],
                             ['name' => 'New Arrivals', 'path' => route('admin.product-sections.index', 'new-arrivals')],
-                            ['name' => 'Trending', 'path' => route('admin.product-sections.index', 'trending')],
+                            ['name' => 'Trending', 'path' => route('admin.product-sections.index', 'trending-products')],
                             ['name' => 'Best Sellers', 'path' => route('admin.product-sections.index', 'best-sellers')],
                             ['name' => 'Flash Sales', 'path' => route('admin.product-sections.index', 'flash-sale')],
-                            ['name' => 'Recommended', 'path' => route('admin.product-sections.index', 'recommended')],
-                            ['name' => 'Popular', 'path' => route('admin.product-sections.index', 'popular')],
+                            ['name' => 'Recommended', 'path' => route('admin.product-sections.index', 'recommended-products')],
+                            ['name' => 'Popular', 'path' => route('admin.product-sections.index', 'popular-products')],
                         ],
                     ],
                 ],
@@ -86,6 +95,26 @@ class MenuHelper
                 ],
             ],
         ];
+
+        if ($role === 'super_admin') {
+            $menu[] = [
+                'title' => 'Administration',
+                'items' => [
+                    [
+                        'name' => 'Admins',
+                        'icon' => 'admins',
+                        'path' => route('superadmin.admins.index'),
+                    ],
+                    [
+                        'name' => 'Users',
+                        'icon' => 'users',
+                        'path' => route('superadmin.users.index'),
+                    ],
+                ],
+            ];
+        }
+
+        return $menu;
     }
 
     public static function getIconSvg(string $icon): string
@@ -108,6 +137,10 @@ class MenuHelper
             'banner' => '<svg class="menu-item-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 3H3C1.89543 3 1 3.89543 1 5V19C1 20.1046 1.89543 21 3 21H21C22.1046 21 23 20.1046 23 19V5C23 3.89543 22.1046 3 21 3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 12H23" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
 
             'featured' => '<svg class="menu-item-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+
+            'admins' => '<svg class="menu-item-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 21V19C20 16.7909 18.2091 15 16 15H14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 21V19C4 16.7909 5.79086 15 8 15H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+
+            'users' => '<svg class="menu-item-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 21V19C16 16.7909 14.2091 15 12 15H6C3.79086 15 2 16.7909 2 19V21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 21V19C22 17.3132 20.6569 15.75 18.5 15.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 3.4C17.4906 3.4 18.7 4.60937 18.7 6.1C18.7 7.59063 17.4906 8.8 16 8.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
         ];
 
         return $icons[$icon] ?? $icons['dashboard'];

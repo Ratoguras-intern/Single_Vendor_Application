@@ -18,7 +18,7 @@
 
     <!-- Section Tabs -->
     <div class="mb-6 flex gap-2 overflow-x-auto pb-2">
-        @foreach(['featured-products' => 'Featured', 'new-arrivals' => 'New Arrivals', 'trending' => 'Trending', 'best-sellers' => 'Best Sellers', 'flash-sale' => 'Flash Sale', 'recommended' => 'Recommended', 'popular' => 'Popular'] as $key => $label)
+        @foreach(['featured-products' => 'Featured', 'new-arrivals' => 'New Arrivals', 'trending-products' => 'Trending', 'best-sellers' => 'Best Sellers', 'flash-sale' => 'Flash Sale', 'recommended-products' => 'Recommended', 'popular-products' => 'Popular'] as $key => $label)
             <a href="{{ route('admin.product-sections.index', $key) }}"
                 class="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors
                     {{ $sectionKey === $key ? 'bg-brand-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700' }}">
@@ -49,7 +49,7 @@
                             <td class="px-5 py-4">
                                 <div class="flex items-center gap-3">
                                     @if($product->primaryImage())
-                                        <img src="{{ asset('storage/' . $product->primaryImage()->image) }}" alt="" class="h-10 w-10 rounded-lg object-cover">
+                                        <img src="{{ product_image_url($product->primaryImage()->image) }}" alt="" class="h-10 w-10 rounded-lg object-cover">
                                     @else
                                         <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
                                             <span class="text-xs text-gray-500">N/A</span>
@@ -59,7 +59,7 @@
                                 </div>
                             </td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $product->sku }}</td>
-                            <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">${{ number_format($product->discount_price ?? $product->price, 2) }}</td>
+                            <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ format_currency($product->discount_price ?? $product->price) }}</td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $product->stock }}</td>
                             <td class="px-5 py-4">
                                 <form action="{{ route('admin.product-sections.remove', [$sectionKey, $product->id]) }}" method="POST" onsubmit="return confirm('Remove?')">
@@ -113,7 +113,7 @@
                                     <td class="px-5 py-4">
                                         <div class="flex items-center gap-3">
                                             @if($product->primaryImage())
-                                                <img src="{{ asset('storage/' . $product->primaryImage()->image) }}" alt="" class="h-10 w-10 rounded-lg object-cover">
+                                                <img src="{{ product_image_url($product->primaryImage()->image) }}" alt="" class="h-10 w-10 rounded-lg object-cover">
                                             @else
                                                 <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800"><span class="text-xs text-gray-500">N/A</span></div>
                                             @endif
@@ -121,7 +121,7 @@
                                         </div>
                                     </td>
                                     <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $product->sku }}</td>
-                                    <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">${{ number_format($product->discount_price ?? $product->price, 2) }}</td>
+                                    <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ format_currency($product->discount_price ?? $product->price) }}</td>
                                     <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $product->stock }}</td>
                                 </tr>
                             @endforeach

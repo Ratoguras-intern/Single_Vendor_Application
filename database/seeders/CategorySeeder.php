@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class CategorySeeder extends Seeder
 {
@@ -72,8 +73,10 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         foreach ($this->categories as $name => $data) {
-            $parent = Category::firstOrCreate(
-                ['slug' => \Illuminate\Support\Str::slug($name)],
+            $slug = Str::slug($name);
+
+            $parent = Category::updateOrCreate(
+                ['slug' => $slug],
                 [
                     'name' => $name,
                     'description' => $data['description'],
@@ -81,14 +84,19 @@ class CategorySeeder extends Seeder
                     'featured' => $data['featured'],
                     'status' => 'active',
                     'icon' => $data['icon'] ?? null,
+                    'image' => "categories/{$slug}.jpg",
+                    'thumbnail_image' => "categories/{$slug}.jpg",
+                    'banner_image' => "categories/{$slug}.jpg",
                     'seo_title' => "Shop {$name} | NBK Vertex",
                     'seo_description' => "Browse our {$name} collection at NBK Vertex.",
                 ],
             );
 
             foreach ($data['subcategories'] as $sub) {
-                Category::firstOrCreate(
-                    ['slug' => \Illuminate\Support\Str::slug($sub['name'])],
+                $subSlug = Str::slug($sub['name']);
+
+                Category::updateOrCreate(
+                    ['slug' => $subSlug],
                     [
                         'name' => $sub['name'],
                         'description' => $sub['description'],
@@ -97,6 +105,8 @@ class CategorySeeder extends Seeder
                         'featured' => false,
                         'status' => 'active',
                         'icon' => $sub['icon'] ?? null,
+                        'image' => "categories/{$subSlug}.jpg",
+                        'thumbnail_image' => "categories/{$subSlug}.jpg",
                     ],
                 );
             }

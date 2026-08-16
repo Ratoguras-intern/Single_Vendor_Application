@@ -28,12 +28,12 @@
             <p class="mt-1 text-2xl font-bold text-gray-800 dark:text-white">{{ $stats['total_orders'] }}</p>
         </div>
         <div class="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Completed Orders</p>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Delivered Orders</p>
             <p class="mt-1 text-2xl font-bold text-green-600">{{ $stats['completed_orders'] }}</p>
         </div>
         <div class="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Spent</p>
-            <p class="mt-1 text-2xl font-bold text-gray-800 dark:text-white">${{ number_format($stats['total_spent'], 2) }}</p>
+            <p class="mt-1 text-2xl font-bold text-gray-800 dark:text-white">{{ format_currency($stats['total_spent']) }}</p>
         </div>
         <div class="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Last Order</p>
@@ -91,11 +91,11 @@
                             </td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $order->created_at->format('M d, Y') }}</td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $order->items->count() }}</td>
-                            <td class="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white">${{ number_format($order->total_amount, 2) }}</td>
+                            <td class="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white">{{ format_currency($order->total_amount) }}</td>
                             <td class="px-5 py-4">
                                 <span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium
-                                    {{ $order->status === 'completed' ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : ($order->status === 'cancelled' ? 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400' : 'bg-yellow-50 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-400') }}">
-                                    {{ ucfirst($order->status) }}
+                                    {{ \App\Support\OrderStatuses::badgeClasses($order->status) }}">
+                                    {{ $order->status_label }}
                                 </span>
                             </td>
                             <td class="px-5 py-4">

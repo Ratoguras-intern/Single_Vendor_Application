@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\HomepageSectionController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductSectionController;
+use App\Http\Controllers\Admin\SaleBannerController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Frontend\AboutController;
 use App\Http\Controllers\Api\CartController as ApiCartController;
@@ -78,11 +79,34 @@ Route::get('/contact', ContactController::class)->name('frontend.contact');
 Route::get('/about', AboutController::class)->name('frontend.about');
 
 Route::get('/dashboard', function () {
-    if (auth()->user()->role === 'admin') {
+    $role = auth()->user()->role;
+
+    if ($role === 'super_admin') {
+        return redirect()->route('superadmin.dashboard');
+    }
+
+    if ($role === 'admin') {
         return redirect()->route('admin.dashboard');
     }
+
     return redirect()->route('customer.orders.index');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware(['auth', 'role:super_admin'])
+    ->prefix('superadmin')
+    ->name('superadmin.')
+    ->group(function () {
+        Route::get('/dashboard', [App\Http\Controllers\SuperAdmin\DashboardController::class, 'index'])->name('dashboard');
+
+        Route::resource('admins', App\Http\Controllers\SuperAdmin\AdminUserController::class)
+            ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
+            ->parameters(['admins' => 'admin']);
+        Route::patch('/admins/{admin}/toggle-status', [App\Http\Controllers\SuperAdmin\AdminUserController::class, 'toggleStatus'])->name('admins.toggleStatus');
+
+        Route::resource('users', App\Http\Controllers\SuperAdmin\UserController::class)
+            ->only(['index', 'edit', 'update', 'destroy']);
+        Route::patch('/users/{user}/toggle-status', [App\Http\Controllers\SuperAdmin\UserController::class, 'toggleStatus'])->name('users.toggleStatus');
+    });
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -105,6 +129,14 @@ Route::middleware(['auth', 'admin'])
     ->name('admin.')
     ->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::post('/currency', function (\Illuminate\Http\Request $request) {
+            $currency = strtoupper((string) $request->input('currency'));
+            $supported = array_keys(config('currency.supported', []));
+            if (in_array($currency, $supported, true)) {
+                session(['admin_currency' => $currency]);
+            }
+            return response()->json(['currency' => session('admin_currency')]);
+        })->name('currency');
         Route::delete('/categories/bulk-destroy', [CategoryController::class, 'bulkDestroy'])->name('categories.bulkDestroy');
         Route::resource('categories', CategoryController::class);
         Route::patch('/categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])->name('categories.toggleStatus');
@@ -121,6 +153,7 @@ Route::middleware(['auth', 'admin'])
         Route::resource('products', ProductController::class);
         Route::resource('orders', OrderController::class)->only(['index', 'show']);
         Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+        Route::patch('/orders/{order}/tracking', [OrderController::class, 'updateTracking'])->name('orders.updateTracking');
         Route::delete('/customers/bulk-destroy', [CustomerController::class, 'bulkDestroy'])->name('customers.bulkDestroy');
         Route::resource('customers', CustomerController::class)->only(['index', 'show', 'destroy']);
         Route::get('/customers/{customer}/orders', [CustomerController::class, 'orders'])->name('customers.orders');
@@ -136,6 +169,10 @@ Route::middleware(['auth', 'admin'])
         Route::patch('/banners/{banner}/toggle', [BannerController::class, 'toggleEnabled'])->name('banners.toggle');
         Route::post('/banners/{banner}/duplicate', [BannerController::class, 'duplicate'])->name('banners.duplicate');
         Route::post('/banners/reorder', [BannerController::class, 'updateSortOrder'])->name('banners.reorder');
+
+        Route::resource('sale-banners', SaleBannerController::class)->except(['show']);
+        Route::patch('/sale-banners/{saleBanner}/toggle', [SaleBannerController::class, 'toggleEnabled'])->name('sale-banners.toggle');
+        Route::post('/sale-banners/reorder', [SaleBannerController::class, 'updateSortOrder'])->name('sale-banners.reorder');
 
         Route::get('/featured-categories', [FeaturedCategoryController::class, 'index'])->name('featured-categories.index');
         Route::post('/featured-categories', [FeaturedCategoryController::class, 'store'])->name('featured-categories.store');

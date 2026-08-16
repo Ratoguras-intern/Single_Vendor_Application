@@ -46,14 +46,14 @@
                             </td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $order->created_at->format('M d, Y') }}</td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $order->items->count() }}</td>
-                            <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">${{ number_format($order->subtotal, 2) }}</td>
-                            <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">${{ number_format($order->tax, 2) }}</td>
-                            <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $order->shipping > 0 ? '$' . number_format($order->shipping, 2) : 'Free' }}</td>
-                            <td class="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white">${{ number_format($order->total_amount, 2) }}</td>
+                            <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ format_currency($order->subtotal) }}</td>
+                            <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ format_currency($order->tax) }}</td>
+                            <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $order->shipping > 0 ? format_currency($order->shipping) : 'Free' }}</td>
+                            <td class="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white">{{ format_currency($order->total_amount) }}</td>
                             <td class="px-5 py-4">
                                 <span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium
-                                    {{ $order->status === 'completed' ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400' : ($order->status === 'cancelled' ? 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400' : 'bg-yellow-50 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-400') }}">
-                                    {{ ucfirst($order->status) }}
+                                    {{ \App\Support\OrderStatuses::badgeClasses($order->status) }}">
+                                    {{ $order->status_label }}
                                 </span>
                             </td>
                             <td class="px-5 py-4">

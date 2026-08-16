@@ -37,13 +37,22 @@ class OrderService
             $validated['email'],
         ])->implode("\n");
 
+        $billingAddress = ($validated['same_as_shipping'] ?? false) || empty($validated['billing_address'])
+            ? $shippingAddress
+            : collect([
+                ($validated['billing_first_name'] ?? '') . ' ' . ($validated['billing_last_name'] ?? ''),
+                $validated['billing_address'],
+                $validated['billing_city'] . ', ' . $validated['billing_state'] . ' ' . $validated['billing_zip'],
+                $validated['billing_email'],
+            ])->implode("\n");
+
         $subtotal = collect($items)->sum(fn ($item) => $item['price'] * $item['quantity']);
         $shipping = $subtotal > 50 ? 0 : 9.99;
         $tax = $subtotal * 0.08;
         $discount = 0;
         $total = $subtotal + $shipping + $tax - $discount;
 
-        $order = DB::transaction(function () use ($user, $validated, $items, $shippingAddress, $subtotal, $tax, $shipping, $discount, $total) {
+        $order = DB::transaction(function () use ($user, $validated, $items, $shippingAddress, $billingAddress, $subtotal, $tax, $shipping, $discount, $total) {
             $order = Order::create([
                 'user_id' => $user->id,
                 'order_number' => 'ORD-' . strtoupper(Str::random(8)),
@@ -54,9 +63,15 @@ class OrderService
                 'total_amount' => $total,
                 'status' => 'pending',
                 'shipping_address' => $shippingAddress,
+                'billing_address' => $billingAddress,
                 'phone' => $validated['phone'],
                 'payment_method' => $validated['payment_method'],
                 'payment_status' => $validated['payment_method'] === 'cod' ? 'cod' : 'pending',
+            ]);
+
+            $order->statusHistory()->create([
+                'status' => 'pending',
+                'comment' => 'Order placed.',
             ]);
 
             foreach ($items as $item) {

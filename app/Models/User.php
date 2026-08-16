@@ -32,6 +32,16 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'super_admin';
+    }
+
+    public function isStaff(): bool
+    {
+        return in_array($this->role, ['admin', 'super_admin']);
+    }
+
     public function isCustomer(): bool
     {
         return $this->role === 'customer';
@@ -57,9 +67,9 @@ class User extends Authenticatable
         return $this->hasMany(Address::class);
     }
 
-    public function completedOrdersCount(): int
+    public function deliveredOrdersCount(): int
     {
-        return $this->orders()->where('status', 'completed')->count();
+        return $this->orders()->where('status', 'delivered')->count();
     }
 
     public function totalSpent(): float

@@ -1,4 +1,16 @@
-<div x-data="{ 'loaded': true }" x-init="$nextTick(() => { loaded = false })"
+<div id="page-preloader" x-data="{ 'loaded': true }" x-init="$nextTick(() => {
+    if (window.__preloaderSkip) {
+        loaded = false;
+        return;
+    }
+    const hide = () => { loaded = false; window.removeEventListener('load', hide); };
+    if (document.readyState === 'complete') {
+        hide();
+    } else {
+        window.addEventListener('load', hide);
+    }
+    setTimeout(hide, 4000);
+})"
     x-show="loaded"
     x-transition:leave="transition ease-in duration-300"
     x-transition:leave-start="opacity-100"

@@ -28,8 +28,8 @@
                 </div>
                 <div>
                     <p class="text-sm text-secondary-500 dark:text-secondary-400">Status</p>
-                    <span class="badge {{ $order->status === 'completed' ? 'badge-success' : 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-700 dark:text-yellow-400' }}">
-                        {{ ucfirst($order->status) }}
+                    <span class="badge {{ App\Support\OrderStatuses::frontendBadgeClasses($order->status) }}">
+                        {{ $order->status_label }}
                     </span>
                 </div>
                 <div>
@@ -44,6 +44,13 @@
                 <p class="text-sm text-secondary-500 dark:text-secondary-400 mb-1">Shipping To</p>
                 <p class="whitespace-pre-line text-sm text-secondary-900 dark:text-white">{{ $order->shipping_address }}</p>
             </div>
+
+            @if($order->billing_address && $order->billing_address !== $order->shipping_address)
+                <div class="mt-6 pt-6 border-t border-secondary-100 dark:border-secondary-700">
+                    <p class="text-sm text-secondary-500 dark:text-secondary-400 mb-1">Billing To</p>
+                    <p class="whitespace-pre-line text-sm text-secondary-900 dark:text-white">{{ $order->billing_address }}</p>
+                </div>
+            @endif
         </div>
 
         <div class="flex items-center justify-center gap-4">

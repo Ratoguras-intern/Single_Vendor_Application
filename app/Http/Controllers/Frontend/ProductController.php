@@ -21,9 +21,7 @@ class ProductController extends Controller
             'id' => $product->id,
             'name' => $product->name,
             'price' => $product->discount_price ?? $product->price,
-            'image' => $primaryImage?->image
-                ? Storage::disk('public')->url($primaryImage->image)
-                : asset('frontend-assets/images/no-image.jpg'),
+            'image' => product_image_url($primaryImage?->image),
             'description' => $product->description,
         ];
 
@@ -40,9 +38,7 @@ class ProductController extends Controller
                     'id' => $p->id,
                     'name' => $p->name,
                     'price' => $p->discount_price ?? $p->price,
-                    'image' => $image?->image
-                        ? Storage::disk('public')->url($image->image)
-                        : asset('frontend-assets/images/no-image.jpg'),
+                    'image' => product_image_url($image?->image),
                     'description' => $p->description,
                 ];
             })

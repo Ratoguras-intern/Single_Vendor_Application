@@ -179,7 +179,7 @@
                         <div class="flex flex-wrap gap-3">
                             @foreach ($product->images as $image)
                                 <div class="relative">
-                                    <img src="{{ asset('storage/' . $image->image) }}" alt="" class="h-20 w-20 rounded-lg object-cover">
+                                    <img src="{{ product_image_url($image->image) }}" alt="" class="h-20 w-20 rounded-lg object-cover">
                                     <label class="absolute -top-1 -right-1 flex items-center justify-center">
                                         <input type="checkbox" name="remove_images[]" value="{{ $image->id }}" class="rounded border-gray-300 text-red-500 focus:ring-red-500" title="Remove">
                                         <span class="sr-only">Remove</span>

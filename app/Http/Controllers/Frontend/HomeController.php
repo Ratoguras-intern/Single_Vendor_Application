@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\FeaturedHomepageCategory;
 use App\Models\HomepageSection;
 use App\Models\Product;
+use App\Models\SaleBanner;
 use Illuminate\Support\Facades\Storage;
 
 class HomeController extends Controller
@@ -28,7 +29,7 @@ class HomeController extends Controller
         $categories = $this->getCategories();
         $brands = $this->getBrands();
         $heroBanners = Banner::forPosition('hero')->active()->ordered()->get();
-        $saleBanners = Banner::forPosition('sale')->running()->ordered()
+        $saleBanners = SaleBanner::running()->ordered()
             ->with('featuredProduct.images')
             ->get();
         $promotionalBanners = Banner::forPosition('promotional')->active()->ordered()->get();
@@ -148,9 +149,7 @@ class HomeController extends Controller
                 'name' => $product->name,
                 'price' => $product->discount_price ?? $product->price,
                 'original_price' => $product->discount_price ? $product->price : null,
-                'image' => $image?->image
-                    ? Storage::disk('public')->url($image->image)
-                    : asset('frontend-assets/images/no-image.jpg'),
+                'image' => product_image_url($image?->image),
                 'description' => $product->description,
                 'stock' => $product->stock,
                 'brand' => $product->brand?->name,

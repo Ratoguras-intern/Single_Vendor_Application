@@ -14,6 +14,11 @@ class CustomerMiddleware
             return redirect()->route('login');
         }
 
+        if (auth()->user()->status === 'blocked') {
+            auth()->logout();
+            return redirect()->route('login');
+        }
+
         if (auth()->user()->role !== 'customer') {
             abort(403);
         }

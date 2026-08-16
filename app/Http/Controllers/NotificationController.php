@@ -21,11 +21,25 @@ class NotificationController extends Controller
 
         $orderId = $notification->data['order_id'] ?? null;
 
-        if ($orderId && auth()->user()->role === 'admin') {
-            return redirect()->route('admin.orders.show', $orderId);
-        }
-
         if ($orderId) {
+            $orderExists = \App\Models\Order::query()->whereKey($orderId)->exists();
+
+            if (!$orderExists) {
+                $notification->delete();
+
+                if (auth()->user()->role === 'admin') {
+                    return redirect()->route('admin.orders.index')
+                        ->with('info', 'The order for that notification no longer exists.');
+                }
+
+                return redirect()->route('customer.orders.index')
+                    ->with('info', 'The order for that notification no longer exists.');
+            }
+
+            if (auth()->user()->role === 'admin') {
+                return redirect()->route('admin.orders.show', $orderId);
+            }
+
             return redirect()->route('customer.orders.show', $orderId);
         }
 

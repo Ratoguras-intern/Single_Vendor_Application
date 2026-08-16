@@ -115,7 +115,7 @@
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $product->id }}</td>
                             <td class="px-5 py-4">
                                 @if ($product->primaryImage())
-                                    <img src="{{ asset('storage/' . $product->primaryImage()->image) }}" alt="{{ $product->name }}" class="h-10 w-10 rounded-lg object-cover">
+                                    <img src="{{ product_image_url($product->primaryImage()->image) }}" alt="{{ $product->name }}" class="h-10 w-10 rounded-lg object-cover">
                                 @else
                                     <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
                                         <span class="text-xs font-medium text-gray-500 dark:text-gray-400">N/A</span>
@@ -128,9 +128,9 @@
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $product->sku }}</td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $product->category->name ?? '-' }}</td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">
-                                ${{ number_format($product->price, 2) }}
+                                {{ format_currency($product->price) }}
                                 @if ($product->discount_price)
-                                    <span class="ml-1 text-xs text-red-500">${{ number_format($product->discount_price, 2) }}</span>
+                                    <span class="ml-1 text-xs text-red-500">{{ format_currency($product->discount_price) }}</span>
                                 @endif
                             </td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $product->stock }}</td>

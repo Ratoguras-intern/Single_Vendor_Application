@@ -74,6 +74,61 @@
                     </div>
 
                     <div class="card">
+                        <h2 class="text-lg font-semibold text-secondary-900 dark:text-white mb-6" data-i18n="Billing Address" x-text="$store.i18n.t('Billing Address')">Billing Address</h2>
+
+                        <label class="flex items-center gap-3 mb-6 cursor-pointer">
+                            <input type="checkbox" name="same_as_shipping" value="1" x-model="sameAsShipping" class="h-4 w-4 rounded border-secondary-300 dark:border-secondary-600 text-green-600 dark:text-green-400 focus:ring-green-500" checked />
+                            <span class="text-sm font-medium text-secondary-900 dark:text-white"><span data-i18n="Same as shipping address" x-text="$store.i18n.t('Same as shipping address')">Same as shipping address</span></span>
+                        </label>
+
+                        <div x-show="!sameAsShipping" x-cloak>
+                            <div class="space-y-4">
+                                <div class="grid sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="label"><span data-i18n="Billing First Name" x-text="$store.i18n.t('Billing First Name')">Billing First Name</span></label>
+                                        <input type="text" name="billing_first_name" value="{{ old('billing_first_name') }}" placeholder="John" class="input" />
+                                    </div>
+                                    <div>
+                                        <label class="label"><span data-i18n="Billing Last Name" x-text="$store.i18n.t('Billing Last Name')">Billing Last Name</span></label>
+                                        <input type="text" name="billing_last_name" value="{{ old('billing_last_name') }}" placeholder="Doe" class="input" />
+                                    </div>
+                                </div>
+
+                                <div class="grid sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="label"><span data-i18n="Billing Email" x-text="$store.i18n.t('Billing Email')">Billing Email</span></label>
+                                        <input type="email" name="billing_email" value="{{ old('billing_email') }}" placeholder="john@example.com" class="input" />
+                                    </div>
+                                    <div>
+                                        <label class="label"><span data-i18n="Billing Phone" x-text="$store.i18n.t('Billing Phone')">Billing Phone</span></label>
+                                        <input type="tel" name="billing_phone" value="{{ old('billing_phone') }}" placeholder="+1 234 567 890" class="input" />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="label"><span data-i18n="Billing Address" x-text="$store.i18n.t('Billing Address')">Billing Address</span></label>
+                                    <input type="text" name="billing_address" value="{{ old('billing_address') }}" placeholder="456 Billing St" class="input" />
+                                </div>
+
+                                <div class="grid sm:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="label"><span data-i18n="Billing City" x-text="$store.i18n.t('Billing City')">Billing City</span></label>
+                                        <input type="text" name="billing_city" value="{{ old('billing_city') }}" placeholder="New York" class="input" />
+                                    </div>
+                                    <div>
+                                        <label class="label"><span data-i18n="Billing State" x-text="$store.i18n.t('Billing State')">Billing State</span></label>
+                                        <input type="text" name="billing_state" value="{{ old('billing_state') }}" placeholder="NY" class="input" />
+                                    </div>
+                                    <div>
+                                        <label class="label"><span data-i18n="Billing ZIP" x-text="$store.i18n.t('Billing ZIP')">Billing ZIP</span></label>
+                                        <input type="text" name="billing_zip" value="{{ old('billing_zip') }}" placeholder="10001" class="input" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
                         <h2 class="text-lg font-semibold text-secondary-900 dark:text-white mb-6" data-i18n="Payment Method" x-text="$store.i18n.t('Payment Method')">Payment Method</h2>
 
                         <div class="space-y-3">
@@ -158,6 +213,7 @@ function checkout() {
     return {
         cartItems: [],
         paymentMethod: '{{ old("payment_method", "cod") }}',
+        sameAsShipping: true,
         async init() {
             const data = await apiFetch(window.apiRoutes.cart);
             if (data) this.cartItems = data.items;
