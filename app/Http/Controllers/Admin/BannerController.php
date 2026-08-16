@@ -10,6 +10,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
 
@@ -192,9 +193,19 @@ class BannerController extends Controller
 
     public function duplicate(Banner $banner)
     {
-        $clone = $banner->replicate(['sort_order']);
-        $clone->title = ($banner->title ?? 'Banner').' (Copy)';
+        $clone = $banner->replicate(['sort_order', 'image', 'mobile_image']);
+        $clone->title = ($banner->title ?? 'Banner') . ' (Copy)';
         $clone->sort_order = Banner::where('position', $banner->position)->max('sort_order') + 1;
+
+        foreach (['image', 'mobile_image'] as $field) {
+            if ($banner->{$field} && Storage::disk('public')->exists($banner->{$field})) {
+                $ext = pathinfo($banner->{$field}, PATHINFO_EXTENSION);
+                $copy = dirname($banner->{$field}) . '/' . Str::random(40) . ".{$ext}";
+                Storage::disk('public')->copy($banner->{$field}, $copy);
+                $clone->{$field} = $copy;
+            }
+        }
+
         $clone->save();
         Banner::clearCache();
 
