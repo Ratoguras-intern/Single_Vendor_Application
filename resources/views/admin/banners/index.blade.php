@@ -53,6 +53,7 @@
         </form>
     </div>
 
+    <div id="search-results">
     <div class="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div class="overflow-x-auto">
             <table class="w-full" id="banner-table">
@@ -181,6 +182,7 @@
         <div class="px-5 py-3 border-t border-gray-200 dark:border-gray-800">
             {{ $banners->links() }}
         </div>
+    </div>
     </div>
 
     @push('scripts')

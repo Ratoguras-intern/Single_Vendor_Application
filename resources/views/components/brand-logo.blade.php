@@ -16,9 +16,9 @@
 <a href="{{ $href }}"
     class="flex items-center gap-2.5 group select-none {{ $compact ? '' : '' }}">
 
-    <div class="relative flex {{ $compact ? 'h-9 w-9' : 'h-10 w-10' }} shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-700 shadow-lg shadow-secondary-900/20 transition-all duration-300 group-hover:scale-105">
-        <div class="absolute inset-0 rounded-xl ring-1 ring-white/10"></div>
-        <span class="relative flex items-center {{ $compact ? 'text-sm' : 'text-base' }} font-black tracking-tight">
+    <div class="relative flex {{ $compact ? 'h-7 w-7' : 'h-8 w-8' }} shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-700 shadow-lg shadow-secondary-900/20 transition-all duration-300 group-hover:scale-105">
+        <div class="absolute inset-0 rounded-lg ring-1 ring-white/10"></div>
+        <span class="relative flex items-center {{ $compact ? 'text-xs' : 'text-sm' }} font-black tracking-tight">
             <span class="text-white">{{ $initials }}</span>
         </span>
     </div>

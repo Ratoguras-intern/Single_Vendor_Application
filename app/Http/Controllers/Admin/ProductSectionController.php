@@ -48,8 +48,8 @@ class ProductSectionController extends Controller
         $query = Product::active()->with(['category', 'brand']);
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('sku', 'like', "%{$search}%");
+                $q->where('name', 'like', "{$search}%")
+                    ->orWhere('sku', 'like', "{$search}%");
             });
         }
 

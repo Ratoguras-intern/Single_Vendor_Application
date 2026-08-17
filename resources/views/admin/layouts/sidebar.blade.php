@@ -25,26 +25,19 @@
             this.initializeActiveMenus();
         },
         initializeActiveMenus() {
-            // Restore a manually opened submenu so it never closes on navigation
-            const persisted = localStorage.getItem('sidebar.openSubmenu');
-            if (persisted && this.submenuKeys.includes(persisted)) {
-                this.openSubmenus[persisted] = true;
-                return;
-            }
-
             const currentPath = '{{ $currentPath }}';
 
             @foreach ($menuGroups as $groupIndex => $menuGroup)
                 @foreach ($menuGroup['items'] as $itemIndex => $item)
                     @if (isset($item['subItems']))
-                        // Check if any submenu item matches current path
                         @foreach ($item['subItems'] as $subItem)
                             if (currentPath === '{{ ltrim($subItem['path'], '/') }}' ||
                                 window.location.pathname === '{{ parse_url($subItem['path'], PHP_URL_PATH) }}') {
                                 this.openSubmenus['{{ $groupIndex }}-{{ $itemIndex }}'] = true;
-                            } @endforeach
-            @endif
-            @endforeach
+                            }
+                        @endforeach
+                    @endif
+                @endforeach
             @endforeach
         },
         toggleSubmenu(groupIndex, itemIndex) {
@@ -55,10 +48,6 @@
 
             if (newState) {
                 this.openSubmenus[key] = true;
-                // Keep the dropdown open until the admin closes it explicitly
-                localStorage.setItem('sidebar.openSubmenu', key);
-            } else {
-                localStorage.removeItem('sidebar.openSubmenu');
             }
         },
         isSubmenuOpen(groupIndex, itemIndex) {

@@ -16,11 +16,11 @@
                 @foreach($featuredCollections as $collection)
                     @php
                         $collectionClasses = $collection['display_style'] === 'list'
-                            ? 'col-span-1 sm:col-span-2 aspect-[16/9]' . ($collectionCount > 2 ? ' lg:col-span-3' : '')
-                            : 'aspect-[4/5]';
+                            ? 'col-span-1 sm:col-span-2 aspect-[21/9]' . ($collectionCount > 2 ? ' lg:col-span-3' : '')
+                            : 'aspect-[3/2]';
                     @endphp
                     <a href="{{ $collection['url'] }}"
-                        class="group relative overflow-hidden rounded-card {{ $collectionClasses }}">
+                        class="group relative block overflow-hidden rounded-card {{ $collectionClasses }}">
                         <img src="{{ $collection['image'] }}" alt="{{ $collection['name'] }}"
                             loading="lazy" decoding="async" onerror="this.src='{{ asset('frontend-assets/images/no-image.jpg') }}'"
                             class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />

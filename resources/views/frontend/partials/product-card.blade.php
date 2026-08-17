@@ -6,7 +6,7 @@
     $productUrl = route('frontend.product.show', $product['id']);
 @endphp
 
-<div x-data="{ viewMode: typeof viewMode !== 'undefined' ? viewMode : 'grid' }" class="group flex flex-col h-full rounded-card bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 hover:border-secondary-300 dark:hover:border-secondary-600 hover:shadow-card-hover transition-all duration-200 overflow-hidden">
+<div class="group flex flex-col h-full rounded-card bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 hover:border-secondary-300 dark:hover:border-secondary-600 hover:shadow-card-hover transition-all duration-200 overflow-hidden">
     <div :class="viewMode === 'list' ? 'flex flex-row' : 'flex flex-col h-full'">
 
         {{-- Image --}}

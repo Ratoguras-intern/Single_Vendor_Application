@@ -16,7 +16,7 @@
             </a>
         </div>
 
-        <div x-data="{ viewMode: 'grid' }" class="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-7">
+        <div x-data="{ viewMode: 'grid' }" class="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
             @foreach(array_slice($trendingProducts, 0, $section?->max_products ?? 8) as $product)
                 @include('frontend.partials.product-card', ['product' => $product])
             @endforeach

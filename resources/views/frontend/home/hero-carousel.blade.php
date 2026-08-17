@@ -167,7 +167,7 @@
     class="pb-0"
     @if($heroSectionMargin) style="{{ $heroSectionMargin }}" @endif
 >
-    <div class="relative w-full min-h-[max(70svh,480px)] bg-secondary-900 overflow-hidden" @if($heroContainerStyle) style="{{ $heroContainerStyle }}" @endif>
+    <div class="relative w-full min-h-screen bg-secondary-900 overflow-hidden" @if($heroContainerStyle) style="{{ $heroContainerStyle }}" @endif>
     @foreach($slides as $i => $slide)
         <div
             class="absolute inset-0 {{ $slide['visibility_classes'] }} {{ $i > 0 ? 'opacity-0' : '' }}"

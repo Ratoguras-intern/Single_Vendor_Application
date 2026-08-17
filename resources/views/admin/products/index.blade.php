@@ -90,6 +90,7 @@
         </form>
     </div>
 
+    <div id="search-results">
     <div class="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div class="overflow-x-auto">
             <table class="w-full">
@@ -241,6 +242,7 @@
                 @endif
             </div>
         </div>
+    </div>
     </div>
 @endsection
 

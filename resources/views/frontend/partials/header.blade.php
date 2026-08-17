@@ -56,7 +56,7 @@
     class="navbar"
     role="banner">
 
-    <div class="section py-0.5">
+    <div class="section py-3">
         <div class="flex items-center justify-between gap-4 lg:gap-6">
 
             {{-- LEFT: Logo + Nav Links --}}
@@ -87,7 +87,7 @@
                                 $activeCategory = $categories->firstWhere('slug', $slug);
                             }
                         @endphp
-                        <div class="categories-hover-zone"
+                        <div class="categories-hover-zone pb-8 mb-[-32px]"
                             x-on:mouseenter="openMega()"
                             x-on:mouseleave="closeMega()">
                             <button x-ref="categoriesBtn"

@@ -75,6 +75,7 @@
         </form>
     </div>
 
+    <div id="search-results">
     @if (request('view') === 'flat')
         <div class="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
             <div class="overflow-x-auto">
@@ -324,6 +325,7 @@
         </div>
     </div>
     @endif
+    </div>
 
     @push('scripts')
     <script type="text/turbo-script">

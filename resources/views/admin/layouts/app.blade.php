@@ -48,8 +48,7 @@
             });
 
             Alpine.store('sidebar', {
-                // Initialize based on screen size
-                isExpanded: window.innerWidth >= 1280, // true for desktop, false for mobile
+                isExpanded: false,
                 isMobileOpen: false,
                 isHovered: false,
 
@@ -124,6 +123,51 @@
 
     @include('admin.layouts.partials.toast')
 
+    <script>
+        (function() {
+            var timer;
+            function liveFilter(form) {
+                var active = document.activeElement;
+                var selStart = active ? active.selectionStart : null;
+                var selEnd = active ? active.selectionEnd : null;
+                var searchVal = active ? active.value : '';
+                var params = new URLSearchParams(new FormData(form));
+                var url = form.action + '?' + params.toString();
+                fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(function(r) { return r.text(); })
+                    .then(function(html) {
+                        var doc = new DOMParser().parseFromString(html, 'text/html');
+                        var results = doc.getElementById('search-results');
+                        if (results) {
+                            var container = document.getElementById('search-results');
+                            if (container) container.innerHTML = results.innerHTML;
+                        }
+                        history.replaceState(null, '', url);
+                        var searchInput = document.querySelector('#search-results input[name="search"]') || document.querySelector('input[name="search"]');
+                        if (searchInput) {
+                            searchInput.value = searchVal;
+                            searchInput.focus();
+                            if (selStart !== null) {
+                                try { searchInput.setSelectionRange(selStart, selEnd); } catch(e) {}
+                            }
+                        }
+                    });
+            }
+            document.addEventListener('input', function(e) {
+                if (e.target.name === 'search') {
+                    clearTimeout(timer);
+                    var form = e.target.closest('form');
+                    if (form) timer = setTimeout(function() { liveFilter(form); }, 400);
+                }
+            });
+            document.addEventListener('change', function(e) {
+                if (e.target.tagName === 'SELECT') {
+                    var form = e.target.closest('form');
+                    if (form) { clearTimeout(timer); liveFilter(form); }
+                }
+            });
+        })();
+    </script>
     @stack('scripts')
 </body>
 

@@ -17,7 +17,7 @@
         </div>
     </div>
 
-    <div class="relative group">
+    <div x-data="{ viewMode: 'grid' }" class="relative group">
         <div class="section">
             <div class="flex gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-4">
                 @foreach(array_slice($newArrivals, 0, $section?->max_products ?? 10) as $product)

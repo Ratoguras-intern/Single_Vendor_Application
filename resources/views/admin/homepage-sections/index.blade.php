@@ -27,14 +27,14 @@
                         <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-800" id="sections-list">
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-800" id="sortable-container">
                     @foreach($sections as $section)
-                        <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02] cursor-move" data-id="{{ $section->id }}">
+                        <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02] cursor-move sortable-row" data-id="{{ $section->id }}">
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">
                                 <span class="drag-handle cursor-grab text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
                                 </span>
-                                <span class="ml-1 text-xs text-gray-400 dark:text-gray-500">{{ $section->sort_order }}</span>
+                                <span class="ml-1 text-xs text-gray-400 dark:text-gray-500 sort-order-badge">{{ $section->sort_order }}</span>
                             </td>
                             <td class="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white">
                                 <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium
@@ -76,6 +76,35 @@
                 method: 'PATCH',
                 headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' }
             }).then(r => r.json()).then(() => Turbo.visit(location.href, { action: 'replace' }));
+        }
+
+        {
+            const container = document.getElementById('sortable-container');
+            if (container && container.children.length > 1) {
+                new Sortable(container, {
+                    handle: '.drag-handle',
+                    animation: 150,
+                    onEnd: function() {
+                        const order = [];
+                        document.querySelectorAll('.sortable-row').forEach((row, index) => {
+                            order.push(parseInt(row.dataset.id));
+                            const badge = row.querySelector('.sort-order-badge');
+                            if (badge) badge.textContent = index;
+                        });
+                        fetch('{{ route("admin.homepage-sections.updateOrder") }}', {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({ order })
+                        }).then(r => r.json()).then(d => {
+                            if (d.message) console.log(d.message);
+                        });
+                    }
+                });
+            }
         }
     </script>
     @endpush
