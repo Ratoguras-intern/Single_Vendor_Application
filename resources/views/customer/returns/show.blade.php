@@ -25,7 +25,7 @@
             </div>
             <div class="flex items-center gap-3">
                 @if (ReturnStatuses::canCancel($return->status))
-                    <form method="POST" action="{{ route('customer.returns.cancel', $return) }}" onsubmit="return confirm('Cancel this return request? This cannot be undone.');" class="print-hide">
+                    <form method="POST" action="{{ route('customer.returns.cancel', $return) }}" x-data @submit.prevent="$store.confirmModal.open({ title: 'Cancel Return', message: 'Cancel this return request? This cannot be undone.', form: $el })" class="print-hide">
                         @csrf
                         <button type="submit" class="btn-danger !py-2">
                             <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
@@ -58,7 +58,7 @@
                                     </div>
                                     <p class="font-bold text-secondary-900 dark:text-white"><span x-text="$store.currency.format({{ $item->unit_price * $item->quantity }})"></span></p>
                                 </div>
-                                <div class="mt-3 ml-20 space-y-1">
+                                <div class="mt-3 ml-12 sm:ml-20 space-y-1">
                                     <p class="text-sm"><span class="text-secondary-500 dark:text-secondary-400">Reason:</span> <span class="font-medium text-secondary-700 dark:text-secondary-300">{{ ReturnStatuses::returnReasons()[$item->reason] ?? $item->reason }}</span></p>
                                     @if ($item->customer_note)
                                         <p class="text-sm"><span class="text-secondary-500 dark:text-secondary-400">Note:</span> <span class="text-secondary-700 dark:text-secondary-300">{{ $item->customer_note }}</span></p>
@@ -270,7 +270,7 @@
                         </div>
                     </div>
                     <div class="flex justify-end">
-                        <button type="submit" onclick="return confirm('Submit return shipment details?')" class="btn-primary !py-2">
+                        <button type="submit" @click.prevent="$store.confirmModal.open({ title: 'Submit Shipment', message: 'Submit return shipment details?', form: $el.closest('form') })" class="btn-primary !py-2">
                             <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H18.75m-7.5-3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg>
                             Submit Shipment Details
                         </button>

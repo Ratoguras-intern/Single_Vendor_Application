@@ -98,7 +98,7 @@
 
             <div class="flex items-center gap-3 pt-4">
                 <a href="{{ route('customer.orders.show', $order) }}" class="flex-1 text-center rounded-lg border border-secondary-300 bg-white px-4 py-2.5 text-sm font-medium text-secondary-700 hover:bg-secondary-50 dark:border-secondary-600 dark:bg-secondary-800 dark:text-secondary-300 dark:hover:bg-secondary-700">Cancel</a>
-                <button type="submit" onclick="return confirm('Submit return request?')" class="flex-1 rounded-lg bg-orange-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-secondary-900">Submit Return Request</button>
+                <button type="submit" @click.prevent="$store.confirmModal.open({ title: 'Submit Return Request', message: 'Submit return request?', form: $el.closest('form') })" class="flex-1 rounded-lg bg-orange-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-secondary-900">Submit Return Request</button>
             </div>
         </form>
     </div>

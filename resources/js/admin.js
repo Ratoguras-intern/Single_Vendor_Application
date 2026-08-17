@@ -73,9 +73,11 @@ window.__initAdminSidebar = () => {
         if (window.innerWidth < 1280) {
             store.setMobileOpen(false);
             store.isExpanded = false;
+            document.body.classList.remove('overflow-hidden');
         } else {
             store.isMobileOpen = false;
             store.isExpanded = true;
+            document.body.classList.remove('overflow-hidden');
         }
     };
 

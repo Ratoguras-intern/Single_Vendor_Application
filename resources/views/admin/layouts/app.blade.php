@@ -54,17 +54,17 @@
 
                 toggleExpanded() {
                     this.isExpanded = !this.isExpanded;
-                    // When toggling desktop sidebar, ensure mobile menu is closed
                     this.isMobileOpen = false;
                 },
 
                 toggleMobileOpen() {
                     this.isMobileOpen = !this.isMobileOpen;
-                    // Don't modify isExpanded when toggling mobile menu
+                    document.body.classList.toggle('overflow-hidden', this.isMobileOpen);
                 },
 
                 setMobileOpen(val) {
                     this.isMobileOpen = val;
+                    document.body.classList.toggle('overflow-hidden', val);
                 },
 
                 setHovered(val) {
@@ -72,6 +72,46 @@
                     if (window.innerWidth >= 1280 && !this.isExpanded) {
                         this.isHovered = val;
                     }
+                }
+            });
+
+            Alpine.store('confirmModal', {
+                show: false,
+                title: '',
+                message: '',
+                confirmText: 'Confirm',
+                confirmClass: 'bg-red-600 hover:bg-red-700',
+                loading: false,
+                form: null,
+                onConfirm: null,
+                open(opts) {
+                    this.title = opts.title || 'Confirm Action';
+                    this.message = opts.message || 'Are you sure?';
+                    this.confirmText = opts.confirmText || 'Confirm';
+                    this.confirmClass = opts.confirmClass || 'bg-red-600 hover:bg-red-700';
+                    this.form = opts.form || null;
+                    this.onConfirm = opts.onConfirm || null;
+                    this.loading = false;
+                    this.show = true;
+                },
+                async confirm() {
+                    this.loading = true;
+                    try {
+                        if (this.onConfirm) {
+                            await this.onConfirm();
+                        } else if (this.form) {
+                            this.form.submit();
+                        }
+                    } finally {
+                        this.loading = false;
+                        this.show = false;
+                    }
+                },
+                cancel() {
+                    if (this.loading) return;
+                    this.show = false;
+                    this.onConfirm = null;
+                    this.form = null;
                 }
             });
         });
@@ -104,7 +144,7 @@
         @include('admin.layouts.partials.backdrop')
         @include('admin.layouts.sidebar')
 
-        <div class="flex-1 transition-all duration-300 ease-in-out"
+        <div class="flex-1 transition-[margin-left] duration-300 ease-in-out"
             :class="{
                 'xl:ml-[290px]': $store.sidebar.isExpanded || $store.sidebar.isHovered,
                 'xl:ml-[90px]': !$store.sidebar.isExpanded && !$store.sidebar.isHovered,
@@ -122,6 +162,7 @@
     </div>
 
     <x-toast />
+    <x-confirm-modal />
 
     <script>
         (function() {

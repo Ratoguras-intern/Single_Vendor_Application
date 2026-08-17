@@ -138,7 +138,7 @@
                 <a href="{{ route('admin.products.edit', $product) }}" class="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600">
                     Edit Product
                 </a>
-                <form action="{{ route('admin.products.destroy', $product) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this product?')">
+                <form action="{{ route('admin.products.destroy', $product) }}" method="POST" x-data @submit.prevent="$store.confirmModal.open({ title: 'Delete Product', message: 'Are you sure you want to delete this product?', form: $el })">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-red-300 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-500/10">

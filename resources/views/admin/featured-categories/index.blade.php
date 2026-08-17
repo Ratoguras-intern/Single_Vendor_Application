@@ -86,7 +86,7 @@
                                 </button>
                             </td>
                             <td class="px-5 py-4">
-                                <form action="{{ route('admin.featured-categories.destroy', $fc) }}" method="POST" onsubmit="return confirm('Remove from homepage?')">
+                                <form action="{{ route('admin.featured-categories.destroy', $fc) }}" method="POST" x-data @submit.prevent="$store.confirmModal.open({ title: 'Remove from Homepage', message: 'Remove this category from the homepage?', form: $el })">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="text-red-500 hover:text-red-600">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 6H21M19 6V20C19 21.1 18.1 22 17 22H7C5.9 22 5 21.1 5 20V6M8 6V4C8 2.9 8.9 2 10 2H14C15.1 2 16 2.9 16 4V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>

@@ -11,7 +11,7 @@
 @endphp
 
 @section('content')
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-6">
         <h2 class="text-xl font-bold text-gray-800 dark:text-white">Banners</h2>
         <a href="{{ route('admin.banners.create') }}"
             class="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600">
@@ -22,12 +22,12 @@
 
     <div class="mb-4 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
         <form action="{{ route('admin.banners.index') }}" method="GET" class="flex flex-wrap items-end gap-4">
-            <div class="min-w-[200px] flex-1">
+            <div class="min-w-0 w-full sm:w-auto sm:min-w-[200px] flex-1">
                 <label for="search" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Search</label>
                 <input type="text" name="search" id="search" value="{{ $currentSearch }}" placeholder="Title, subtitle, description..."
                     class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
             </div>
-            <div class="min-w-[150px]">
+            <div class="min-w-0 w-full sm:w-auto sm:min-w-[150px]">
                 <label for="status" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
                 <select name="status" id="status" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
                     <option value="all" {{ $currentStatus === 'all' ? 'selected' : '' }}>All</option>
@@ -37,7 +37,7 @@
                     <option value="inactive" {{ $currentStatus === 'inactive' ? 'selected' : '' }}>Inactive</option>
                 </select>
             </div>
-            <div class="min-w-[150px]">
+            <div class="min-w-0 w-full sm:w-auto sm:min-w-[150px]">
                 <label for="position" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Position</label>
                 <select name="position" id="position" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
                     <option value="">All Positions</option>
@@ -149,7 +149,7 @@
                                     <a href="{{ route('admin.banners.edit', $banner) }}" class="text-brand-500 hover:text-brand-600 dark:text-brand-400 dark:hover:text-brand-300">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                     </a>
-                                    <form action="{{ route('admin.banners.destroy', $banner) }}" method="POST" onsubmit="return confirm('Delete this banner?')">
+                                    <form action="{{ route('admin.banners.destroy', $banner) }}" method="POST" x-data @submit.prevent="$store.confirmModal.open({ title: 'Delete Banner', message: 'Are you sure you want to delete this banner?', form: $el })">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="text-red-500 hover:text-red-600 dark:hover:text-red-400">

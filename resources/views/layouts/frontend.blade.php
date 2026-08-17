@@ -80,6 +80,46 @@
                     document.documentElement.classList.toggle('dark', this.current === 'dark');
                 }
             });
+
+            Alpine.store('confirmModal', {
+                show: false,
+                title: '',
+                message: '',
+                confirmText: 'Confirm',
+                confirmClass: 'bg-red-600 hover:bg-red-700',
+                loading: false,
+                form: null,
+                onConfirm: null,
+                open(opts) {
+                    this.title = opts.title || 'Confirm Action';
+                    this.message = opts.message || 'Are you sure?';
+                    this.confirmText = opts.confirmText || 'Confirm';
+                    this.confirmClass = opts.confirmClass || 'bg-red-600 hover:bg-red-700';
+                    this.form = opts.form || null;
+                    this.onConfirm = opts.onConfirm || null;
+                    this.loading = false;
+                    this.show = true;
+                },
+                async confirm() {
+                    this.loading = true;
+                    try {
+                        if (this.onConfirm) {
+                            await this.onConfirm();
+                        } else if (this.form) {
+                            this.form.submit();
+                        }
+                    } finally {
+                        this.loading = false;
+                        this.show = false;
+                    }
+                },
+                cancel() {
+                    if (this.loading) return;
+                    this.show = false;
+                    this.onConfirm = null;
+                    this.form = null;
+                }
+            });
         });
     </script>
 </head>
@@ -93,6 +133,7 @@
     </main>
 
     <x-toast position="top-right" top-offset="calc(var(--navbar-height, 0px) + 1rem)" />
+    <x-confirm-modal />
 
     @hasSection('footer')
         @yield('footer')

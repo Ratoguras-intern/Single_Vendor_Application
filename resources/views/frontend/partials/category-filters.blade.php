@@ -13,12 +13,14 @@
 <div
     x-data="{ mobileOpen: false }"
     x-on:toggle-filter.window="mobileOpen = !mobileOpen"
-    x-on:keydown.escape.window="mobileOpen = false"
+    x-on:keydown.escape.window="if (mobileOpen) mobileOpen = false"
+    class="contents"
 >
 
-    {{-- Overlay --}}
+    {{-- Overlay (mobile only) --}}
     <div
         x-show="mobileOpen"
+        x-cloak
         x-transition:enter="transition ease-out duration-300"
         x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100"
@@ -30,16 +32,18 @@
         aria-hidden="true"
     ></div>
 
-    {{-- Sidebar --}}
+    {{-- Sidebar: always in DOM; desktop = static inline, mobile = fixed drawer --}}
     <aside
-        x-show="mobileOpen || true"
+        x-ref="panel"
         x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="-translate-x-full lg:translate-x-0"
+        x-transition:enter-start="-translate-x-full"
         x-transition:enter-end="translate-x-0"
         x-transition:leave="transition ease-in duration-200"
         x-transition:leave-start="translate-x-0"
-        x-transition:leave-end="-translate-x-full lg:translate-x-0"
-        :class="mobileOpen ? 'fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] shadow-2xl bg-white dark:bg-secondary-900 overflow-y-auto p-6 lg:relative lg:w-full lg:shadow-none lg:z-auto lg:bg-transparent lg:dark:bg-transparent lg:p-0' : 'hidden lg:block lg:w-full'"
+        x-transition:leave-end="-translate-x-full"
+        class="hidden fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] shadow-2xl bg-white dark:bg-secondary-900 p-6 overflow-y-auto
+               lg:block lg:relative lg:z-auto lg:w-64 lg:shrink-0 lg:max-w-none lg:shadow-none lg:bg-transparent lg:dark:bg-transparent lg:p-0 lg:translate-x-0 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto"
+        :class="mobileOpen ? '!block' : ''"
         role="navigation"
         aria-label="Product filters"
     >
@@ -96,7 +100,7 @@
                             class="input text-sm py-2"
                         >
                     </div>
-                    <span class="text-secondary-400 dark:text-secondary-500">—</span>
+                    <span class="text-secondary-400 dark:text-secondary-500">&mdash;</span>
                     <div class="flex-1">
                         <label for="max-price" class="sr-only">Maximum price</label>
                         <input
@@ -187,6 +191,11 @@
                     Clear
                 </button>
             </div>
+        </div>
+
+        {{-- Desktop Banner Sidebar --}}
+        <div class="hidden lg:block mt-6">
+            @include('frontend.partials.banner-sidebar')
         </div>
     </aside>
 </div>

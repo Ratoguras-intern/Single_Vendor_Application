@@ -70,7 +70,7 @@
                                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                                             </button>
                                         </form>
-                                        <form action="{{ route('superadmin.admins.destroy', $admin) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this admin?')">
+                                        <form action="{{ route('superadmin.admins.destroy', $admin) }}" method="POST" x-data @submit.prevent="$store.confirmModal.open({ title: 'Delete Admin', message: 'Are you sure you want to delete this admin?', form: $el })">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-gray-400 hover:text-red-500 dark:hover:text-red-400" title="Delete Admin">

@@ -55,7 +55,7 @@
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M8 2V5M16 2V5M3 10H21M21 12V8C21 6.89543 20.1046 6 19 6H5C3.89543 6 3 6.89543 3 8V12C3 13.1046 3.89543 14 5 14H19C20.1046 14 21 13.1046 21 12ZM3 17V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                     </a>
                                     @if ($customer->id !== Auth::id())
-                                        <form action="{{ route('admin.customers.destroy', $customer) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this customer? This will permanently remove all their data including orders, addresses, and favorites.')">
+                                        <form action="{{ route('admin.customers.destroy', $customer) }}" method="POST" x-data @submit.prevent="$store.confirmModal.open({ title: 'Delete Customer', message: 'Are you sure you want to delete this customer? This will permanently remove all their data including orders, addresses, and favorites.', form: $el })">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-gray-400 hover:text-red-500 dark:hover:text-red-400" title="Delete Customer">
@@ -102,29 +102,34 @@ function bulkDeleteCustomers() {
     const ids = [...document.querySelectorAll('.customer-cb:checked')].map(cb => cb.value);
 
     if (ids.length === 0) {
-        alert('Please select at least one customer.');
+        window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'warning', message: 'Please select at least one customer.' } }));
         return;
     }
 
-    if (!confirm(`Delete ${ids.length} selected customer(s)? This will permanently remove all their data including orders, addresses, and favorites.`)) {
-        return;
-    }
-
-    fetch('{{ route('admin.customers.bulkDestroy') }}', {
-        method: 'DELETE',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-        },
-        body: JSON.stringify({ customer_ids: ids }),
-    }).then(async r => {
-        if (!r.ok) {
-            const data = await r.json().catch(() => ({}));
-            throw new Error(data.message || 'Failed to delete customers.');
+    Alpine.store('confirmModal').open({
+        title: 'Delete Customers',
+        message: `Delete ${ids.length} selected customer(s)? This will permanently remove all their data including orders, addresses, and favorites.`,
+        onConfirm: async () => {
+            try {
+                const r = await fetch('{{ route('admin.customers.bulkDestroy') }}', {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ customer_ids: ids }),
+                });
+                if (!r.ok) {
+                    const data = await r.json().catch(() => ({}));
+                    throw new Error(data.message || 'Failed to delete customers.');
+                }
+                Turbo.visit(location.href, { action: 'replace' });
+            } catch (err) {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: err.message } }));
+            }
         }
-        Turbo.visit(location.href, { action: 'replace' });
-    }).catch(err => alert(err.message));
+    });
 }
 </script>
 @endpush

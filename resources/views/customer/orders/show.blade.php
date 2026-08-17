@@ -40,7 +40,7 @@
                     @endif
                 </span>
                 @if ($order->status === 'shipped')
-                    <form method="POST" action="{{ route('customer.orders.confirmDelivery', $order) }}" onsubmit="return confirm('Confirm you have received this order?');" class="print-hide">
+                    <form method="POST" action="{{ route('customer.orders.confirmDelivery', $order) }}" x-data @submit.prevent="$store.confirmModal.open({ title: 'Confirm Delivery', message: 'Confirm you have received this order?', confirmText: 'Confirm', confirmClass: 'bg-green-600 hover:bg-green-700', form: $el })" class="print-hide">
                         @csrf
                         <button type="submit" class="btn-primary !py-2">
                             <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
@@ -53,7 +53,7 @@
                         Request Return
                     </a>
                 @elseif (! OrderStatuses::isTerminal($order->status))
-                    <form method="POST" action="{{ route('customer.orders.cancel', $order) }}" onsubmit="return confirm('Cancel this order? This cannot be undone.');" class="print-hide">
+                    <form method="POST" action="{{ route('customer.orders.cancel', $order) }}" x-data @submit.prevent="$store.confirmModal.open({ title: 'Cancel Order', message: 'Cancel this order? This cannot be undone.', form: $el })" class="print-hide">
                         @csrf
                         <button type="submit" class="btn-danger !py-2">
                             <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
@@ -87,7 +87,8 @@
                     <span class="text-xs font-medium text-secondary-500 dark:text-secondary-400">{{ $currentStep !== null ? 'Step ' . ($currentStep + 1) . ' of ' . count($flow) : '' }}</span>
                 </div>
 
-                <ol class="relative flex items-start justify-between">
+                <div class="overflow-x-auto -mx-5 px-5 sm:mx-0 sm:px-0">
+                <ol class="relative flex items-start justify-between min-w-[480px]">
                     @foreach($flow as $index => $status)
                         @php
                             $history = $historyByStatus->get($status);
@@ -111,6 +112,7 @@
                         </li>
                     @endforeach
                 </ol>
+                </div>
 
                 @if($order->tracking_number && in_array($order->status, ['shipped', 'delivered']))
                     <div class="mt-6 flex flex-wrap items-center justify-center gap-2 rounded-card bg-secondary-50 dark:bg-secondary-950 px-4 py-3 text-sm">

@@ -10,7 +10,7 @@
 @endphp
 
 @section('content')
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-6">
         <h2 class="text-xl font-bold text-gray-800 dark:text-white">
             Returns
             <span class="ml-1.5 text-sm font-normal text-gray-500 dark:text-gray-400">({{ $returns->total() }})</span>
@@ -64,7 +64,7 @@
             @if (request('status'))
                 <input type="hidden" name="status" value="{{ request('status') }}">
             @endif
-            <div class="min-w-[250px] flex-1">
+            <div class="min-w-0 w-full sm:w-auto sm:min-w-[250px] flex-1">
                 <label for="search" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Search</label>
                 <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="Return #, order #, customer name or email..."
                     class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">

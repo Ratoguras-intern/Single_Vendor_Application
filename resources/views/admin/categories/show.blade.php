@@ -78,7 +78,7 @@
                         <a href="{{ route('admin.categories.edit', $category) }}" class="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600">
                             Edit Category
                         </a>
-                        <form action="{{ route('admin.categories.destroy', $category) }}" method="POST" onsubmit="return confirm('Delete this category?')" class="inline">
+                        <form action="{{ route('admin.categories.destroy', $category) }}" method="POST" x-data @submit.prevent="$store.confirmModal.open({ title: 'Delete Category', message: 'Delete this category?', form: $el })" class="inline">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-red-300 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-500/10">

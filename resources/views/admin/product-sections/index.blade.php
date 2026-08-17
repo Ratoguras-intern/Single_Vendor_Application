@@ -118,7 +118,7 @@
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ format_currency($product->discount_price ?? $product->price) }}</td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $product->stock }}</td>
                             <td class="px-5 py-4">
-                                <form action="{{ route('admin.product-sections.remove', [$sectionKey, $product->id]) }}" method="POST" onsubmit="return confirm('Remove?')">
+                                <form action="{{ route('admin.product-sections.remove', [$sectionKey, $product->id]) }}" method="POST" x-data @submit.prevent="$store.confirmModal.open({ title: 'Remove Product', message: 'Remove this product from the section?', form: $el })">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="text-red-500 hover:text-red-600 text-sm font-medium">Remove</button>
                                 </form>

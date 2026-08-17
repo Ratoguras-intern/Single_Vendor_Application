@@ -18,8 +18,8 @@
 
         <div class="card p-0 overflow-hidden">
             @forelse ($returns as $return)
-                <a href="{{ route('customer.returns.show', $return) }}" class="flex items-center justify-between p-5 border-b border-secondary-100 dark:border-secondary-700 transition-colors hover:bg-secondary-50 dark:hover:bg-white/5 last:border-b-0">
-                    <div class="flex items-center gap-4">
+                <a href="{{ route('customer.returns.show', $return) }}" class="flex items-center justify-between gap-3 p-5 border-b border-secondary-100 dark:border-secondary-700 transition-colors hover:bg-secondary-50 dark:hover:bg-white/5 last:border-b-0">
+                    <div class="flex items-center gap-4 shrink-0">
                         <div class="w-10 h-10 rounded-card flex items-center justify-center bg-orange-500 text-white">
                             <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/></svg>
                         </div>
@@ -28,8 +28,8 @@
                             <p class="text-sm text-secondary-500 dark:text-secondary-400">Order {{ $return->order->order_number }} &bull; {{ $return->created_at->format('M d, Y') }}</p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-4">
-                        <div class="text-right">
+                    <div class="flex items-center gap-3 sm:gap-4 shrink-0">
+                        <div class="text-right hidden sm:block">
                             <p class="font-bold text-secondary-900 dark:text-white"><span x-text="$store.currency.format({{ $return->refund_amount }})"></span></p>
                             <p class="text-sm text-secondary-500 dark:text-secondary-400">{{ $return->items->count() }} item(s)</p>
                         </div>

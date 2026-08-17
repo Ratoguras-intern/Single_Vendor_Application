@@ -110,22 +110,11 @@
             ])
 
             <div class="flex gap-8">
-                {{-- Filter Sidebar (Desktop) --}}
-                <div class="hidden lg:block w-64 shrink-0 sticky top-24 self-start max-h-[calc(100vh-8rem)] overflow-y-auto scrollbar-hide">
-                    @include('frontend.partials.category-filters', [
-                        'brands' => $brands,
-                        'priceRange' => $priceRange,
-                    ])
-                    @include('frontend.partials.banner-sidebar')
-                </div>
-
-                {{-- Filter Drawer (Mobile) --}}
-                <div class="lg:hidden">
-                    @include('frontend.partials.category-filters', [
-                        'brands' => $brands,
-                        'priceRange' => $priceRange,
-                    ])
-                </div>
+                {{-- Filter Sidebar (single instance: desktop sidebar + mobile drawer) --}}
+                @include('frontend.partials.category-filters', [
+                    'brands' => $brands,
+                    'priceRange' => $priceRange,
+                ])
 
                 {{-- Product Grid --}}
                 <div class="flex-1 min-w-0 relative">

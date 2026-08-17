@@ -392,7 +392,7 @@
                             if (response.ok) {
                                 window.location.reload();
                             } else {
-                                alert(data.message || 'Update failed.');
+                                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: data.message || 'Update failed.' } }));
                             }
                         } catch (e) {
                             console.error('Status update failed:', e);
@@ -417,7 +417,7 @@
                             if (response.ok) {
                                 window.location.reload();
                             } else {
-                                alert(data.message || 'Save failed.');
+                                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: data.message || 'Save failed.' } }));
                             }
                         } catch (e) {
                             console.error('Tracking save failed:', e);

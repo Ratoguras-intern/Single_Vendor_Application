@@ -15,7 +15,7 @@
         $hasFilters = request()->filled('status') || request()->filled('payment_status') || request()->filled('month');
     @endphp
 
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-6">
         <h2 class="text-xl font-bold text-gray-800 dark:text-white">Orders</h2>
         @if ($hasFilters)
             <a href="{{ route('admin.orders.index') }}" class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-white/[0.03] dark:text-gray-300 dark:hover:bg-white/[0.06]">
@@ -28,7 +28,7 @@
     {{-- Filter Bar --}}
     <div class="mb-4 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
         <form action="{{ route('admin.orders.index') }}" method="GET" class="flex flex-wrap items-end gap-4">
-            <div class="min-w-[150px]">
+            <div class="min-w-0 w-full sm:w-auto sm:min-w-[150px]">
                 <label for="status" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
                 <select name="status" id="status"
                     class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
@@ -38,7 +38,7 @@
                     @endforeach
                 </select>
             </div>
-            <div class="min-w-[150px]">
+            <div class="min-w-0 w-full sm:w-auto sm:min-w-[150px]">
                 <label for="payment_status" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Payment</label>
                 <select name="payment_status" id="payment_status"
                     class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
@@ -48,7 +48,7 @@
                     @endforeach
                 </select>
             </div>
-            <div class="min-w-[160px]">
+            <div class="min-w-0 w-full sm:w-auto sm:min-w-[160px]">
                 <label for="month" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Month</label>
                 <input type="month" name="month" id="month" value="{{ request('month') }}"
                     class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
@@ -86,7 +86,7 @@
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ format_currency($order->total_amount) }}</td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $order->created_at->format('M d, Y') }}</td>
                             <td class="px-5 py-4">
-                                <div class="flex items-center gap-1.5">
+                                <div class="flex flex-wrap items-center gap-1.5">
                                     <a href="{{ route('admin.orders.show', $order) }}" title="View Order"
                                         class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-500 shadow-sm transition hover:bg-gray-50 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-white/[0.06] dark:hover:text-gray-200">
                                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12S5 4 12 4s11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
