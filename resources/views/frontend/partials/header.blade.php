@@ -66,24 +66,14 @@
                 {{-- Desktop nav links --}}
                 <nav class="hidden lg:flex items-center ml-8 xl:ml-12" role="navigation" aria-label="Main navigation">
                     <div class="flex items-center gap-1">
-                        <a href="{{ route('frontend.home') }}" wire:navigate.prefetch
-                            class="relative px-3 py-1 rounded-btn text-sm font-medium transition-colors duration-150 {{ request()->routeIs('frontend.home') ? 'text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-500/10' : 'text-secondary-600 hover:text-secondary-900 hover:bg-secondary-100 dark:text-secondary-400 dark:hover:text-white dark:hover:bg-white/5' }}"
-                            {{ request()->routeIs('frontend.home') ? 'aria-current="page"' : '' }}>
-                            <span data-i18n="Home" x-text="$store.i18n.t('Home')">Home</span>
-                        </a>
-
-                        <a href="{{ route('frontend.shop') }}" wire:navigate.prefetch
-                            class="relative px-3 py-1 rounded-btn text-sm font-medium transition-colors duration-150 {{ request()->routeIs('frontend.shop') ? 'text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-500/10' : 'text-secondary-600 hover:text-secondary-900 hover:bg-secondary-100 dark:text-secondary-400 dark:hover:text-white dark:hover:bg-white/5' }}"
-                            {{ request()->routeIs('frontend.shop') ? 'aria-current="page"' : '' }}>
-                            <span data-i18n="Shop" x-text="$store.i18n.t('Shop')">Shop</span>
-                        </a>
-
-                        {{-- Categories mega menu --}}
-                        @php
-                            $topCategories = $categories->whereNull('parent_id');
-                            $activeCategory = null;
-                            if (request()->routeIs('frontend.category')) {
-                                $slug = request()->route('slug');
+                        @foreach($headerNavItems as $navItem)
+                            @if(data_get($navItem, 'config.type') === 'mega-menu')
+                                {{-- Categories mega menu --}}
+                                @php
+                                    $topCategories = $categories->whereNull('parent_id');
+                                    $activeCategory = null;
+                                    if (request()->routeIs('frontend.category')) {
+                                        $slug = request()->route('slug');
                                 $activeCategory = $categories->firstWhere('slug', $slug);
                             }
                         @endphp
@@ -226,13 +216,13 @@
 
                                         {{-- Promo Banner --}}
                                         <div class="col-span-4">
-                                            <a href="{{ route('frontend.shop') }}" wire:navigate class="mega-promo-card block h-full">
+                                            <a href="{{ $megaMenuPromo['url'] }}" wire:navigate class="mega-promo-card block h-full">
                                                 <div class="relative">
-                                                    <span class="inline-block px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold mb-3">Featured</span>
-                                                    <h4 class="text-xl font-bold text-white mb-2">Explore Our Collection</h4>
-                                                    <p class="text-sm text-white/80 mb-4">Discover quality products across all categories.</p>
+                                                    <span class="inline-block px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold mb-3">{{ $megaMenuPromo['badge'] }}</span>
+                                                    <h4 class="text-xl font-bold text-white mb-2">{{ $megaMenuPromo['heading'] }}</h4>
+                                                    <p class="text-sm text-white/80 mb-4">{{ $megaMenuPromo['description'] }}</p>
                                                     <span class="mega-promo-btn">
-                                                        Shop Now
+                                                        {{ $megaMenuPromo['cta_text'] }}
                                                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
                                                     </span>
                                                 </div>
@@ -244,15 +234,14 @@
                             </div>
                         </div>
 
-                        <a href="{{ route('frontend.shop') }}?sort=newest" wire:navigate
-                            class="relative px-3 py-1 rounded-btn text-sm font-medium transition-colors duration-150 text-secondary-600 hover:text-secondary-900 hover:bg-secondary-100 dark:text-secondary-400 dark:hover:text-white dark:hover:bg-white/5">
-                            <span data-i18n="New Arrivals" x-text="$store.i18n.t('New Arrivals')">New Arrivals</span>
-                        </a>
-
-                        <a href="{{ route('frontend.shop') }}?sort=sale" wire:navigate
-                            class="relative px-3 py-1 rounded-btn text-sm font-medium transition-colors duration-150 text-red-500 hover:text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-500/10">
-                            <span data-i18n="Sale" x-text="$store.i18n.t('Sale')">Sale</span>
-                        </a>
+                        @else
+                            <a href="{{ $navItem['url'] }}" wire:navigate.prefetch
+                                class="relative px-3 py-1 rounded-btn text-sm font-medium transition-colors duration-150 {{ $navItem['css_class'] ?? '' }} {{ str_contains(url()->current(), $navItem['url']) ? 'text-primary-600 bg-primary-50 dark:text-primary-400 dark:bg-primary-500/10' : 'text-secondary-600 hover:text-secondary-900 hover:bg-secondary-100 dark:text-secondary-400 dark:hover:text-white dark:hover:bg-white/5' }}"
+                                @if(data_get($navItem, 'target')) target="{{ $navItem['target'] }}" @endif>
+                                <span data-i18n="{{ $navItem['name'] }}" x-text="$store.i18n.t('{{ $navItem['name'] }}')">{{ $navItem['name'] }}</span>
+                            </a>
+                        @endif
+                        @endforeach
 
                     </div>
                 </nav>
@@ -439,6 +428,10 @@
                                     <a href="{{ route('customer.orders.index') }}" wire:navigate class="flex items-center gap-3 px-4 py-2.5 text-sm text-secondary-700 dark:text-secondary-300 hover:bg-secondary-50 dark:hover:bg-white/5 transition-colors">
                                         <svg class="h-4 w-4 text-secondary-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15a2.25 2.25 0 0 1 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z"/></svg>
                                         <span data-i18n="My Orders" x-text="$store.i18n.t('My Orders')">{{ __('My Orders') }}</span>
+                                    </a>
+                                    <a href="{{ route('customer.returns.index') }}" wire:navigate class="flex items-center gap-3 px-4 py-2.5 text-sm text-secondary-700 dark:text-secondary-300 hover:bg-secondary-50 dark:hover:bg-white/5 transition-colors">
+                                        <svg class="h-4 w-4 text-secondary-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/></svg>
+                                        <span>My Returns</span>
                                     </a>
                                 @endif
                                 <a href="{{ route('frontend.favorites') }}" wire:navigate class="flex items-center gap-3 px-4 py-2.5 text-sm text-secondary-700 dark:text-secondary-300 hover:bg-secondary-50 dark:hover:bg-white/5 transition-colors">

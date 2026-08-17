@@ -135,13 +135,13 @@
 
             {{-- Promo Banner --}}
             <div class="col-span-4">
-                <a href="{{ route('frontend.shop') }}" class="mega-promo-card block h-full">
+                <a href="{{ $megaMenuPromo['url'] }}" class="mega-promo-card block h-full">
                     <div class="relative">
-                        <span class="inline-block px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold mb-3">Featured</span>
-                        <h4 class="text-xl font-bold text-white mb-2">Explore Our Collection</h4>
-                        <p class="text-sm text-white/80 mb-4">Discover quality products across all categories.</p>
+                        <span class="inline-block px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold mb-3">{{ $megaMenuPromo['badge'] }}</span>
+                        <h4 class="text-xl font-bold text-white mb-2">{{ $megaMenuPromo['heading'] }}</h4>
+                        <p class="text-sm text-white/80 mb-4">{{ $megaMenuPromo['description'] }}</p>
                         <span class="mega-promo-btn">
-                            Shop Now
+                            {{ $megaMenuPromo['cta_text'] }}
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
                         </span>
                     </div>

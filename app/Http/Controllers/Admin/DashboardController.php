@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\OrderReturn;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -41,6 +42,11 @@ class DashboardController extends Controller
         $averageOrderValue = Order::where('payment_status', 'paid')->avg('total_amount') ?? 0;
 
         $lowStockProducts = Product::where('stock', '<=', 10)->orderBy('stock')->limit(10)->get();
+
+        // --- Return Stats ---
+        $pendingReturns = OrderReturn::whereIn('status', ['requested', 'pending_review'])->count();
+        $returnsAwaitingReceipt = OrderReturn::where('status', 'return_shipped')->count();
+        $returnsAwaitingRefund = OrderReturn::where('status', 'received')->count();
 
         // --- Monthly Sales (last 12 months) ---
         $monthlySales = Order::where('payment_status', 'paid')
@@ -121,6 +127,9 @@ class DashboardController extends Controller
             'revenueThisMonth',
             'averageOrderValue',
             'lowStockProducts',
+            'pendingReturns',
+            'returnsAwaitingReceipt',
+            'returnsAwaitingRefund',
             'salesLabels',
             'salesData',
             'salesRevenue',

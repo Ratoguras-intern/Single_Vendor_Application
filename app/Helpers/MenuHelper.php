@@ -2,13 +2,110 @@
 
 namespace App\Helpers;
 
+use App\Models\NavigationItem;
+use App\Models\NavigationMenu;
+use Illuminate\Support\Facades\Cache;
+
 class MenuHelper
 {
     public static function getMenuGroups(): array
     {
         $role = auth()->user()->role ?? 'customer';
 
-        $menu = [
+        return Cache::remember('admin_sidebar_nav', 300, function () use ($role) {
+            $menu = NavigationMenu::where('slug', 'admin-sidebar')->enabled()->first();
+
+            if (!$menu) {
+                return self::getDefaultMenu($role);
+            }
+
+            $items = NavigationItem::where('menu_id', $menu->id)
+                ->enabled()
+                ->ordered()
+                ->with(['children' => fn ($q) => $q->enabled()->ordered()])
+                ->get();
+
+            $groups = [];
+            foreach ($items as $item) {
+                if (data_get($item->config, 'is_group_title')) {
+                    $groupTitle = $item->name;
+                    $groupItems = [];
+
+                    foreach ($item->children as $child) {
+                        if ($child->permission && $role !== $child->permission) {
+                            continue;
+                        }
+                        $groupItems[] = self::buildItem($child, $role);
+                    }
+
+                    $groups[] = [
+                        'title' => $groupTitle,
+                        'items' => $groupItems,
+                    ];
+                }
+            }
+
+            return empty($groups) ? self::getDefaultMenu($role) : $groups;
+        });
+    }
+
+    private static function buildItem(NavigationItem $item, string $role): array
+    {
+        $result = [
+            'name' => $item->name,
+            'icon' => $item->icon_key ?? 'dashboard',
+            'path' => self::resolveUrl($item->url, $role),
+        ];
+
+        if ($item->badge) {
+            $result['new'] = true;
+        }
+
+        if ($item->children->count()) {
+            $result['subItems'] = $item->children->map(fn ($child) => [
+                'name' => $child->name,
+                'path' => self::resolveUrl($child->url, $role),
+            ])->toArray();
+        }
+
+        return $result;
+    }
+
+    private static function resolveUrl(?string $url, string $role): string
+    {
+        if (!$url) {
+            return '#';
+        }
+
+        // Handle product section format: "route:param"
+        if (str_contains($url, ':')) {
+            [$route, $param] = explode(':', $url, 2);
+            try {
+                return route($route, $param);
+            } catch (\Exception $e) {
+                return '#';
+            }
+        }
+
+        // Handle named routes
+        try {
+            return route($url);
+        } catch (\Exception $e) {
+            // Handle role-specific dashboard
+            if ($url === 'admin.dashboard' && $role === 'super_admin') {
+                return route('superadmin.dashboard');
+            }
+            // Try as URL path
+            if (str_starts_with($url, '/')) {
+                return $url;
+            }
+            return '#';
+        }
+    }
+
+    private static function getDefaultMenu(string $role): array
+    {
+        return [
             [
                 'title' => 'Menu',
                 'items' => [
@@ -21,100 +118,7 @@ class MenuHelper
                     ],
                 ],
             ],
-            [
-                'title' => 'Catalog',
-                'items' => [
-                    [
-                        'name' => 'Categories',
-                        'icon' => 'category',
-                        'path' => route('admin.categories.index'),
-                    ],
-                    [
-                        'name' => 'Brands',
-                        'icon' => 'brand',
-                        'path' => route('admin.brands.index'),
-                    ],
-                    [
-                        'name' => 'Products',
-                        'icon' => 'product',
-                        'path' => route('admin.products.index'),
-                    ],
-                ],
-            ],
-            [
-                'title' => 'Content',
-                'items' => [
-                    [
-                        'name' => 'Homepage Sections',
-                        'icon' => 'homepage',
-                        'path' => route('admin.homepage-sections.index'),
-                    ],
-                    [
-                        'name' => 'Banners',
-                        'icon' => 'banner',
-                        'path' => route('admin.banners.index'),
-                    ],
-                    [
-                        'name' => 'Sale Banners',
-                        'icon' => 'sale',
-                        'path' => route('admin.sale-banners.index'),
-                    ],
-                    [
-                        'name' => 'Featured Categories',
-                        'icon' => 'featured',
-                        'path' => route('admin.featured-categories.index'),
-                    ],
-                    [
-                        'name' => 'Product Sections',
-                        'icon' => 'product',
-                        'subItems' => [
-                            ['name' => 'Featured', 'path' => route('admin.product-sections.index', 'featured-products')],
-                            ['name' => 'New Arrivals', 'path' => route('admin.product-sections.index', 'new-arrivals')],
-                            ['name' => 'Trending', 'path' => route('admin.product-sections.index', 'trending-products')],
-                            ['name' => 'Best Sellers', 'path' => route('admin.product-sections.index', 'best-sellers')],
-                            ['name' => 'Flash Sales', 'path' => route('admin.product-sections.index', 'flash-sale')],
-                            ['name' => 'Recommended', 'path' => route('admin.product-sections.index', 'recommended-products')],
-                            ['name' => 'Popular', 'path' => route('admin.product-sections.index', 'popular-products')],
-                        ],
-                    ],
-                ],
-            ],
-            [
-                'title' => 'Sales',
-                'items' => [
-                    [
-                        'name' => 'Orders',
-                        'icon' => 'order',
-                        'path' => route('admin.orders.index'),
-                    ],
-                    [
-                        'name' => 'Customers',
-                        'icon' => 'customer',
-                        'path' => route('admin.customers.index'),
-                    ],
-                ],
-            ],
         ];
-
-        if ($role === 'super_admin') {
-            $menu[] = [
-                'title' => 'Administration',
-                'items' => [
-                    [
-                        'name' => 'Admins',
-                        'icon' => 'admins',
-                        'path' => route('superadmin.admins.index'),
-                    ],
-                    [
-                        'name' => 'Users',
-                        'icon' => 'users',
-                        'path' => route('superadmin.users.index'),
-                    ],
-                ],
-            ];
-        }
-
-        return $menu;
     }
 
     public static function getIconSvg(string $icon): string
@@ -141,6 +145,26 @@ class MenuHelper
             'admins' => '<svg class="menu-item-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 21V19C20 16.7909 18.2091 15 16 15H14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 21V19C4 16.7909 5.79086 15 8 15H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
 
             'users' => '<svg class="menu-item-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 21V19C16 16.7909 14.2091 15 12 15H6C3.79086 15 2 16.7909 2 19V21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 21V19C22 17.3132 20.6569 15.75 18.5 15.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 3.4C17.4906 3.4 18.7 4.60937 18.7 6.1C18.7 7.59063 17.4906 8.8 16 8.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+
+            'sale' => '<svg class="menu-item-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 0 0-2.455 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+
+            'navigation' => '<svg class="menu-item-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+
+            'home' => '<svg class="menu-item-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+
+            'shop' => '<svg class="menu-item-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+
+            'clock' => '<svg class="menu-item-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+
+            'fire' => '<svg class="menu-item-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 18a3.75 3.75 0 0 0 .495-7.468 5.99 5.99 0 0 0-1.925 3.547 5.975 5.975 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+
+            'heart' => '<svg class="menu-item-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+
+            'cart' => '<svg class="menu-item-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75-12.75 2.14 2.14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+
+            'mail' => '<svg class="menu-item-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+
+            'info' => '<svg class="menu-item-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
         ];
 
         return $icons[$icon] ?? $icons['dashboard'];

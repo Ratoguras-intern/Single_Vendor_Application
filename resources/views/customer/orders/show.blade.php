@@ -7,6 +7,7 @@
     $flow = OrderStatuses::FLOW;
     $currentStep = $order->status_step;
     $isCancelled = OrderStatuses::isCancelled($order->status);
+    $activeReturns = $order->returns()->whereIn('status', ['requested', 'pending_review', 'more_information_required', 'approved', 'return_shipped'])->count();
     $historyByStatus = $order->statusHistory->keyBy('status');
 @endphp
 
@@ -32,10 +33,26 @@
                 <p class="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Placed {{ $order->created_at->format('M d, Y h:i A') }}</p>
             </div>
             <div class="flex items-center gap-3">
-                <span class="badge {{ $isCancelled ? 'badge-danger' : OrderStatuses::frontendBadgeClasses($order->status) }}">
+                <span class="badge {{ $isCancelled ? 'badge-danger' : ($activeReturns > 0 ? 'bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300' : OrderStatuses::frontendBadgeClasses($order->status)) }}">
                     {{ $order->status_label }}
+                    @if ($activeReturns > 0)
+                        <span class="ml-1 text-[10px]">({{ $activeReturns }} return{{ $activeReturns > 1 ? 's' : '' }})</span>
+                    @endif
                 </span>
-                @if (! OrderStatuses::isTerminal($order->status))
+                @if ($order->status === 'shipped')
+                    <form method="POST" action="{{ route('customer.orders.confirmDelivery', $order) }}" onsubmit="return confirm('Confirm you have received this order?');" class="print-hide">
+                        @csrf
+                        <button type="submit" class="btn-primary !py-2">
+                            <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+                            Confirm Delivery
+                        </button>
+                    </form>
+                @elseif ($order->status === 'delivered' && $activeReturns === 0)
+                    <a href="{{ route('customer.returns.create', $order) }}" class="btn-outline !py-2 !border-orange-300 !text-orange-700 hover:!bg-orange-50 dark:!border-orange-700 dark:!text-orange-400 dark:hover:!bg-orange-950/30 print-hide">
+                        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/></svg>
+                        Request Return
+                    </a>
+                @elseif (! OrderStatuses::isTerminal($order->status))
                     <form method="POST" action="{{ route('customer.orders.cancel', $order) }}" onsubmit="return confirm('Cancel this order? This cannot be undone.');" class="print-hide">
                         @csrf
                         <button type="submit" class="btn-danger !py-2">
@@ -44,10 +61,10 @@
                         </button>
                     </form>
                 @endif
-                <button type="button" onclick="window.print()" class="btn-outline !py-2 print-hide">
+                <a href="{{ route('customer.orders.receipt', $order) }}" target="_blank" class="btn-outline !py-2 print-hide">
                     <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Z"/></svg>
                     Print Receipt
-                </button>
+                </a>
             </div>
         </div>
 
@@ -57,6 +74,12 @@
                 <div class="flex items-center gap-3 rounded-card bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 px-4 py-3 text-sm text-red-700 dark:text-red-400">
                     <svg class="h-5 w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 8v4m0 4h.01"/></svg>
                     This order was cancelled and will not be fulfilled.
+                </div>
+            @elseif($activeReturns > 0)
+                <div class="flex items-center gap-3 rounded-card bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800 px-4 py-3 text-sm text-orange-700 dark:text-orange-400">
+                    <svg class="h-5 w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/></svg>
+                    You have {{ $activeReturns }} active return request{{ $activeReturns > 1 ? 's' : '' }} for this order.
+                    <a href="{{ route('customer.returns.index') }}" class="ml-2 font-semibold underline">View Returns</a>
                 </div>
             @else
                 <div class="mb-6 flex items-center justify-between">

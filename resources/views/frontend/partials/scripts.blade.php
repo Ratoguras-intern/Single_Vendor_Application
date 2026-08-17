@@ -3,8 +3,6 @@
     window.loginUrl = '{{ route("login") }}';
     window.checkoutUrl = '{{ route("frontend.checkout") }}';
     window.cartLoginMessage = 'Please sign in to add items to your cart and make purchases.';
-    window.flashSuccess = @json(session('success'));
-    window.flashError = @json(session('error'));
     window.apiRoutes = {
         cart: '{{ route("api.cart.index") }}',
         cartAdd: '{{ route("api.cart.add") }}',
@@ -14,27 +12,6 @@
     };
     window.csrfToken = '{{ csrf_token() }}';
     window.currencyConfig = @json(config('currency.supported', []));
-
-function toastManager() {
-    return {
-        items: [],
-        add(detail) {
-            const id = Date.now() + Math.random();
-            const toast = { id, message: detail.message || '', type: detail.type || 'success', show: true };
-            this.items.push(toast);
-            setTimeout(() => this.dismiss(id), detail.duration || 4000);
-        },
-        dismiss(id) {
-            const t = this.items.find(i => i.id === id);
-            if (t) t.show = false;
-            setTimeout(() => { this.items = this.items.filter(i => i.id !== id); }, 300);
-        },
-        init() {
-            if (window.flashSuccess) this.add({ message: window.flashSuccess, type: 'success' });
-            if (window.flashError) this.add({ message: window.flashError, type: 'error' });
-        }
-    }
-}
 
 async function apiFetch(url, options = {}) {
     const defaults = {

@@ -9,6 +9,7 @@ final class OrderStatuses
     public const SHIPPED = 'shipped';
     public const DELIVERED = 'delivered';
     public const CANCELLED = 'cancelled';
+    public const RETURN_REQUESTED = 'return_requested';
 
     /**
      * Order of the fulfilment flow (excludes cancelled).
@@ -22,7 +23,7 @@ final class OrderStatuses
 
     public static function all(): array
     {
-        return [self::PENDING, self::PACKED, self::SHIPPED, self::DELIVERED, self::CANCELLED];
+        return [self::PENDING, self::PACKED, self::SHIPPED, self::DELIVERED, self::CANCELLED, self::RETURN_REQUESTED];
     }
 
     public static function labels(): array
@@ -33,6 +34,7 @@ final class OrderStatuses
             self::SHIPPED => 'Shipped',
             self::DELIVERED => 'Delivered',
             self::CANCELLED => 'Cancelled',
+            self::RETURN_REQUESTED => 'Return Requested',
         ];
     }
 
@@ -62,6 +64,7 @@ final class OrderStatuses
             self::SHIPPED => 'bg-purple-50 text-purple-700 dark:bg-purple-500/10 dark:text-purple-400',
             self::DELIVERED => 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400',
             self::CANCELLED => 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400',
+            self::RETURN_REQUESTED => 'bg-orange-50 text-orange-700 dark:bg-orange-500/10 dark:text-orange-400',
             default => 'bg-gray-50 text-gray-700 dark:bg-gray-500/10 dark:text-gray-400',
         };
     }
@@ -74,6 +77,7 @@ final class OrderStatuses
         return match ($status) {
             self::DELIVERED => 'badge-success',
             self::CANCELLED => 'badge-danger',
+            self::RETURN_REQUESTED => 'bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300',
             self::SHIPPED => 'bg-purple-100 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300',
             self::PACKED => 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300',
             default => 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/30 dark:text-yellow-300',
@@ -88,6 +92,7 @@ final class OrderStatuses
             self::SHIPPED => 'bg-purple-500',
             self::DELIVERED => 'bg-emerald-500',
             self::CANCELLED => 'bg-red-500',
+            self::RETURN_REQUESTED => 'bg-orange-500',
             default => 'bg-gray-400',
         };
     }
@@ -99,7 +104,7 @@ final class OrderStatuses
 
     public static function isTerminal(string $status): bool
     {
-        return in_array($status, [self::DELIVERED, self::CANCELLED], true);
+        return in_array($status, [self::DELIVERED, self::CANCELLED, self::RETURN_REQUESTED], true);
     }
 
     public static function next(string $status): ?string
@@ -111,5 +116,19 @@ final class OrderStatuses
         }
 
         return self::FLOW[$step + 1] ?? null;
+    }
+
+    public static function returnReasons(): array
+    {
+        return [
+            'wrong_item' => 'Wrong item received',
+            'damaged' => 'Item arrived damaged',
+            'defective' => 'Product is defective',
+            'not_as_described' => 'Not as described',
+            'wrong_size' => 'Wrong size / fit',
+            'changed_mind' => 'Changed my mind',
+            'late_delivery' => 'Delivery was too late',
+            'other' => 'Other',
+        ];
     }
 }

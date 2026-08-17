@@ -27,9 +27,9 @@
 
     $footerLinkUrls = [
         'All Products' => route('frontend.shop'),
-        'New Arrivals' => route('frontend.shop'),
-        'Sale' => route('frontend.shop'),
-        'Featured' => route('frontend.shop'),
+        'New Arrivals' => route('frontend.shop') . '?new_arrivals=1',
+        'Sale' => route('frontend.shop') . '?on_sale=1',
+        'Featured' => route('frontend.shop') . '?featured=1',
         'Contact Us' => route('frontend.contact'),
         'Help Center' => route('frontend.contact'),
         'Shipping Info' => route('frontend.contact'),

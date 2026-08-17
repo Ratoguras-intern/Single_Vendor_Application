@@ -121,7 +121,7 @@
 
     </div>
 
-    @include('admin.layouts.partials.toast')
+    <x-toast />
 
     <script>
         (function() {

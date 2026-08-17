@@ -48,25 +48,10 @@
                     <span class="h-1.5 w-1.5 rounded-full bg-current opacity-70"></span>
                     <span x-text="statusLabel">{{ $order->status_label }}</span>
                 </span>
-                <button type="button" @click="window.print()" class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-white/[0.03] dark:text-gray-300 dark:hover:bg-white/[0.06]">
+                <a href="{{ route('admin.orders.receipt', $order) }}" target="_blank" class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-white/[0.03] dark:text-gray-300 dark:hover:bg-white/[0.06]">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
                     Print Receipt
-                </button>
-            </div>
-        </div>
-
-        {{-- Receipt header for print --}}
-        <div class="hidden print:block mb-6">
-            <div class="flex items-center justify-between border-b border-gray-200 pb-4">
-                <div>
-                    <p class="text-2xl font-bold text-gray-900">NBK Vertex</p>
-                    <p class="text-sm text-gray-500">Order Receipt</p>
-                </div>
-                <div class="text-right">
-                    <p class="font-mono font-semibold text-gray-900">#{{ $order->order_number }}</p>
-                    <p class="text-sm text-gray-500">{{ $order->created_at->format('M d, Y h:i A') }}</p>
-                    <p class="text-sm font-medium text-gray-700 capitalize">{{ $order->status_label }}</p>
-                </div>
+                </a>
             </div>
         </div>
 

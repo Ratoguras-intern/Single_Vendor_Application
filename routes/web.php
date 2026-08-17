@@ -7,11 +7,14 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FeaturedCategoryController;
 use App\Http\Controllers\Admin\HomepageSectionController;
+use App\Http\Controllers\Admin\NavigationController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductSectionController;
+use App\Http\Controllers\Admin\ReturnController as AdminReturnController;
 use App\Http\Controllers\Admin\SaleBannerController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
+use App\Http\Controllers\Customer\ReturnController as CustomerReturnController;
 use App\Http\Controllers\Frontend\AboutController;
 use App\Http\Controllers\Api\CartController as ApiCartController;
 use App\Http\Controllers\Api\FavoriteController as ApiFavoriteController;
@@ -123,6 +126,17 @@ Route::middleware(['auth', 'customer'])
         Route::get('/orders', [CustomerOrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [CustomerOrderController::class, 'show'])->name('orders.show');
         Route::post('/orders/{order}/cancel', [CustomerOrderController::class, 'cancel'])->name('orders.cancel');
+        Route::match(['get', 'post'], '/orders/{order}/confirm-delivery', [CustomerOrderController::class, 'confirmDelivery'])->name('orders.confirmDelivery');
+        Route::get('/orders/{order}/receipt', [CustomerOrderController::class, 'receipt'])->name('orders.receipt');
+
+        Route::get('/returns', [CustomerReturnController::class, 'index'])->name('returns.index');
+        Route::get('/returns/{return}', [CustomerReturnController::class, 'show'])->name('returns.show');
+        Route::get('/orders/{order}/returns', fn (Order $order) => redirect()->route('customer.returns.create', $order));
+        Route::get('/orders/{order}/returns/create', [CustomerReturnController::class, 'create'])->name('returns.create');
+        Route::post('/orders/{order}/returns', [CustomerReturnController::class, 'store'])->name('returns.store');
+        Route::post('/returns/{return}/add-info', [CustomerReturnController::class, 'addInfo'])->name('returns.addInfo');
+        Route::post('/returns/{return}/ship', [CustomerReturnController::class, 'shipReturn'])->name('returns.ship');
+        Route::post('/returns/{return}/cancel', [CustomerReturnController::class, 'cancel'])->name('returns.cancel');
     });
 
 Route::middleware(['auth', 'admin'])
@@ -155,6 +169,17 @@ Route::middleware(['auth', 'admin'])
         Route::resource('orders', OrderController::class)->only(['index', 'show']);
         Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
         Route::patch('/orders/{order}/tracking', [OrderController::class, 'updateTracking'])->name('orders.updateTracking');
+        Route::get('/orders/{order}/receipt', [OrderController::class, 'receipt'])->name('orders.receipt');
+
+        Route::get('/returns', [AdminReturnController::class, 'index'])->name('returns.index');
+        Route::get('/returns/{return}', [AdminReturnController::class, 'show'])->name('returns.show');
+        Route::post('/returns/{return}/approve', [AdminReturnController::class, 'approve'])->name('returns.approve');
+        Route::post('/returns/{return}/reject', [AdminReturnController::class, 'reject'])->name('returns.reject');
+        Route::post('/returns/{return}/more-info', [AdminReturnController::class, 'requestMoreInfo'])->name('returns.moreInfo');
+        Route::post('/returns/{return}/receive', [AdminReturnController::class, 'markReceived'])->name('returns.receive');
+        Route::post('/returns/{return}/refund', [AdminReturnController::class, 'processRefund'])->name('returns.refund');
+        Route::post('/returns/{return}/complete', [AdminReturnController::class, 'complete'])->name('returns.complete');
+
         Route::delete('/customers/bulk-destroy', [CustomerController::class, 'bulkDestroy'])->name('customers.bulkDestroy');
         Route::resource('customers', CustomerController::class)->only(['index', 'show', 'destroy']);
         Route::get('/customers/{customer}/orders', [CustomerController::class, 'orders'])->name('customers.orders');
@@ -186,6 +211,19 @@ Route::middleware(['auth', 'admin'])
         Route::post('/product-sections/{section}/assign', [ProductSectionController::class, 'bulkAssign'])->name('product-sections.bulkAssign');
         Route::delete('/product-sections/{section}/{product}', [ProductSectionController::class, 'destroy'])->name('product-sections.remove');
         Route::post('/product-sections/{section}/bulk-remove', [ProductSectionController::class, 'bulkRemove'])->name('product-sections.bulkRemove');
+
+        // Navigation Management (super_admin only)
+        Route::middleware('role:super_admin')->group(function () {
+            Route::get('/navigations', [NavigationController::class, 'index'])->name('navigations.index');
+            Route::get('/navigations/{navigation}', [NavigationController::class, 'show'])->name('navigations.show');
+            Route::post('/navigations/{navigation}/items', [NavigationController::class, 'storeItem'])->name('navigations.storeItem');
+            Route::put('/navigations/{navigation}/items/{item}', [NavigationController::class, 'updateItem'])->name('navigations.updateItem');
+            Route::delete('/navigations/{navigation}/items/{item}', [NavigationController::class, 'destroyItem'])->name('navigations.destroyItem');
+            Route::patch('/navigations/{navigation}/items/{item}/toggle', [NavigationController::class, 'toggleItem'])->name('navigations.toggleItem');
+            Route::patch('/navigations/{navigation}/items/order', [NavigationController::class, 'updateOrder'])->name('navigations.updateOrder');
+            Route::put('/navigations/{navigation}/config', [NavigationController::class, 'updateConfig'])->name('navigations.updateConfig');
+            Route::patch('/navigations/{navigation}/toggle', [NavigationController::class, 'toggleMenu'])->name('navigations.toggleMenu');
+        });
     });
 
 require __DIR__.'/auth.php';

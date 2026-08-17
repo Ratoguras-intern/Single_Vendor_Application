@@ -29,7 +29,7 @@ if (! function_exists('convert_amount')) {
 }
 
 if (! function_exists('format_currency')) {
-    function format_currency(float $amount, ?string $currency = null): string
+    function format_currency(?float $amount, ?string $currency = null): string
     {
         $currency = $currency ?? admin_currency();
 

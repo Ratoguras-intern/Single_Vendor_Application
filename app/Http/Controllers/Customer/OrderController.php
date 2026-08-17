@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\User;
 use App\Notifications\OrderCancelledNotification;
+use App\Notifications\OrderStatusUpdatedNotification;
 use App\Support\OrderStatuses;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -68,5 +69,42 @@ class OrderController extends Controller
         }
 
         return back()->with('success', 'Order cancelled successfully.');
+    }
+
+    public function confirmDelivery(Order $order)
+    {
+        if ($order->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        if ($order->status !== OrderStatuses::SHIPPED) {
+            return back()->with('error', 'Only shipped orders can be confirmed as delivered.');
+        }
+
+        $oldStatus = $order->status;
+        $order->update(['status' => OrderStatuses::DELIVERED]);
+
+        $order->statusHistory()->create([
+            'status' => OrderStatuses::DELIVERED,
+            'comment' => 'Delivered by customer.',
+            'changed_by_user_id' => Auth::id(),
+        ]);
+
+        foreach (User::where('role', 'admin')->get() as $admin) {
+            $admin->notify(new OrderStatusUpdatedNotification($order, $oldStatus, OrderStatuses::DELIVERED, Auth::user()->name));
+        }
+
+        return back()->with('success', 'Delivery confirmed. Thank you!');
+    }
+
+    public function receipt(Order $order)
+    {
+        if ($order->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $order->load('items.product', 'user');
+
+        return view('customer.orders.receipt', compact('order'));
     }
 }

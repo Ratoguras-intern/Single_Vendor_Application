@@ -27,7 +27,7 @@
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <span class="text-3xl font-bold text-secondary-900 dark:text-white"><span x-text="$store.currency.format({{ $product['price'] }})"></span></span>
+                    <span class="text-3xl font-bold text-secondary-900 dark:text-white">{{ format_currency($product['price']) }}</span>
                 </div>
 
                 <p class="text-secondary-600 dark:text-secondary-400 leading-relaxed">{{ $product['description'] }}</p>
@@ -45,7 +45,12 @@
                                  <span x-text="quantity" class="px-4 py-2 min-w-[60px] text-center font-medium text-secondary-900 dark:text-white"></span>
                                  <button x-on:click="quantity++" class="min-h-[44px] min-w-[44px] inline-flex items-center justify-center text-secondary-600 dark:text-secondary-400 hover:bg-secondary-100 dark:hover:bg-white/5 transition-colors">
                                     <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                                </button>
+                                 </button>
+                            </div>
+                            <div x-show="quantity > 1" x-transition class="rounded-lg bg-primary-50 dark:bg-primary-950/30 border border-primary-200 dark:border-primary-800 px-4 py-2">
+                                @php $symbol = config('currency.supported.' . admin_currency() . '.symbol', '$'); @endphp
+                                <span class="text-lg font-bold text-primary-700 dark:text-primary-300" x-text="'{{ $symbol }}' + ({{ $product['price'] }} * quantity).toFixed(2)"></span>
+                                <span class="text-xs text-primary-500 dark:text-primary-400 ml-1">({{ format_currency($product['price']) }} each)</span>
                             </div>
                         </div>
                     </div>

@@ -50,6 +50,11 @@ class Order extends Model
         return $this->hasMany(OrderStatusHistory::class)->latest();
     }
 
+    public function returns(): HasMany
+    {
+        return $this->hasMany(OrderReturn::class);
+    }
+
     public function getStatusLabelAttribute(): string
     {
         return \App\Support\OrderStatuses::label($this->status);

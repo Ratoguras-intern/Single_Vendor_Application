@@ -101,4 +101,11 @@ class OrderController extends Controller
             'tracking_number' => $order->tracking_number,
         ]);
     }
+
+    public function receipt(Order $order)
+    {
+        $order->load('items.product', 'user');
+
+        return view('customer.orders.receipt', compact('order'));
+    }
 }
