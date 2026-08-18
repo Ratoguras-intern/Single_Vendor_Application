@@ -10,19 +10,6 @@
             @endif
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
             <div class="section relative py-12 sm:py-16 lg:py-20">
-                <nav class="flex items-center gap-2 text-sm text-white/60 mb-6" aria-label="Breadcrumb">
-                    @foreach($breadcrumbs as $i => $crumb)
-                        @if($i > 0)
-                            <svg class="h-3 w-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
-                        @endif
-                        @if($crumb['url'])
-                            <a href="{{ $crumb['url'] }}" class="hover:text-white transition-colors">{{ $crumb['name'] }}</a>
-                        @else
-                            <span class="text-white" aria-current="page">{{ $crumb['name'] }}</span>
-                        @endif
-                    @endforeach
-                </nav>
-
                 <div class="flex flex-col sm:flex-row sm:items-center gap-6">
                     @if($category->lucide_icon)
                         <span class="hidden sm:inline-flex items-center justify-center h-16 w-16 rounded-xl bg-white/10 border border-white/20 text-white shadow-lg shrink-0">

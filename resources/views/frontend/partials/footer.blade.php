@@ -30,19 +30,17 @@
         'New Arrivals' => route('frontend.shop') . '?new_arrivals=1',
         'Sale' => route('frontend.shop') . '?on_sale=1',
         'Featured' => route('frontend.shop') . '?featured=1',
-        'Contact Us' => route('frontend.contact'),
-        'Help Center' => route('frontend.contact'),
-        'Shipping Info' => route('frontend.contact'),
-        'Returns & Exchanges' => route('frontend.contact'),
-        'About Us' => route('frontend.about'),
-        'Careers' => route('frontend.about'),
-        'Blog' => route('frontend.about'),
-        'Press' => route('frontend.about'),
-        'Privacy Policy' => route('frontend.about'),
-        'Terms & Conditions' => route('frontend.about'),
-        'Cookie Policy' => route('frontend.about'),
-        'Accessibility' => route('frontend.about'),
     ];
+
+    // Dynamically resolve CMS page URLs from their slugs
+    $footerPageMap = \App\Models\Page::forFooter()->pluck('slug', 'title')->toArray();
+    foreach ($footerColumns as $col) {
+        foreach ($col['links'] as $link) {
+            if (!isset($footerLinkUrls[$link]) && isset($footerPageMap[$link])) {
+                $footerLinkUrls[$link] = '/' . $footerPageMap[$link];
+            }
+        }
+    }
 
     $paymentBadges = collect(config('payments.badges', []))->filter(fn ($badge) => !empty($badge['enabled']))->keys();
 @endphp

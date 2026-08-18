@@ -1,6 +1,7 @@
 import * as Turbo from '@hotwired/turbo';
 import Alpine from 'alpinejs';
 import collapse from '@alpinejs/collapse';
+import { initTiptapEditor } from './tiptap-editor';
 
 Alpine.plugin(collapse);
 window.Alpine = Alpine;
@@ -89,4 +90,24 @@ window.__initAdminSidebar = () => {
     }
 };
 
+window.__initTiptapEditor = initTiptapEditor;
+
+// Auto-init Tiptap editor when the elements exist (admin pages create/edit).
+// Runs on DOMContentLoaded + every turbo:render for SPA navigation.
+function autoInitTiptapEditor() {
+    const editorEl = document.querySelector('#editor');
+    const hiddenEl = document.querySelector('#content-hidden');
+    if (editorEl && hiddenEl) {
+        // Destroy previous instance if it exists (Turbo SPA navigation swaps DOM)
+        if (window.__tiptapEditorInstance) {
+            window.__tiptapEditorInstance.destroy();
+            window.__tiptapEditorInstance = null;
+        }
+        window.__tiptapEditorInstance = initTiptapEditor('#content-hidden', '#editor');
+    }
+}
+
 Alpine.start();
+
+autoInitTiptapEditor();
+document.addEventListener('turbo:render', autoInitTiptapEditor);

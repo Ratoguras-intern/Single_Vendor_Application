@@ -6,9 +6,11 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FeaturedCategoryController;
+use App\Http\Controllers\Admin\FooterController;
 use App\Http\Controllers\Admin\HomepageSectionController;
 use App\Http\Controllers\Admin\NavigationController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductSectionController;
 use App\Http\Controllers\Admin\ReturnController as AdminReturnController;
@@ -25,6 +27,7 @@ use App\Http\Controllers\Frontend\CheckoutController;
 use App\Http\Controllers\Frontend\ContactController;
 use App\Http\Controllers\Frontend\FavoriteController;
 use App\Http\Controllers\Frontend\HomeController;
+use App\Http\Controllers\Frontend\PageController as FrontendPageController;
 use App\Http\Controllers\Frontend\ShopController;
 use App\Http\Controllers\Frontend\CategoryPageController;
 use App\Http\Controllers\ProfileController;
@@ -79,7 +82,10 @@ Route::prefix('api')->name('api.')->middleware('auth')->group(function () {
     Route::delete('/favorites/{productId}', [ApiFavoriteController::class, 'destroy'])->name('favorites.destroy');
 });
 Route::get('/contact', ContactController::class)->name('frontend.contact');
+Route::post('/contact', [ContactController::class, 'store'])->name('frontend.contact.store');
 Route::get('/about', AboutController::class)->name('frontend.about');
+
+require __DIR__.'/auth.php';
 
 Route::get('/dashboard', function () {
     $role = auth()->user()->role;
@@ -184,6 +190,15 @@ Route::middleware(['auth', 'admin'])
         Route::resource('customers', CustomerController::class)->only(['index', 'show', 'destroy']);
         Route::get('/customers/{customer}/orders', [CustomerController::class, 'orders'])->name('customers.orders');
 
+        // Pages
+        Route::delete('/pages/bulk-destroy', [PageController::class, 'bulkDestroy'])->name('pages.bulkDestroy');
+        Route::patch('/pages/{page}/toggle-status', [PageController::class, 'toggleStatus'])->name('pages.toggleStatus');
+        Route::resource('pages', PageController::class);
+
+        // Footer
+        Route::get('/footer', [FooterController::class, 'edit'])->name('footer.edit');
+        Route::put('/footer/{homepageSection}', [FooterController::class, 'update'])->name('footer.update');
+
         // Content Management
         Route::get('/homepage-sections', [HomepageSectionController::class, 'index'])->name('homepage-sections.index');
         Route::get('/homepage-sections/{homepageSection}', [HomepageSectionController::class, 'show'])->name('homepage-sections.show');
@@ -223,7 +238,7 @@ Route::middleware(['auth', 'admin'])
             Route::patch('/navigations/{navigation}/items/order', [NavigationController::class, 'updateOrder'])->name('navigations.updateOrder');
             Route::put('/navigations/{navigation}/config', [NavigationController::class, 'updateConfig'])->name('navigations.updateConfig');
             Route::patch('/navigations/{navigation}/toggle', [NavigationController::class, 'toggleMenu'])->name('navigations.toggleMenu');
-        });
     });
+});
 
-require __DIR__.'/auth.php';
+Route::get('/{slug}', [FrontendPageController::class, 'show'])->name('frontend.page')->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*');

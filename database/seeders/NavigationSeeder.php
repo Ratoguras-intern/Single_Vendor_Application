@@ -186,13 +186,31 @@ class NavigationSeeder extends Seeder
             'sort_order' => 4,
         ]);
 
+        NavigationItem::create([
+            'menu_id' => $adminSidebar->id,
+            'parent_id' => $contentGroup->id,
+            'name' => 'Pages',
+            'icon_key' => 'info',
+            'url' => 'admin.pages.index',
+            'sort_order' => 5,
+        ]);
+
+        NavigationItem::create([
+            'menu_id' => $adminSidebar->id,
+            'parent_id' => $contentGroup->id,
+            'name' => 'Footer',
+            'icon_key' => 'homepage',
+            'url' => 'admin.footer.edit',
+            'sort_order' => 6,
+        ]);
+
         $productSections = NavigationItem::create([
             'menu_id' => $adminSidebar->id,
             'parent_id' => $contentGroup->id,
             'name' => 'Product Sections',
             'icon_key' => 'product',
             'url' => null,
-            'sort_order' => 5,
+            'sort_order' => 7,
         ]);
 
         $productSectionItems = [

@@ -5,8 +5,6 @@
 @section('content')
 <section class="py-8 sm:py-12">
     <div class="section">
-        @include('frontend.partials.breadcrumb', ['backUrl' => route('frontend.shop'), 'backLabel' => 'Back to Shop'])
-
         <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 mb-10">
             <div class="space-y-4">
                 <div class="rounded-card overflow-hidden bg-secondary-100 dark:bg-white/5">

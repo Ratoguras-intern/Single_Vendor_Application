@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             SaleBannerSeeder::class,
             HomepageSeeder::class,
             FeaturedHomepageCategorySeeder::class,
+            PageSeeder::class,
         ]);
     }
 }
