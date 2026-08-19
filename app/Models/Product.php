@@ -18,6 +18,8 @@ class Product extends Model
         'discount_price',
         'stock',
         'sku',
+        'average_rating',
+        'reviews_count',
         'category_id',
         'brand_id',
         'status',
@@ -36,6 +38,8 @@ class Product extends Model
         return [
             'price' => 'decimal:2',
             'discount_price' => 'decimal:2',
+            'average_rating' => 'decimal:2',
+            'reviews_count' => 'integer',
             'stock' => 'integer',
             'is_featured' => 'boolean',
             'is_new_arrival' => 'boolean',
@@ -94,6 +98,16 @@ class Product extends Model
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class);
+    }
+
+    public function approvedReviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class)->where('status', 'approved');
     }
 
     public function primaryImage()

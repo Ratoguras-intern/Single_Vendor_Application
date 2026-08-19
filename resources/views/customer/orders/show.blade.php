@@ -4,11 +4,17 @@
 
 @php
     use App\Support\OrderStatuses;
+    use App\Models\ProductReview;
     $flow = OrderStatuses::FLOW;
     $currentStep = $order->status_step;
     $isCancelled = OrderStatuses::isCancelled($order->status);
     $activeReturns = $order->returns()->whereIn('status', ['requested', 'pending_review', 'more_information_required', 'approved', 'return_shipped'])->count();
     $historyByStatus = $order->statusHistory->keyBy('status');
+    $isDelivered = $order->status === 'delivered';
+    $reviewedProductIds = $isDelivered ? ProductReview::where('user_id', auth()->id())
+        ->whereIn('product_id', $order->items->pluck('product_id'))
+        ->pluck('product_id')
+        ->toArray() : [];
 @endphp
 
 @section('content')
@@ -133,7 +139,7 @@
         <div class="grid lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 space-y-6">
                 {{-- Order items --}}
-                <div class="card">
+                <div id="reviews" class="card">
                     <h2 class="text-lg font-semibold text-secondary-900 dark:text-white mb-4">Order Items</h2>
                     <div class="space-y-3">
                         @foreach ($order->items as $item)
@@ -146,8 +152,26 @@
                                     </div>
                                 @endif
                                 <div class="flex-1 min-w-0">
-                                    <p class="font-semibold text-secondary-900 dark:text-white">{{ $item->product->name ?? 'Product #' . $item->product_id }}</p>
+                                    <a href="{{ route('frontend.product.show', $item->product_id) }}" class="font-semibold text-secondary-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors">{{ $item->product->name ?? 'Product #' . $item->product_id }}</a>
                                     <p class="text-sm text-secondary-500 dark:text-secondary-400">Qty: {{ $item->quantity }} &bull; <span x-text="$store.currency.format({{ $item->price }})"></span> each</p>
+                                    @if($item->product)
+                                        @if(in_array($item->product_id, $reviewedProductIds))
+                                            <a href="{{ route('frontend.product.show', $item->product_id) }}#reviews" class="inline-flex items-center gap-1 text-xs font-medium text-green-600 dark:text-green-400 mt-1">
+                                                <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+                                                Review submitted
+                                            </a>
+                                        @elseif($isDelivered)
+                                            <button x-on:click="$store.reviewModal.open({{ $item->product_id }}, '{{ addslashes($item->product->name) }}')" class="inline-flex items-center gap-1 text-xs font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 mt-1">
+                                                <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Zm0 0c0 1.657 1.007 3 2.25 3S21 13.657 21 12a9 9 0 1 0-2.636 6.364M16.5 12V8.25"/></svg>
+                                                Write a Review
+                                            </button>
+                                        @else
+                                            <a href="{{ route('frontend.product.show', $item->product_id) }}#reviews" class="inline-flex items-center gap-1 text-xs font-medium text-secondary-400 dark:text-secondary-500 mt-1 cursor-default">
+                                                <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Zm0 0c0 1.657 1.007 3 2.25 3S21 13.657 21 12a9 9 0 1 0-2.636 6.364M16.5 12V8.25"/></svg>
+                                                Review after delivery
+                                            </a>
+                                        @endif
+                                    @endif
                                 </div>
                                 <p class="font-bold text-secondary-900 dark:text-white"><span x-text="$store.currency.format({{ $item->price * $item->quantity }})"></span></p>
                             </div>
@@ -250,4 +274,76 @@
         </div>
     </div>
 </section>
+
+{{-- Review Modal --}}
+<div x-data="{ hover: 0, error: '' }" x-show="$store.reviewModal.show" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display: none;">
+    <div class="fixed inset-0 bg-black/50" x-on:click="$store.reviewModal.close()"></div>
+    <div class="relative w-full max-w-lg rounded-2xl bg-white dark:bg-secondary-900 shadow-xl p-6" x-on:click.stop>
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-secondary-900 dark:text-white">Review Product</h3>
+            <button x-on:click="$store.reviewModal.close()" class="text-secondary-400 hover:text-secondary-600 dark:hover:text-secondary-300">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <p class="text-sm text-secondary-500 dark:text-secondary-400 mb-4" x-text="$store.reviewModal.productName"></p>
+
+        <form method="POST" action="{{ route('customer.reviews.store') }}" x-on:submit.prevent="if($store.reviewModal.rating === 0) { error = 'Please select a rating'; return; } error = ''; $el.submit();">
+            @csrf
+            <input type="hidden" name="product_id" :value="$store.reviewModal.productId">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">Your Rating *</label>
+                    <div class="flex items-center gap-1">
+                        @for($i = 1; $i <= 5; $i++)
+                            <button type="button" x-on:click="$store.reviewModal.rating = {{ $i }}" x-on:mouseenter="hover = {{ $i }}" x-on:mouseleave="hover = 0"
+                                class="focus:outline-none transition-colors">
+                                <svg class="h-7 w-7 transition-colors" :class="(hover >= {{ $i }} || $store.reviewModal.rating >= {{ $i }}) ? 'text-primary-500 fill-primary-500' : 'text-secondary-300 dark:text-secondary-600 fill-secondary-300 dark:fill-secondary-600'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            </button>
+                        @endfor
+                        <input type="hidden" name="rating" :value="$store.reviewModal.rating">
+                        <span x-show="$store.reviewModal.rating > 0" x-text="$store.reviewModal.rating + '/5'" class="text-sm text-secondary-500 dark:text-secondary-400 ml-2"></span>
+                    </div>
+                    <p x-show="error" x-text="error" class="text-sm text-red-500 mt-1"></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-1">Review Title (optional)</label>
+                    <input type="text" name="title" maxlength="255" placeholder="Summarize your experience"
+                        class="w-full rounded-lg border border-secondary-300 dark:border-secondary-600 bg-white dark:bg-secondary-800 px-4 py-2.5 text-sm text-secondary-900 dark:text-white focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-1">Your Review *</label>
+                    <textarea name="comment" rows="3" maxlength="2000" required placeholder="Share your experience with this product..."
+                        class="w-full rounded-lg border border-secondary-300 dark:border-secondary-600 bg-white dark:bg-secondary-800 px-4 py-2.5 text-sm text-secondary-900 dark:text-white focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 resize-none"></textarea>
+                </div>
+                <div class="flex items-center gap-3 pt-2">
+                    <button type="submit" class="btn-primary">Submit Review</button>
+                    <button type="button" x-on:click="$store.reviewModal.close()" class="btn-outline">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.store('reviewModal', {
+        show: false,
+        productId: null,
+        productName: '',
+        rating: 0,
+
+        open(id, name) {
+            this.productId = id;
+            this.productName = name;
+            this.rating = 0;
+            this.show = true;
+        },
+        close() {
+            this.show = false;
+        },
+    });
+});
+</script>
+@endpush

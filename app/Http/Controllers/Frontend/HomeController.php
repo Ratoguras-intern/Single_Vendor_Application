@@ -161,6 +161,8 @@ class HomeController extends Controller
                 'is_recommended' => $product->is_recommended,
                 'is_popular' => $product->is_popular,
                 'is_limited_edition' => $product->is_limited_edition,
+                'average_rating' => (float) $product->average_rating,
+                'reviews_count' => $product->reviews_count,
             ];
         })->toArray();
     }

@@ -335,6 +335,8 @@ class ProductListing extends Component
             'is_featured' => $product->is_featured,
             'is_trending' => $product->is_trending,
             'is_new_arrival' => $product->is_new_arrival,
+            'average_rating' => (float) $product->average_rating,
+            'reviews_count' => $product->reviews_count,
         ];
     }
 }

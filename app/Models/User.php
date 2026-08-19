@@ -72,6 +72,11 @@ class User extends Authenticatable
         return $this->hasMany(Address::class);
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class);
+    }
+
     public function deliveredOrdersCount(): int
     {
         return $this->orders()->where('status', 'delivered')->count();

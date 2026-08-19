@@ -14,7 +14,9 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductSectionController;
 use App\Http\Controllers\Admin\ReturnController as AdminReturnController;
+use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\SaleBannerController;
+use App\Http\Controllers\Customer\ReviewController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Customer\ReturnController as CustomerReturnController;
 use App\Http\Controllers\Frontend\AboutController;
@@ -143,6 +145,10 @@ Route::middleware(['auth', 'customer'])
         Route::post('/returns/{return}/add-info', [CustomerReturnController::class, 'addInfo'])->name('returns.addInfo');
         Route::post('/returns/{return}/ship', [CustomerReturnController::class, 'shipReturn'])->name('returns.ship');
         Route::post('/returns/{return}/cancel', [CustomerReturnController::class, 'cancel'])->name('returns.cancel');
+
+        Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+        Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
+        Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
     });
 
 Route::middleware(['auth', 'admin'])
@@ -185,6 +191,13 @@ Route::middleware(['auth', 'admin'])
         Route::post('/returns/{return}/receive', [AdminReturnController::class, 'markReceived'])->name('returns.receive');
         Route::post('/returns/{return}/refund', [AdminReturnController::class, 'processRefund'])->name('returns.refund');
         Route::post('/returns/{return}/complete', [AdminReturnController::class, 'complete'])->name('returns.complete');
+
+        // Product Reviews
+        Route::get('/reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
+        Route::get('/reviews/{review}', [AdminReviewController::class, 'show'])->name('reviews.show');
+        Route::post('/reviews/{review}/approve', [AdminReviewController::class, 'approve'])->name('reviews.approve');
+        Route::post('/reviews/{review}/reject', [AdminReviewController::class, 'reject'])->name('reviews.reject');
+        Route::delete('/reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy');
 
         Route::delete('/customers/bulk-destroy', [CustomerController::class, 'bulkDestroy'])->name('customers.bulkDestroy');
         Route::resource('customers', CustomerController::class)->only(['index', 'show', 'destroy']);

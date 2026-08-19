@@ -4,6 +4,8 @@
     $hasDiscount = isset($product['original_price']) && $product['original_price'] > $product['price'];
     $isOutOfStock = isset($product['stock']) && $product['stock'] <= 0;
     $productUrl = route('frontend.product.show', $product['id']);
+    $avgRating = $product['average_rating'] ?? 0;
+    $reviewCount = $product['reviews_count'] ?? 0;
 @endphp
 
 <div class="group flex flex-col h-full rounded-card bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 hover:border-secondary-300 dark:hover:border-secondary-600 hover:shadow-card-hover transition-all duration-200 overflow-hidden">
@@ -35,6 +37,27 @@
                 <a href="{{ $productUrl }}">
                     <h2 class="font-medium leading-snug truncate text-sm text-secondary-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-300 transition-colors">{{ $product['name'] }}</h2>
                 </a>
+
+                {{-- Star Rating --}}
+                @if($reviewCount > 0)
+                    <div class="flex items-center gap-1">
+                        <div class="flex items-center gap-0.5">
+                            @for($i = 1; $i <= 5; $i++)
+                                @if($i <= floor($avgRating))
+                                    <svg class="h-3 w-3 text-primary-500 fill-primary-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                @elseif($i - $avgRating < 1 && $i - $avgRating > 0)
+                                    <svg class="h-3 w-3 text-primary-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                        <defs><linearGradient id="card-half-{{ $product['id'] }}"><stop offset="{{ ($avgRating - floor($avgRating)) * 100 }}%" stop-color="currentColor"/><stop offset="{{ ($avgRating - floor($avgRating)) * 100 }}%" stop-color="transparent"/></linearGradient></defs>
+                                        <polygon fill="url(#card-half-{{ $product['id'] }})" stroke="currentColor" stroke-width="1" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                    </svg>
+                                @else
+                                    <svg class="h-3 w-3 text-secondary-300 dark:text-secondary-600 fill-secondary-300 dark:fill-secondary-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                @endif
+                            @endfor
+                        </div>
+                        <span class="text-xs text-secondary-400 dark:text-secondary-500">({{ $reviewCount }})</span>
+                    </div>
+                @endif
 
                 <div class="flex items-baseline gap-1.5 pt-0.5">
                     <span class="text-base font-bold text-secondary-900 dark:text-white"><span x-text="$store.currency.format({{ $product['price'] }})"></span></span>

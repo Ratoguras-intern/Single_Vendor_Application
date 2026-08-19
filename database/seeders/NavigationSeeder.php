@@ -204,13 +204,22 @@ class NavigationSeeder extends Seeder
             'sort_order' => 6,
         ]);
 
+        NavigationItem::create([
+            'menu_id' => $adminSidebar->id,
+            'parent_id' => $contentGroup->id,
+            'name' => 'Reviews',
+            'icon_key' => 'homepage',
+            'url' => 'admin.reviews.index',
+            'sort_order' => 7,
+        ]);
+
         $productSections = NavigationItem::create([
             'menu_id' => $adminSidebar->id,
             'parent_id' => $contentGroup->id,
             'name' => 'Product Sections',
             'icon_key' => 'product',
             'url' => null,
-            'sort_order' => 7,
+            'sort_order' => 8,
         ]);
 
         $productSectionItems = [
