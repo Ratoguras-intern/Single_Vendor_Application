@@ -12,10 +12,10 @@ class MenuHelper
     {
         $role = auth()->user()->role ?? 'customer';
 
-        return Cache::remember('admin_sidebar_nav', 300, function () use ($role) {
+        return Cache::remember("admin_sidebar_nav:{$role}", 300, function () use ($role) {
             $menu = NavigationMenu::where('slug', 'admin-sidebar')->enabled()->first();
 
-            if (!$menu) {
+            if (! $menu) {
                 return self::getDefaultMenu($role);
             }
 
@@ -36,6 +36,10 @@ class MenuHelper
                             continue;
                         }
                         $groupItems[] = self::buildItem($child, $role);
+                    }
+
+                    if (empty($groupItems)) {
+                        continue;
                     }
 
                     $groups[] = [
@@ -73,7 +77,7 @@ class MenuHelper
 
     private static function resolveUrl(?string $url, string $role): string
     {
-        if (!$url) {
+        if (! $url) {
             return '#';
         }
 
@@ -99,6 +103,7 @@ class MenuHelper
             if (str_starts_with($url, '/')) {
                 return $url;
             }
+
             return '#';
         }
     }
