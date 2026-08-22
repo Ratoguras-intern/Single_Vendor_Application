@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Admin\Concerns\InteractsWithMedia;
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Media;
 use App\Models\Product;
 use App\Models\ProductImage;
 use Illuminate\Http\Request;
@@ -13,6 +15,8 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
+    use InteractsWithMedia;
+
     public function index(Request $request)
     {
         $query = Product::with(['category', 'brand', 'images']);
@@ -87,6 +91,8 @@ class ProductController extends Controller
             'status' => 'required|in:active,inactive',
             'images' => 'nullable|array|max:5',
             'images.*' => 'mimetypes:image/jpeg,image/png,image/webp,image/avif|mimes:jpg,jpeg,png,webp,avif|max:2048',
+            'gallery_media_ids' => 'nullable|array|max:5',
+            'gallery_media_ids.*' => 'integer|exists:media,id',
             'primary_image' => 'nullable|integer',
             'is_featured' => 'nullable|boolean',
             'is_new_arrival' => 'nullable|boolean',
@@ -102,7 +108,7 @@ class ProductController extends Controller
             $validated['slug'] = Str::slug($validated['name']);
         }
 
-        unset($validated['images'], $validated['primary_image']);
+        unset($validated['images'], $validated['primary_image'], $validated['gallery_media_ids']);
 
         $flags = [
             'is_featured', 'is_new_arrival', 'is_trending', 'is_best_seller',
@@ -123,13 +129,19 @@ class ProductController extends Controller
                     'is_primary' => $request->primary_image == $index,
                 ]);
             }
+        }
 
-            if ($request->primary_image === null && $request->hasFile('images')) {
-                $firstImage = $product->images()->first();
-                if ($firstImage) {
-                    $firstImage->update(['is_primary' => true]);
-                }
-            }
+        // Gallery selections from the media library.
+        foreach ($this->galleryMedia($request) as $media) {
+            ProductImage::create([
+                'product_id' => $product->id,
+                'image' => $media->path,
+                'is_primary' => false,
+            ]);
+        }
+
+        if ($request->primary_image === null && $product->images()->count() > 0) {
+            $product->images()->first()->update(['is_primary' => true]);
         }
 
         return redirect()->route('admin.products.index')
@@ -154,6 +166,9 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
+        $markedForRemoval = is_array($request->input('remove_images')) ? count($request->input('remove_images')) : 0;
+        $maxNewImages = max(0, 5 - ($product->images()->count() - $markedForRemoval));
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255|unique:products,slug,'.$product->id,
@@ -165,8 +180,10 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'brand_id' => 'required|exists:brands,id',
             'status' => 'required|in:active,inactive',
-            'images' => 'nullable|array|max:5',
+            'images' => 'nullable|array|max:'.$maxNewImages,
             'images.*' => 'mimetypes:image/jpeg,image/png,image/webp,image/avif|mimes:jpg,jpeg,png,webp,avif|max:2048',
+            'gallery_media_ids' => 'nullable|array|max:'.$maxNewImages,
+            'gallery_media_ids.*' => 'integer|exists:media,id',
             'primary_image' => 'nullable|integer',
             'remove_images' => 'nullable|array',
             'remove_images.*' => 'integer',
@@ -184,7 +201,7 @@ class ProductController extends Controller
             $validated['slug'] = Str::slug($validated['name']);
         }
 
-        unset($validated['images'], $validated['primary_image'], $validated['remove_images']);
+        unset($validated['images'], $validated['primary_image'], $validated['remove_images'], $validated['gallery_media_ids']);
 
         $flags = [
             'is_featured', 'is_new_arrival', 'is_trending', 'is_best_seller',
@@ -207,13 +224,20 @@ class ProductController extends Controller
             }
         }
 
+        // Gallery selections from the media library.
+        foreach ($this->galleryMedia($request) as $media) {
+            ProductImage::create([
+                'product_id' => $product->id,
+                'image' => $media->path,
+                'is_primary' => false,
+            ]);
+        }
+
         if ($request->filled('remove_images')) {
             foreach ($request->remove_images as $imageId) {
                 $image = ProductImage::find($imageId);
                 if ($image && $image->product_id === $product->id) {
-                    if (Storage::disk('public')->exists($image->image)) {
-                        Storage::disk('public')->delete($image->image);
-                    }
+                    $this->deleteImageSafe($image->image);
                     $image->delete();
                 }
             }

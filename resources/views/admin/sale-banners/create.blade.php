@@ -56,14 +56,11 @@
 
                 <div x-show="tab === 'images'" x-cloak>
                     <div class="space-y-6">
-                        <div>
-                            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Background Image</label>
-                            <input type="file" name="image" id="image" accept="image/*"
-                                class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-brand-600 hover:file:bg-brand-100 dark:file:bg-brand-500/10 dark:file:text-brand-400 dark:hover:file:bg-brand-500/20">
-                            <div id="image-preview" class="mt-3 hidden">
-                                <img id="preview-img" src="" alt="Preview" class="h-32 w-64 rounded-lg object-cover">
-                            </div>
-                            @error('image')
+                        <div x-data
+                            @media-picker:select.window="if ($event.detail.name === 'image_media_id' && $event.detail.media[0]) { window.dispatchEvent(new CustomEvent('banner-preview-src', { detail: $event.detail.media[0].url })); }">
+                            <x-media-picker.picker name="image_media_id" label="Background Image" folder="banners"
+                                help="Recommended width: 1920px. The image is scaled down automatically after upload." />
+                            @error('image_media_id')
                                 <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                             @enderror
                         </div>
@@ -190,24 +187,5 @@
     </div>
 
     @push('scripts')
-    <script type="text/turbo-script">
-        ['image', 'product_image'].forEach(function(id) {
-            document.getElementById(id)?.addEventListener('change', function() {
-                const previewId = id === 'image' ? 'preview-img' : 'preview-product-img';
-                const containerId = id === 'image' ? 'image-preview' : 'product-image-preview';
-                if (this.files && this.files[0]) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        document.getElementById(previewId).src = e.target.result;
-                        document.getElementById(containerId).classList.remove('hidden');
-                        if (id === 'image') {
-                            window.dispatchEvent(new CustomEvent('banner-preview-src', { detail: e.target.result }));
-                        }
-                    };
-                    reader.readAsDataURL(this.files[0]);
-                }
-            });
-        });
-    </script>
     @endpush
 @endsection

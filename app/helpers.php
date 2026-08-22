@@ -51,3 +51,33 @@ if (! function_exists('product_image_url')) {
         return Storage::disk('public')->url($path);
     }
 }
+
+if (! function_exists('media_url')) {
+    function media_url(?string $path): string
+    {
+        if (! $path) {
+            return asset('frontend-assets/images/no-image.jpg');
+        }
+
+        if (str_starts_with($path, 'http')) {
+            return $path;
+        }
+
+        return Storage::disk(config('media.disk', 'public'))->url($path);
+    }
+}
+
+if (! function_exists('media_for_path')) {
+    /**
+     * Resolve the media library record for a stored path, or null when the
+     * file predates the library (legacy uploads).
+     */
+    function media_for_path(?string $path): ?\App\Models\Media
+    {
+        if (! $path) {
+            return null;
+        }
+
+        return \App\Models\Media::where('path', $path)->first();
+    }
+}

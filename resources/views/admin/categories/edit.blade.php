@@ -61,23 +61,11 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         {{-- Main image --}}
                         <div>
-                            <label for="image" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Main Image</label>
-                            @if($category->display_image)
-                                <div class="mb-2 relative group">
-                                    <img src="{{ $category->display_image }}" alt="{{ $category->name }}" class="w-full aspect-square rounded-lg object-cover">
-                                    <label class="absolute bottom-1 right-1 flex items-center gap-1.5 text-xs bg-white/90 dark:bg-gray-900/90 rounded px-2 py-1 cursor-pointer">
-                                        <input type="checkbox" name="remove_image" value="1" class="rounded border-gray-300 text-red-500 focus:ring-red-500">
-                                        <span class="text-red-600 dark:text-red-400">Remove</span>
-                                    </label>
-                                </div>
-                            @endif
-                            <input type="file" name="image" id="image" accept="image/*"
-                                class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-brand-600 hover:file:bg-brand-100">
-                            @error('image') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
-                            <div class="mt-2 aspect-square rounded-lg bg-gray-100 dark:bg-gray-800 overflow-hidden">
-                                <img id="main-preview-img" src="" alt="" class="w-full h-full object-cover hidden">
-                            </div>
-                            <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">Used on category cards and the homepage. A 300x300 optimized thumbnail is generated automatically.</p>
+                            <x-media-picker.picker name="image_media_id" label="Main Image" folder="categories" remove-name="remove_image"
+                                :value="media_for_path($category->image)?->id"
+                                :preview="$category->display_image"
+                                help="Used on category cards and the homepage. A 300x300 optimized thumbnail is generated automatically." />
+                            @error('image_media_id') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
                         </div>
 
                         {{-- Icon picker --}}
@@ -112,42 +100,18 @@
 
                         {{-- Banner desktop --}}
                         <div>
-                            <label for="banner_image" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Banner Image <span class="text-gray-400 font-normal">(optional)</span></label>
-                            @if($category->banner_url)
-                                <div class="mb-2 relative group">
-                                    <img src="{{ $category->banner_url }}" alt="Banner" class="w-full h-24 rounded-lg object-cover">
-                                    <label class="absolute bottom-1 right-1 flex items-center gap-1.5 text-xs bg-white/90 dark:bg-gray-900/90 rounded px-2 py-1 cursor-pointer">
-                                        <input type="checkbox" name="remove_banner_image" value="1" class="rounded border-gray-300 text-red-500 focus:ring-red-500">
-                                        <span class="text-red-600 dark:text-red-400">Remove</span>
-                                    </label>
-                                </div>
-                            @endif
-                            <input type="file" name="banner_image" id="banner_image" accept="image/*"
-                                class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-brand-600 hover:file:bg-brand-100">
-                            @error('banner_image') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
-                            <div class="mt-2 aspect-[3/1] rounded-lg bg-gray-100 dark:bg-gray-800 overflow-hidden">
-                                <img id="banner-preview-img" src="" alt="" class="w-full h-full object-cover hidden">
-                            </div>
+                            <x-media-picker.picker name="banner_image_media_id" label="Banner Image (optional)" folder="banners" remove-name="remove_banner_image"
+                                :value="media_for_path($category->banner_image)?->id"
+                                :preview="$category->banner_url" />
+                            @error('banner_image_media_id') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
                         </div>
 
                         {{-- Banner mobile --}}
                         <div>
-                            <label for="banner_mobile_image" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Banner Image (Mobile) <span class="text-gray-400 font-normal">(optional)</span></label>
-                            @if($category->banner_mobile_url)
-                                <div class="mb-2 relative group">
-                                    <img src="{{ $category->banner_mobile_url }}" alt="Banner mobile" class="w-32 max-h-40 rounded-lg object-cover">
-                                    <label class="absolute bottom-1 right-1 flex items-center gap-1.5 text-xs bg-white/90 dark:bg-gray-900/90 rounded px-2 py-1 cursor-pointer">
-                                        <input type="checkbox" name="remove_banner_mobile_image" value="1" class="rounded border-gray-300 text-red-500 focus:ring-red-500">
-                                        <span class="text-red-600 dark:text-red-400">Remove</span>
-                                    </label>
-                                </div>
-                            @endif
-                            <input type="file" name="banner_mobile_image" id="banner_mobile_image" accept="image/*"
-                                class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-brand-600 hover:file:bg-brand-100">
-                            @error('banner_mobile_image') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
-                            <div class="mt-2 aspect-[3/4] max-h-40 w-32 rounded-lg bg-gray-100 dark:bg-gray-800 overflow-hidden">
-                                <img id="banner-mobile-preview-img" src="" alt="" class="w-full h-full object-cover hidden">
-                            </div>
+                            <x-media-picker.picker name="banner_mobile_image_media_id" label="Banner Image Mobile (optional)" folder="banners" remove-name="remove_banner_mobile_image"
+                                :value="media_for_path($category->banner_mobile_image)?->id"
+                                :preview="$category->banner_mobile_url" />
+                            @error('banner_mobile_image_media_id') <p class="mt-1 text-sm text-red-500">{{ $message }}</p> @enderror
                         </div>
 
                         {{-- Banner display controls --}}
@@ -277,19 +241,6 @@
                 }
             });
             slugInput.addEventListener('input', function() { slugInput.dataset.autoGenerated = 'false'; });
-
-            [['image', 'main-preview-img'],
-             ['banner_image', 'banner-preview-img'],
-             ['banner_mobile_image', 'banner-mobile-preview-img']].forEach(([input, img]) => {
-                document.querySelector(`input[name="${input}"]`).addEventListener('change', function() {
-                    const imgEl = document.getElementById(img);
-                    if (this.files && this.files[0]) {
-                        const reader = new FileReader();
-                        reader.onload = e => { imgEl.src = e.target.result; imgEl.classList.remove('hidden'); };
-                        reader.readAsDataURL(this.files[0]);
-                    }
-                });
-            });
         }
     </script>
     @endpush

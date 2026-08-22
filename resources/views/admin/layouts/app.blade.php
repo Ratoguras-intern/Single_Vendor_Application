@@ -163,6 +163,7 @@
 
     <x-toast />
     <x-confirm-modal />
+    <x-media-picker.modal />
 
     <script>
         (function() {

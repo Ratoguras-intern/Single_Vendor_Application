@@ -35,7 +35,7 @@
         })();
     </script>
     <script>
-        function bannerCountdown(endDate, autoHide) {
+        function bannerCountdown(endDate, autoHide, bannerIndex) {
             autoHide = autoHide !== undefined ? autoHide : true;
             return {
                 show: !autoHide, days: 0, hours: 0, minutes: 0, seconds: 0, expired: false, timer: null,
@@ -51,6 +51,9 @@
                         this.expired = true;
                         this.show = !autoHide;
                         clearInterval(this.timer);
+                        if (bannerIndex !== undefined) {
+                            window.dispatchEvent(new CustomEvent('banner-expired', { detail: { index: bannerIndex } }));
+                        }
                         return;
                     }
                     this.days = Math.floor(diff / 86400000);

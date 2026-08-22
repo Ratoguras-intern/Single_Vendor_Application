@@ -10,15 +10,28 @@
         endDate: {{ $endTimestamp }} * 1000,
         now: Date.now(),
         days: 0, hours: 0, minutes: 0, seconds: 0,
-        init() { this.update(); setInterval(() => { this.now = Date.now(); this.update(); }, 1000); },
+        expired: false,
+        timer: null,
+        init() { this.update(); this.timer = setInterval(() => { this.now = Date.now(); this.update(); }, 1000); },
         update() {
-            const diff = Math.max(0, this.endDate - this.now);
+            const diff = this.endDate - this.now;
+            if (diff <= 0) {
+                this.expired = true;
+                this.days = 0; this.hours = 0; this.minutes = 0; this.seconds = 0;
+                clearInterval(this.timer);
+                return;
+            }
             this.days = Math.floor(diff / 86400000);
             this.hours = Math.floor((diff % 86400000) / 3600000);
             this.minutes = Math.floor((diff % 3600000) / 60000);
             this.seconds = Math.floor((diff % 60000) / 1000);
         },
     }"
+    x-show="!expired"
+    x-transition:leave="transition ease-in duration-300"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    x-cloak
     class="py-6 sm:py-8 lg:py-10 bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-900"
 >
     <div class="section">

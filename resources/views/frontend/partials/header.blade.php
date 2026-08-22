@@ -47,8 +47,12 @@
             }
         });
         $nextTick(() => {
-            const updateHeight = () => { $el.style.setProperty('--navbar-height', $el.offsetHeight + 'px'); };
+            const updateHeight = () => {
+                const bottom = Math.max($el.getBoundingClientRect().bottom, 0);
+                $el.style.setProperty('--navbar-height', Math.round(bottom) + 'px');
+            };
             updateHeight();
+            window.addEventListener('scroll', updateHeight, { passive: true });
             window.addEventListener('resize', updateHeight);
         });
     "
@@ -77,7 +81,7 @@
                                 $activeCategory = $categories->firstWhere('slug', $slug);
                             }
                         @endphp
-                        <div class="categories-hover-zone pb-8 mb-[-32px]"
+                        <div class="categories-hover-zone"
                             x-on:mouseenter="openMega()"
                             x-on:mouseleave="closeMega()">
                             <button x-ref="categoriesBtn"
@@ -115,8 +119,7 @@
                                             <h3 class="text-xs font-bold uppercase tracking-wider text-secondary-400 dark:text-secondary-500 mb-4">Categories</h3>
                                             <ul class="space-y-0.5">
                                                 @forelse($topCategories as $category)
-                                                    <li class="mega-cat-item" x-on:mouseenter="hoveredCat = {{ $category->id }}"
-                                                        x-on:mouseleave="hoveredCat = null">
+                                                    <li class="mega-cat-item" x-on:mouseenter="hoveredCat = {{ $category->id }}">
                         <a href="{{ route('frontend.category', $category->slug) }}" wire:navigate
                             class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors group
                                                                 {{ $activeCategory && ($activeCategory->id === $category->id || $activeCategory->parent_id === $category->id)

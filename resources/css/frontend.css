@@ -310,6 +310,17 @@
         @apply relative;
     }
 
+    /* Invisible bridge below the trigger so the pointer never crosses a dead
+       zone between the nav item and the mega menu panel */
+    .categories-hover-zone::after {
+        content: '';
+        position: absolute;
+        left: -0.5rem;
+        right: -0.5rem;
+        top: 100%;
+        height: 2.75rem;
+    }
+
     /* ── Mega Menu: Category Cards ── */
     .mega-cat-card {
         @apply relative overflow-hidden rounded-xl bg-secondary-100 dark:bg-secondary-700 aspect-[4/3] flex items-end;

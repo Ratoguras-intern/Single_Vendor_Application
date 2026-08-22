@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\InteractsWithMedia;
 use App\Http\Controllers\Controller;
 use App\Models\Page;
 use Illuminate\Http\Request;
@@ -10,6 +11,7 @@ use Illuminate\Support\Str;
 
 class PageController extends Controller
 {
+    use InteractsWithMedia;
     public function index(Request $request)
     {
         $query = Page::query();
@@ -53,6 +55,7 @@ class PageController extends Controller
             'short_description' => 'nullable|string|max:500',
             'content' => 'nullable|string',
             'featured_image' => 'nullable|image|mimetypes:image/jpeg,image/png,image/webp,image/avif|mimes:jpg,jpeg,png,webp,avif|max:5120',
+            'featured_image_media_id' => 'nullable|integer|exists:media,id',
             'seo_title' => 'nullable|string|max:255',
             'seo_description' => 'nullable|string|max:500',
             'status' => 'required|in:draft,published',
@@ -62,6 +65,8 @@ class PageController extends Controller
 
         if ($request->hasFile('featured_image')) {
             $validated['featured_image'] = $request->file('featured_image')->store('pages', 'public');
+        } elseif ($path = $this->mediaPath($request, 'featured_image')) {
+            $validated['featured_image'] = $path;
         }
 
         if (empty($validated['slug'])) {
@@ -96,6 +101,7 @@ class PageController extends Controller
             'short_description' => 'nullable|string|max:500',
             'content' => 'nullable|string',
             'featured_image' => 'nullable|image|mimetypes:image/jpeg,image/png,image/webp,image/avif|mimes:jpg,jpeg,png,webp,avif|max:5120',
+            'featured_image_media_id' => 'nullable|integer|exists:media,id',
             'seo_title' => 'nullable|string|max:255',
             'seo_description' => 'nullable|string|max:500',
             'status' => 'required|in:draft,published',
@@ -104,21 +110,14 @@ class PageController extends Controller
         ]);
 
         if ($request->boolean('remove_featured_image')) {
-            if ($page->featured_image) {
-                $disk = Storage::disk('public');
-                if ($disk->exists($page->featured_image)) {
-                    $disk->delete($page->featured_image);
-                }
-            }
+            $this->deleteImageSafe($page->featured_image);
             $validated['featured_image'] = null;
         } elseif ($request->hasFile('featured_image')) {
-            if ($page->featured_image) {
-                $disk = Storage::disk('public');
-                if ($disk->exists($page->featured_image)) {
-                    $disk->delete($page->featured_image);
-                }
-            }
+            $this->deleteImageSafe($page->featured_image);
             $validated['featured_image'] = $request->file('featured_image')->store('pages', 'public');
+        } elseif ($path = $this->mediaPath($request, 'featured_image')) {
+            $this->deleteImageSafe($page->featured_image);
+            $validated['featured_image'] = $path;
         }
 
         if (empty($validated['slug'])) {

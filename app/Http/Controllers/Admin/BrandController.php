@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Admin\Concerns\InteractsWithMedia;
 use App\Models\Brand;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -10,6 +11,8 @@ use Illuminate\Support\Str;
 
 class BrandController extends Controller
 {
+    use InteractsWithMedia;
+
     public function index(Request $request)
     {
         $query = Brand::query();
@@ -42,11 +45,14 @@ class BrandController extends Controller
             'name' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255|unique:brands,slug',
             'logo' => 'nullable|image|mimetypes:image/jpeg,image/png,image/webp,image/avif|mimes:jpg,jpeg,png,webp,avif|max:2048',
+            'logo_media_id' => 'nullable|integer|exists:media,id',
             'status' => 'required|in:active,inactive',
         ]);
 
         if ($request->hasFile('logo')) {
             $validated['logo'] = $request->file('logo')->store('brands', 'public');
+        } elseif ($path = $this->mediaPath($request, 'logo')) {
+            $validated['logo'] = $path;
         }
 
         if (empty($validated['slug'])) {
@@ -77,25 +83,19 @@ class BrandController extends Controller
             'name' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255|unique:brands,slug,'.$brand->id,
             'logo' => 'nullable|image|mimetypes:image/jpeg,image/png,image/webp,image/avif|mimes:jpg,jpeg,png,webp,avif|max:2048',
+            'logo_media_id' => 'nullable|integer|exists:media,id',
             'status' => 'required|in:active,inactive',
         ]);
 
         if ($request->boolean('remove_logo')) {
-            if ($brand->logo) {
-                $disk = Storage::disk('public');
-                if ($disk->exists($brand->logo)) {
-                    $disk->delete($brand->logo);
-                }
-            }
+            $this->deleteImageSafe($brand->logo);
             $validated['logo'] = null;
         } elseif ($request->hasFile('logo')) {
-            if ($brand->logo) {
-                $disk = Storage::disk('public');
-                if ($disk->exists($brand->logo)) {
-                    $disk->delete($brand->logo);
-                }
-            }
+            $this->deleteImageSafe($brand->logo);
             $validated['logo'] = $request->file('logo')->store('brands', 'public');
+        } elseif ($path = $this->mediaPath($request, 'logo')) {
+            $this->deleteImageSafe($brand->logo);
+            $validated['logo'] = $path;
         }
 
         if (empty($validated['slug'])) {

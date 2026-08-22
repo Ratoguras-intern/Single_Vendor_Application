@@ -106,7 +106,7 @@
                 {{-- Product Grid --}}
                 <div class="flex-1 min-w-0 relative">
                     @if($products->count() > 0)
-                        <div :class="viewMode === 'list' ? 'grid grid-cols-1 gap-3 sm:gap-4' : 'grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4'">
+                        <div class="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4" :class="viewMode === 'list' ? '!grid-cols-1' : ''">
                             @foreach($products as $product)
                                 <div wire:key="product-{{ $product['id'] }}" class="h-full">
                                     @include('frontend.partials.product-card', ['product' => $product])

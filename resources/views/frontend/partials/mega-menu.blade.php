@@ -32,8 +32,7 @@
                 <h3 class="text-xs font-bold uppercase tracking-wider text-secondary-400 dark:text-secondary-500 mb-4">Categories</h3>
                 <ul class="space-y-0.5">
                     @forelse($topCategories as $category)
-                        <li class="mega-cat-item" x-on:mouseenter="hoveredCat = {{ $category->id }}"
-                            x-on:mouseleave="hoveredCat = null">
+                        <li class="mega-cat-item" x-on:mouseenter="hoveredCat = {{ $category->id }}">
                             <a href="{{ route('frontend.category', $category->slug) }}"
                                 class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors group
                                     {{ $activeCategory && ($activeCategory->id === $category->id || $activeCategory->parent_id === $category->id)

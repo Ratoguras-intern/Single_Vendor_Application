@@ -8,7 +8,8 @@
     </div>
 
     <template x-for="(slide, index) in slides" :key="index">
-        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4">
+        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4"
+            @media-picker:select.window="if ($event.detail.name === 'hero-slide-' + index) { slide.image = $event.detail.media[0].url; slide.remove_image = false; }">
             <div class="flex items-center justify-between mb-3">
                 <span class="text-sm font-medium text-gray-600 dark:text-gray-400" x-text="'Slide ' + (index + 1)"></span>
                 <button type="button" @click="removeSlide(index)" class="text-red-500 hover:text-red-600 text-xs font-medium">Remove</button>
@@ -53,18 +54,22 @@
                     <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Slide Image</label>
                     <div class="flex items-start gap-3">
                         <div class="flex-1">
-                            <input
-                                type="file"
-                                :name="'config[slides][' + index + '][image_file]'"
-                                accept="image/*"
-                                class="block w-full text-sm text-gray-600 dark:text-gray-400 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-500 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-brand-600"
-                                @change="slide.preview = $event.target.files.length ? URL.createObjectURL($event.target.files[0]) : null"
-                            >
-                            <p class="mt-1 text-xs text-gray-400">Optional — upload image from your panel. Both image upload and URL are optional.</p>
+                            <button type="button"
+                                class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:border-brand-500 hover:text-brand-600 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-brand-500 dark:hover:text-brand-400"
+                                @click="$dispatch('media-picker:open', { name: 'hero-slide-' + index, multiple: false, folder: 'banners' })">
+                                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A1.5 1.5 0 0 0 21.75 19.5V4.5A1.5 1.5 0 0 0 20.25 3H3.75A1.5 1.5 0 0 0 2.25 4.5v15A1.5 1.5 0 0 0 3.75 21Zm10.5-11.25h.008v.008h-.008V9.75Z"/></svg>
+                                Choose Image
+                            </button>
+                            <p class="mt-1 text-xs text-gray-400">Pick from the media library or paste an external image URL below.</p>
                             <div class="mt-2">
                                 <label class="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">Or Image URL (optional)</label>
                                 <input type="url" x-model="slide.image" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white" placeholder="https://example.com/image.jpg">
                             </div>
+                            <label class="mt-2 inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                <input type="checkbox" x-model="slide.remove_image" :name="'config[slides][' + index + '][remove_image]'" value="1" class="rounded border-gray-300 text-red-500 focus:ring-red-500">
+                                Remove current image
+                            </label>
+                        </div>
                             <label class="mt-2 inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                                 <input type="checkbox" x-model="slide.remove_image" :name="'config[slides][' + index + '][remove_image]'" value="1" class="rounded border-gray-300 text-red-500 focus:ring-red-500">
                                 Remove current image

@@ -8,7 +8,7 @@
 @endphp
 
 @if (count($toastMessages) > 0)
-<div x-data="toastNotifications()" x-init="init()" class="fixed top-5 right-5 z-[99999] flex flex-col gap-3 max-w-sm w-full pointer-events-none">
+<div x-data="toastNotifications()" x-init="init()" class="fixed top-5 right-5 z-[100001] flex flex-col gap-3 max-w-sm w-full pointer-events-none">
     @foreach ($toastMessages as $toast)
         <div
             x-data="{ show: false }"

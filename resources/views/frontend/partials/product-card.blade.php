@@ -9,17 +9,17 @@
 @endphp
 
 <div class="group flex flex-col h-full rounded-card bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 hover:border-secondary-300 dark:hover:border-secondary-600 hover:shadow-card-hover transition-all duration-200 overflow-hidden">
-    <div :class="viewMode === 'list' ? 'flex flex-row' : 'flex flex-col h-full'">
+    <div class="flex flex-col h-full" :class="viewMode === 'list' ? '!flex-row' : ''">
 
         {{-- Image --}}
-        <div :class="viewMode === 'list' ? 'relative w-24 sm:w-32 shrink-0 overflow-hidden' : 'relative overflow-hidden mb-3'">
+        <div class="relative overflow-hidden mb-3" :class="viewMode === 'list' ? '!relative !w-24 sm:!w-32 !shrink-0 !mb-0' : ''">
             {{-- Wishlist (grid only) --}}
             <button x-show="viewMode !== 'list'" x-on:click.stop="$store.wishlist.toggle({{ $product['id'] }})" :class="$store.wishlist.has({{ $product['id'] }}) ? 'opacity-100 text-red-500' : 'opacity-0 group-hover:opacity-100'" class="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-white/80 dark:bg-secondary-900/80 backdrop-blur-sm hover:bg-white dark:hover:bg-secondary-900 transition-all duration-200 shadow-sm" aria-label="Add to wishlist">
                 <svg class="h-3.5 w-3.5" :class="$store.wishlist.has({{ $product['id'] }}) && 'fill-current'" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" :stroke-width="$store.wishlist.has({{ $product['id'] }}) ? 0 : 2" :stroke="$store.wishlist.has({{ $product['id'] }}) ? 'none' : 'currentColor'"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"/></svg>
             </button>
 
-            <a href="{{ $productUrl }}" :class="viewMode === 'list' ? 'block relative h-full' : 'block relative'">
-                <div :class="viewMode === 'list' ? 'w-full h-full overflow-hidden bg-secondary-100 dark:bg-white/5' : 'aspect-square overflow-hidden bg-secondary-100 dark:bg-white/5'">
+            <a href="{{ $productUrl }}" class="block relative" :class="viewMode === 'list' ? '!h-full' : ''">
+                <div class="aspect-square overflow-hidden bg-secondary-100 dark:bg-white/5" :class="viewMode === 'list' ? '!w-full !h-full !aspect-auto' : ''">
                     <img src="{{ $product['image'] }}" alt="{{ $product['name'] }}" class="w-full h-full object-cover" loading="lazy" decoding="async" onerror="this.src='{{ asset('frontend-assets/images/no-image.jpg') }}'" />
                 </div>
 
@@ -32,8 +32,8 @@
         </div>
 
         {{-- Info --}}
-        <div :class="viewMode === 'list' ? 'flex-1 p-3 sm:p-4 flex flex-col justify-between min-w-0' : 'p-4 pt-0 flex flex-col flex-1'">
-            <div :class="viewMode === 'list' ? 'space-y-1' : 'space-y-1'">
+        <div class="p-4 pt-0 flex flex-col flex-1" :class="viewMode === 'list' ? '!flex-1 !p-3 sm:!p-4 !justify-between !min-w-0' : ''">
+            <div class="space-y-1">
                 <a href="{{ $productUrl }}">
                     <h2 class="font-medium leading-snug truncate text-sm text-secondary-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-300 transition-colors">{{ $product['name'] }}</h2>
                 </a>

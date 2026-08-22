@@ -25,22 +25,12 @@
     </div>
 
     <div>
-        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Product Image <span class="text-xs text-gray-400">(overrides product photo)</span></label>
-        @if($banner?->product_image)
-            <div class="mb-3 flex items-center gap-4">
-                <img src="{{ $banner->product_image_url }}" alt="" class="h-24 w-24 rounded-lg object-cover">
-                <label class="flex items-center gap-2 text-sm text-red-500 cursor-pointer">
-                    <input type="checkbox" name="remove_product_image" value="1" class="rounded border-gray-300 text-red-500 focus:ring-red-500">
-                    Remove
-                </label>
-            </div>
-        @endif
-        <input type="file" name="product_image" id="product_image" accept="image/*"
-            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-brand-600 hover:file:bg-brand-100 dark:file:bg-brand-500/10 dark:file:text-brand-400 dark:hover:file:bg-brand-500/20">
-        <div id="product-image-preview" class="mt-3 hidden">
-            <img id="preview-product-img" src="" alt="Product Preview" class="h-32 w-32 rounded-lg object-cover">
-        </div>
-        @error('product_image')
+        <x-media-picker.picker name="product_image_media_id" label="Product Image" folder="banners"
+            :value="$banner?->product_image ? \App\Models\Media::where('path', $banner->product_image)->value('id') : null"
+            :preview="$banner?->product_image_url"
+            remove-name="remove_product_image"
+            help="Overrides the featured product's photo." />
+        @error('product_image_media_id')
             <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
         @enderror
     </div>

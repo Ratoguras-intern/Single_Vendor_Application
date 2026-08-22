@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\InteractsWithMedia;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreBannerRequest;
 use App\Http\Requests\Admin\UpdateBannerRequest;
@@ -16,6 +17,8 @@ use Intervention\Image\ImageManager;
 
 class BannerController extends Controller
 {
+    use InteractsWithMedia;
+
     public function index(Request $request)
     {
         $query = Banner::query();
@@ -66,16 +69,22 @@ class BannerController extends Controller
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('banners', 'public');
             $this->processImage($validated['image'], 1920);
+        } elseif ($path = $this->mediaPath($request, 'image')) {
+            $validated['image'] = $path;
         }
 
         if ($request->hasFile('mobile_image')) {
             $validated['mobile_image'] = $request->file('mobile_image')->store('banners/mobile', 'public');
             $this->processImage($validated['mobile_image'], 640, 460, true);
+        } elseif ($path = $this->mediaPath($request, 'mobile_image')) {
+            $validated['mobile_image'] = $path;
         }
 
         if ($request->hasFile('product_image')) {
             $validated['product_image'] = $request->file('product_image')->store('banners/products', 'public');
             $this->processImage($validated['product_image'], 800);
+        } elseif ($path = $this->mediaPath($request, 'product_image')) {
+            $validated['product_image'] = $path;
         }
 
         $validated['is_enabled'] = $request->boolean('is_enabled');
@@ -112,42 +121,39 @@ class BannerController extends Controller
         $validated = $request->validated();
 
         if ($request->boolean('remove_image')) {
-            if ($banner->image && Storage::disk('public')->exists($banner->image)) {
-                Storage::disk('public')->delete($banner->image);
-            }
+            $this->deleteImageSafe($banner->image);
             $validated['image'] = null;
         } elseif ($request->hasFile('image')) {
-            if ($banner->image && Storage::disk('public')->exists($banner->image)) {
-                Storage::disk('public')->delete($banner->image);
-            }
+            $this->deleteImageSafe($banner->image);
             $validated['image'] = $request->file('image')->store('banners', 'public');
             $this->processImage($validated['image'], 1920);
+        } elseif ($path = $this->mediaPath($request, 'image')) {
+            $this->deleteImageSafe($banner->image);
+            $validated['image'] = $path;
         }
 
         if ($request->boolean('remove_mobile_image')) {
-            if ($banner->mobile_image && Storage::disk('public')->exists($banner->mobile_image)) {
-                Storage::disk('public')->delete($banner->mobile_image);
-            }
+            $this->deleteImageSafe($banner->mobile_image);
             $validated['mobile_image'] = null;
         } elseif ($request->hasFile('mobile_image')) {
-            if ($banner->mobile_image && Storage::disk('public')->exists($banner->mobile_image)) {
-                Storage::disk('public')->delete($banner->mobile_image);
-            }
+            $this->deleteImageSafe($banner->mobile_image);
             $validated['mobile_image'] = $request->file('mobile_image')->store('banners/mobile', 'public');
             $this->processImage($validated['mobile_image'], 640, 460, true);
+        } elseif ($path = $this->mediaPath($request, 'mobile_image')) {
+            $this->deleteImageSafe($banner->mobile_image);
+            $validated['mobile_image'] = $path;
         }
 
         if ($request->boolean('remove_product_image')) {
-            if ($banner->product_image && Storage::disk('public')->exists($banner->product_image)) {
-                Storage::disk('public')->delete($banner->product_image);
-            }
+            $this->deleteImageSafe($banner->product_image);
             $validated['product_image'] = null;
         } elseif ($request->hasFile('product_image')) {
-            if ($banner->product_image && Storage::disk('public')->exists($banner->product_image)) {
-                Storage::disk('public')->delete($banner->product_image);
-            }
+            $this->deleteImageSafe($banner->product_image);
             $validated['product_image'] = $request->file('product_image')->store('banners/products', 'public');
             $this->processImage($validated['product_image'], 800);
+        } elseif ($path = $this->mediaPath($request, 'product_image')) {
+            $this->deleteImageSafe($banner->product_image);
+            $validated['product_image'] = $path;
         }
 
         $validated['is_enabled'] = $request->boolean('is_enabled');

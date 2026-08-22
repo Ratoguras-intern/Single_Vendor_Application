@@ -15,32 +15,62 @@
     x-data="{
         current: 0,
         total: {{ $total }},
+        active: new Set(Array.from({length: {{ $total }}}, (_, i) => i)),
         paused: false,
         timer: null,
         touchX: 0,
         init() {
-            if ({{ $autoplay ? 'true' : 'false' }} && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                this.startAuto();
-            }
-            if ({{ $pauseOnHover ? 'true' : 'false' }}) {
-                this.$el.addEventListener('mouseenter', () => { this.paused = true; clearInterval(this.timer); });
-                this.$el.addEventListener('mouseleave', () => { this.paused = false; this.startAuto(); });
-            }
+            this.$nextTick(() => {
+                this.$el.addEventListener('banner-expired', (e) => this.slideExpired(e.detail.index));
+                if (this.active.size > 0 && {{ $autoplay ? 'true' : 'false' }} && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    this.startAuto();
+                }
+                if ({{ $pauseOnHover ? 'true' : 'false' }}) {
+                    this.$el.addEventListener('mouseenter', () => { this.paused = true; clearInterval(this.timer); });
+                    this.$el.addEventListener('mouseleave', () => { this.paused = false; this.startAuto(); });
+                }
+            });
         },
         startAuto() {
+            if (this.active.size === 0) return;
             if ({{ $autoplay ? 'true' : 'false' }}) {
                 clearInterval(this.timer);
                 this.timer = setInterval(() => { if (!this.paused) this.next(); }, {{ $transitionSpeed }});
             }
         },
-        next() { this.current = (this.current + 1) % this.total; },
-        prev() { this.current = (this.current - 1 + this.total) % this.total; },
-        goTo(i) { this.current = i; this.startAuto(); },
+        next() {
+            if (this.active.size === 0) return;
+            let next = (this.current + 1) % this.total;
+            let tries = 0;
+            while (!this.active.has(next) && tries < this.total) { next = (next + 1) % this.total; tries++; }
+            if (this.active.has(next)) this.current = next;
+        },
+        prev() {
+            if (this.active.size === 0) return;
+            let prev = (this.current - 1 + this.total) % this.total;
+            let tries = 0;
+            while (!this.active.has(prev) && tries < this.total) { prev = (prev - 1 + this.total) % this.total; tries++; }
+            if (this.active.has(prev)) this.current = prev;
+        },
+        goTo(i) { if (this.active.has(i)) { this.current = i; this.startAuto(); } },
+        slideExpired(index) {
+            this.active.delete(index);
+            if (this.active.size === 0) { clearInterval(this.timer); return; }
+            if (this.current === index) this.next();
+        },
         touchStart(e) { this.touchX = e.touches[0].clientX; },
         touchEnd(e) { const dx = e.changedTouches[0].clientX - this.touchX; if (Math.abs(dx) > 50) { dx < 0 ? this.next() : this.prev(); this.startAuto(); } },
     }"
     @touchstart.passive="touchStart($event)"
     @touchend.passive="touchEnd($event)"
+    x-show="active.size > 0"
+    x-transition:enter="transition ease-out duration-500"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="transition ease-in duration-300"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    x-cloak
     aria-roledescription="carousel"
     aria-label="Sale offers"
     class="home-section"
@@ -80,7 +110,8 @@
                         $productName = $banner->featuredProduct?->name ?? ($banner->title ?? '');
                     @endphp
                     <div
-                        class="relative w-full shrink-0 min-h-[480px] sm:min-h-[440px] lg:min-h-[560px] overflow-hidden {{ $banner->visibility_classes }}"
+                        :class="active.has({{ $i }}) ? 'opacity-100' : 'opacity-0 pointer-events-none'"
+                        class="relative w-full shrink-0 min-h-[480px] sm:min-h-[440px] lg:min-h-[560px] overflow-hidden {{ $banner->visibility_classes }} transition-opacity duration-500"
                         role="group"
                         :aria-roledescription="'slide'"
                         :aria-label="'Slide {{ $i + 1 }} of {{ $total }}'"
@@ -106,8 +137,7 @@
                                 <div
                                     class="w-full max-w-xl"
                                     @if($banner->content_padding_css) style="{{ $banner->content_padding_css }}" @endif
-                                    x-data="bannerCountdown('{{ $endIso }}', {{ $autoHide }})"
-                                    x-init="init()"
+                                    x-data="bannerCountdown('{{ $endIso }}', {{ $autoHide }}, {{ $i }})"
                                 >
                                     @if($banner->enable_badge && $banner->badge)
                                         <span class="inline-flex items-center gap-2 rounded-full {{ $banner->badge_color ?? 'bg-primary-500' }} px-4 py-1.5 mb-4 sm:mb-5 self-start" :class="current === {{ $i }} ? 'animate-in' : 'opacity-0'">
@@ -195,7 +225,7 @@
 
             <div class="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2.5" role="tablist" aria-label="Sale banners">
                 @foreach($banners as $i => $banner)
-                    <button x-on:click="goTo({{ $i }})" :aria-label="'Go to sale banner ' + ({{ $i }} + 1)" :aria-current="current === {{ $i }} ? 'true' : undefined" :class="current === {{ $i }} ? 'w-8 bg-primary-500' : 'w-2.5 bg-white/50 hover:bg-white/75'" class="h-2.5 rounded-full transition-all duration-300"></button>
+                    <button x-show="active.has({{ $i }})" x-on:click="goTo({{ $i }})" :aria-label="'Go to sale banner ' + ({{ $i }} + 1)" :aria-current="current === {{ $i }} ? 'true' : undefined" :class="current === {{ $i }} ? 'w-8 bg-primary-500' : 'w-2.5 bg-white/50 hover:bg-white/75'" class="h-2.5 rounded-full transition-all duration-300"></button>
                 @endforeach
             </div>
         </div>

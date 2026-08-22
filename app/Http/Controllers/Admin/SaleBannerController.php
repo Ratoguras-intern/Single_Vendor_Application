@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\InteractsWithMedia;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\SaleBanner;
@@ -13,6 +14,7 @@ use Intervention\Image\ImageManager;
 
 class SaleBannerController extends Controller
 {
+    use InteractsWithMedia;
     public function index()
     {
         $saleBanners = SaleBanner::query()
@@ -38,11 +40,15 @@ class SaleBannerController extends Controller
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('sale-banners', 'public');
             $this->processImage($validated['image'], 1920);
+        } elseif ($path = $this->mediaPath($request, 'image')) {
+            $validated['image'] = $path;
         }
 
         if ($request->hasFile('product_image')) {
             $validated['product_image'] = $request->file('product_image')->store('sale-banners/products', 'public');
             $this->processImage($validated['product_image'], 800);
+        } elseif ($path = $this->mediaPath($request, 'product_image')) {
+            $validated['product_image'] = $path;
         }
 
         SaleBanner::create($this->packDisplaySettings($this->coerceBooleans($validated)));
@@ -63,29 +69,27 @@ class SaleBannerController extends Controller
         $validated = $this->validateData($request);
 
         if ($request->boolean('remove_image')) {
-            if ($saleBanner->image && Storage::disk('public')->exists($saleBanner->image)) {
-                Storage::disk('public')->delete($saleBanner->image);
-            }
+            $this->deleteImageSafe($saleBanner->image);
             $validated['image'] = null;
         } elseif ($request->hasFile('image')) {
-            if ($saleBanner->image && Storage::disk('public')->exists($saleBanner->image)) {
-                Storage::disk('public')->delete($saleBanner->image);
-            }
+            $this->deleteImageSafe($saleBanner->image);
             $validated['image'] = $request->file('image')->store('sale-banners', 'public');
             $this->processImage($validated['image'], 1920);
+        } elseif ($path = $this->mediaPath($request, 'image')) {
+            $this->deleteImageSafe($saleBanner->image);
+            $validated['image'] = $path;
         }
 
         if ($request->boolean('remove_product_image')) {
-            if ($saleBanner->product_image && Storage::disk('public')->exists($saleBanner->product_image)) {
-                Storage::disk('public')->delete($saleBanner->product_image);
-            }
+            $this->deleteImageSafe($saleBanner->product_image);
             $validated['product_image'] = null;
         } elseif ($request->hasFile('product_image')) {
-            if ($saleBanner->product_image && Storage::disk('public')->exists($saleBanner->product_image)) {
-                Storage::disk('public')->delete($saleBanner->product_image);
-            }
+            $this->deleteImageSafe($saleBanner->product_image);
             $validated['product_image'] = $request->file('product_image')->store('sale-banners/products', 'public');
             $this->processImage($validated['product_image'], 800);
+        } elseif ($path = $this->mediaPath($request, 'product_image')) {
+            $this->deleteImageSafe($saleBanner->product_image);
+            $validated['product_image'] = $path;
         }
 
         $saleBanner->update($this->packDisplaySettings($this->coerceBooleans($validated)));
@@ -153,8 +157,10 @@ class SaleBannerController extends Controller
             'title' => 'nullable|string|max:255',
             'subtitle' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
-            'product_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+                'product_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+                'image_media_id' => 'nullable|integer|exists:media,id',
+                'product_image_media_id' => 'nullable|integer|exists:media,id',
             'link' => 'nullable|string|max:255',
             'button_text' => 'nullable|string|max:255',
             'secondary_button_text' => 'nullable|string|max:255',

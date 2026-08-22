@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\InteractsWithMedia;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreCategoryRequest;
 use App\Http\Requests\Admin\UpdateCategoryRequest;
@@ -14,6 +15,8 @@ use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
+    use InteractsWithMedia;
+
     public function __construct(protected CategoryImageService $imageService)
     {
     }
@@ -77,6 +80,9 @@ class CategoryController extends Controller
 
         if ($request->hasFile('image')) {
             $validated = array_merge($validated, $this->imageService->storeMainImage($request->file('image')));
+        } elseif ($path = $this->mediaPath($request, 'image')) {
+            $validated['image'] = $path;
+            $validated['thumbnail_image'] = $path;
         }
 
         if ($request->hasFile('banner_image')) {
@@ -86,6 +92,14 @@ class CategoryController extends Controller
             ));
         } elseif ($request->hasFile('banner_mobile_image')) {
             $validated['banner_mobile_image'] = $this->imageService->storeMobileBanner($request->file('banner_mobile_image'));
+        }
+
+        if (!$request->hasFile('banner_image') && ($path = $this->mediaPath($request, 'banner_image'))) {
+            $validated['banner_image'] = $path;
+        }
+
+        if (!$request->hasFile('banner_mobile_image') && ($path = $this->mediaPath($request, 'banner_mobile_image'))) {
+            $validated['banner_mobile_image'] = $path;
         }
 
         $validated['banner_image_fit'] = $validated['banner_image_fit'] ?? 'cover';
@@ -130,6 +144,11 @@ class CategoryController extends Controller
         } elseif ($request->hasFile('image')) {
             $this->imageService->deleteMainImage($category);
             $validated = array_merge($validated, $this->imageService->storeMainImage($request->file('image')));
+        } elseif ($path = $this->mediaPath($request, 'image')) {
+            $this->deleteImageSafe($category->getRawOriginal('image'));
+            $this->deleteImageSafe($category->getRawOriginal('thumbnail_image'));
+            $validated['image'] = $path;
+            $validated['thumbnail_image'] = $path;
         }
 
         // Banner (desktop + optional mobile).
@@ -146,6 +165,16 @@ class CategoryController extends Controller
         } elseif ($request->hasFile('banner_mobile_image')) {
             $this->imageService->deleteMobileBanner($category);
             $validated['banner_mobile_image'] = $this->imageService->storeMobileBanner($request->file('banner_mobile_image'));
+        }
+
+        if (!$request->hasFile('banner_image') && ($path = $this->mediaPath($request, 'banner_image'))) {
+            $this->deleteImageSafe($category->getRawOriginal('banner_image'));
+            $validated['banner_image'] = $path;
+        }
+
+        if (!$request->hasFile('banner_mobile_image') && ($path = $this->mediaPath($request, 'banner_mobile_image'))) {
+            $this->deleteImageSafe($category->getRawOriginal('banner_mobile_image'));
+            $validated['banner_mobile_image'] = $path;
         }
 
         if ($request->boolean('remove_banner_mobile_image')) {

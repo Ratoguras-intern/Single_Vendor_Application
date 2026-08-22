@@ -4,10 +4,12 @@ use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\BrandingController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FeaturedCategoryController;
 use App\Http\Controllers\Admin\FooterController;
 use App\Http\Controllers\Admin\HomepageSectionController;
+use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\NavigationController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PageController;
@@ -156,6 +158,19 @@ Route::middleware(['auth', 'admin'])
     ->name('admin.')
     ->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        // Media Library (shared by all admin modules via the media picker)
+        Route::get('/media', [MediaController::class, 'index'])->name('media.index');
+        Route::post('/media', [MediaController::class, 'store'])->name('media.store');
+        Route::delete('/media/{media}', [MediaController::class, 'destroy'])->name('media.destroy');
+
+        // Branding (super_admin only)
+        Route::middleware('role:super_admin')->group(function () {
+            Route::get('/branding', [BrandingController::class, 'edit'])->name('branding.edit');
+            Route::put('/branding', [BrandingController::class, 'update'])->name('branding.update');
+            Route::delete('/branding', [BrandingController::class, 'destroy'])->name('branding.destroy');
+        });
+
         Route::post('/currency', function (\Illuminate\Http\Request $request) {
             $currency = strtoupper((string) $request->input('currency'));
             $supported = array_keys(config('currency.supported', []));
