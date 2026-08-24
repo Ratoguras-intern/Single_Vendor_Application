@@ -12,7 +12,7 @@
     {{-- Success Toast --}}
     @if(session('success'))
     <div x-data="{ show: true }" x-init="setTimeout(() => show = false, 4000)" x-show="show" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-        class="fixed top-4 right-4 z-50 max-w-sm rounded-lg border border-emerald-200 bg-emerald-50 p-4 shadow-lg dark:border-emerald-800 dark:bg-emerald-900/30">
+        class="pointer-events-none fixed top-4 right-4 z-50 max-w-sm rounded-lg border border-emerald-200 bg-emerald-50 p-4 shadow-lg dark:border-emerald-800 dark:bg-emerald-900/30">
         <div class="flex items-center gap-3">
             <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-800/50">
                 <svg class="h-4 w-4 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
@@ -62,6 +62,16 @@
                         </div>
 
                         <div>
+                            <label for="subtitle" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Subtitle</label>
+                            <input type="text" name="subtitle" id="subtitle" value="{{ old('subtitle') }}"
+                                class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white @error('subtitle') border-red-500 focus:border-red-500 focus:ring-red-500/20 @enderror"
+                                placeholder="Short tagline shown in the page hero">
+                            @error('subtitle')
+                                <p class="mt-1.5 text-sm text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
                             <label for="slug" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Slug</label>
                             <input type="text" name="slug" id="slug" value="{{ old('slug') }}"
                                 class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white @error('slug') border-red-500 focus:border-red-500 focus:ring-red-500/20 @enderror"
@@ -92,14 +102,14 @@
                 </div>
 
                 {{-- Content Editor --}}
-                <div class="flex flex-col rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-white/[0.03]" style="height: 750px;">
+                <div class="flex flex-col rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden dark:border-gray-800 dark:bg-white/[0.03]" style="height: 750px;">
                     <div class="shrink-0 border-b border-gray-200 px-6 py-4 dark:border-gray-800">
                         <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Content</h3>
                         <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Use the editor below to create your page content.</p>
                     </div>
 
                     {{-- Toolbar --}}
-                    <div id="toolbar" class="shrink-0 flex flex-wrap items-center gap-1 border-b border-gray-200 bg-gray-50 px-4 py-2 dark:border-gray-800 dark:bg-gray-900/50">
+                    <div id="toolbar" class="relative z-10 shrink-0 flex flex-wrap items-center gap-1 border-b border-gray-200 bg-gray-50 px-4 py-2 dark:border-gray-800 dark:bg-gray-900/50">
                         <button type="button" data-action="heading" class="toolbar-btn group" title="Heading">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"/></svg>
                         </button>
@@ -160,6 +170,20 @@
                     <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Publishing</h3>
                     <div class="space-y-4">
                         <div>
+                            <label for="template" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Page Template</label>
+                            <select name="template" id="template"
+                                class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+                                @foreach (\App\Models\Page::TEMPLATES as $value => $label)
+                                    <option value="{{ $value }}" {{ old('template', '') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                            <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Dedicated templates render dynamic sections; Default shows the document layout.</p>
+                            @error('template')
+                                <p class="mt-1.5 text-sm text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
                             <label for="status" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Status <span class="text-red-500">*</span></label>
                             <select name="status" id="status"
                                 class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
@@ -172,7 +196,7 @@
                             <label for="show_in_footer" class="text-sm font-medium text-gray-700 dark:text-gray-300">Show in Footer</label>
                             <input type="hidden" name="show_in_footer" value="0">
                             <button type="button" id="footer-toggle" role="switch" aria-checked="{{ old('show_in_footer', '0') === '1' ? 'true' : 'false' }}"
-                                class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 {{ old('show_in_footer', '0') === '1' ? 'bg-brand-500' : 'bg-gray-300 dark:bg-gray-600' }}">
+                                class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center overflow-hidden rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 {{ old('show_in_footer', '0') === '1' ? 'bg-brand-500' : 'bg-gray-300 dark:bg-gray-600' }}">
                                 <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out {{ old('show_in_footer', '0') === '1' ? 'translate-x-5' : 'translate-x-0' }}"></span>
                             </button>
                             <input type="hidden" name="show_in_footer" id="show_in_footer" value="{{ old('show_in_footer', '0') }}">
@@ -229,11 +253,39 @@
                                     <span id="seo-desc-count" class="tabular-nums">0/160</span>
                                 </div>
                             </div>
+                            <div>
+                                <label for="canonical_url" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Canonical URL</label>
+                                <input type="url" name="canonical_url" id="canonical_url" value="{{ old('canonical_url') }}"
+                                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                                    placeholder="https://example.com/preferred-url">
+                            </div>
+                            <div>
+                                <label for="og_title" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Social Share Title (OG)</label>
+                                <input type="text" name="og_title" id="og_title" value="{{ old('og_title') }}"
+                                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                                    placeholder="Overrides SEO title on social platforms">
+                            </div>
+                            <div>
+                                <label for="og_description" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Social Share Description (OG)</label>
+                                <textarea name="og_description" id="og_description" rows="2"
+                                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                                    placeholder="Overrides SEO description on social platforms">{{ old('og_description') }}</textarea>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {{-- Featured Image --}}
+                {{-- Social Share Image --}}
+                <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
+                    <h3 class="mb-1 text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Social Share Image</h3>
+                    <p class="mb-4 text-xs text-gray-400 dark:text-gray-500">Shown when the page is shared on social media (1200x630 recommended).</p>
+                    <div>
+                        <x-media-picker.picker name="og_image_media_id" folder="pages" />
+                        @error('og_image_media_id')
+                            <p class="mt-1.5 text-sm text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
                 <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
                     <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Featured Image</h3>
                     <div>

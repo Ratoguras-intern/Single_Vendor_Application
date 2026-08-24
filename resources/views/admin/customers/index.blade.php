@@ -36,9 +36,7 @@
                             </td>
                             <td class="px-5 py-4">
                                 <div class="flex items-center gap-3">
-                                    <div class="h-9 w-9 rounded-full flex items-center justify-center text-sm font-bold text-white bg-gray-400">
-                                        {{ strtoupper(substr($customer->name, 0, 1)) }}
-                                    </div>
+                                    <x-user-avatar :user="$customer" size="h-9 w-9" text-size="text-sm" />
                                     <span class="text-sm font-medium text-gray-800 dark:text-white">{{ $customer->name }}</span>
                                 </div>
                             </td>

@@ -6,6 +6,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\NavigationItem;
 use App\Models\NavigationMenu;
+use App\Support\WindowsFilesystem;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Session;
@@ -16,7 +17,7 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->singleton('files', fn () => new WindowsFilesystem);
     }
 
     public function boot(): void

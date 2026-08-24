@@ -28,7 +28,7 @@
                         <p class="mt-2 text-xs text-gray-400 dark:text-gray-500 font-mono">{{ $menu->slug }}</p>
                     </div>
                     <button onclick="event.preventDefault(); toggleMenu({{ $menu->id }})"
-                        class="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors
+                        class="relative inline-flex h-6 w-11 shrink-0 items-center overflow-hidden rounded-full transition-colors
                             {{ $menu->is_enabled ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600' }}">
                         <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform
                             {{ $menu->is_enabled ? 'translate-x-6' : 'translate-x-1' }}"></span>

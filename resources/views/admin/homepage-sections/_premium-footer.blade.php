@@ -3,7 +3,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Company Name</label>
-            <input type="text" name="config[company_name]" value="{{ old('config.company_name', $section->config['company_name'] ?? 'NBK Vertex') }}"
+            <input type="text" name="config[company_name]" value="{{ old('config.company_name', $section->config['company_name'] ?? site_name()) }}"
                 class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
         </div>
         <div>

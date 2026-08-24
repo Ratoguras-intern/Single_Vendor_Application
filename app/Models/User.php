@@ -12,7 +12,7 @@ use App\Models\Favorite;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'phone', 'role', 'status'])]
+#[Fillable(['name', 'email', 'password', 'phone', 'role', 'status', 'avatar_path'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -25,6 +25,22 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function avatarUrl(): ?string
+    {
+        if (! $this->avatar_path) {
+            return null;
+        }
+
+        return \Illuminate\Support\Facades\Storage::disk('public')->url($this->avatar_path);
+    }
+
+    public function initials(): string
+    {
+        $words = preg_split('/\s+/', trim($this->name)) ?: [];
+
+        return strtoupper(substr($words[0] ?? '', 0, 1) . substr($words[1] ?? '', 0, 1));
     }
 
     public function isAdmin(): bool

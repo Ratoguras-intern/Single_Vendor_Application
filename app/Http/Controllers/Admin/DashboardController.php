@@ -89,7 +89,7 @@ class DashboardController extends Controller
 
         // --- Top 10 Customers by Spending ---
         $topCustomers = User::where('role', 'customer')
-            ->select('id', 'name', 'email', 'created_at')
+            ->select('id', 'name', 'email', 'avatar_path', 'created_at')
             ->withCount('orders')
             ->selectRaw('(SELECT COALESCE(SUM(o.total_amount), 0) FROM orders o WHERE o.user_id = users.id AND o.payment_status = ?) as total_spent', ['paid'])
             ->orderByDesc('total_spent')
@@ -97,14 +97,14 @@ class DashboardController extends Controller
             ->get();
 
         // --- Latest 10 Orders ---
-        $latestOrders = Order::with('user:id,name')
+        $latestOrders = Order::with('user:id,name,avatar_path')
             ->latest()
             ->limit(10)
             ->get();
 
         // --- Latest 10 Registered Customers ---
         $latestCustomers = User::where('role', 'customer')
-            ->select('id', 'name', 'email', 'created_at')
+            ->select('id', 'name', 'email', 'avatar_path', 'created_at')
             ->withCount('orders')
             ->selectRaw('(SELECT COALESCE(SUM(o.total_amount), 0) FROM orders o WHERE o.user_id = users.id AND o.payment_status = ?) as total_spent', ['paid'])
             ->selectRaw('(SELECT MAX(o2.created_at) FROM orders o2 WHERE o2.user_id = users.id) as last_order_date')

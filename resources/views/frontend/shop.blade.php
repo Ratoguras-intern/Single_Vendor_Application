@@ -1,7 +1,7 @@
 @extends('layouts.frontend')
 
 @php
-    $seoTitle = 'Shop - ' . config('app.name');
+    $seoTitle = 'Shop - ' . site_name();
     $seoDesc = 'Browse our complete collection of premium products.';
 @endphp
 

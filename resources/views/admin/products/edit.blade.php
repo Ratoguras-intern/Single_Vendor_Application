@@ -90,14 +90,52 @@
                         @enderror
                     </div>
 
-                    <div>
-                        <label for="discount_price" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Discount Price</label>
-                        <input type="number" name="discount_price" id="discount_price" value="{{ old('discount_price', $product->discount_price) }}" step="0.01" min="0"
-                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                    <div x-data="{
+                            mode: '{{ old('discount_type', 'amount') }}',
+                            get finalPrice() {
+                                const p = parseFloat(document.getElementById('price')?.value);
+                                if (isNaN(p)) return null;
+                                if (this.mode === 'percent') {
+                                    const pct = parseFloat(this.$refs.pct.value);
+                                    return isNaN(pct) ? null : (p * (1 - pct / 100)).toFixed(2);
+                                }
+                                const d = parseFloat(this.$refs.amount.value);
+                                return isNaN(d) ? null : d.toFixed(2);
+                            }
+                        }">
+                        <div class="mb-1.5 flex items-center justify-between">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Discount</label>
+                            <div class="flex rounded-lg border border-gray-300 bg-gray-50 p-0.5 text-xs dark:border-gray-700 dark:bg-gray-800">
+                                <button type="button" @click="mode = 'amount'"
+                                    :class="mode === 'amount' ? 'bg-white shadow text-gray-900 dark:bg-gray-900 dark:text-white' : 'text-gray-500'"
+                                    class="rounded-md px-2.5 py-1 transition-colors">Amount</button>
+                                <button type="button" @click="mode = 'percent'"
+                                    :class="mode === 'percent' ? 'bg-white shadow text-gray-900 dark:bg-gray-900 dark:text-white' : 'text-gray-500'"
+                                    class="rounded-md px-2.5 py-1 transition-colors">Percent %</button>
+                            </div>
+                        </div>
+
+                        <input type="number" name="discount_price" x-ref="amount" x-show="mode === 'amount'"
+                            value="{{ old('discount_price', $product->discount_price) }}" step="0.01" min="0"
+                            :disabled="mode !== 'amount'"
+                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 disabled:hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white"
                             placeholder="Must be less than price">
                         @error('discount_price')
                             <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                         @enderror
+
+                        <input type="number" name="discount_percent" x-ref="pct" x-show="mode === 'percent'" x-cloak
+                            value="{{ old('discount_percent') }}" step="0.01" min="0" max="100"
+                            :disabled="mode !== 'percent'"
+                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 disabled:hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                            placeholder="e.g. 15 for 15% off">
+                        @error('discount_percent')
+                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                        @enderror
+
+                        <p class="mt-1.5 text-xs text-green-600 dark:text-green-400" x-show="finalPrice" x-cloak>
+                            Customer pays: <span x-text="finalPrice"></span>
+                        </p>
                     </div>
 
                     <div>

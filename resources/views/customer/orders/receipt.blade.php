@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Receipt #{{ $order->order_number }}</title>
+    @include('partials.favicon')
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; color: #1a1a1a; background: #f5f5f5; padding: 2rem; }
@@ -46,7 +47,7 @@
     <div class="receipt">
         <div class="header">
             <div>
-                <div class="shop-name">{{ config('app.name', 'NBK Vertex') }}</div>
+                <div class="shop-name">{{ site_name() }}</div>
                 <div class="shop-tagline">Order Receipt</div>
             </div>
             <div class="order-meta">
@@ -145,7 +146,7 @@
 
         <div class="footer">
             Thank you for your purchase!<br>
-            {{ config('app.name') }} &mdash; {{ now()->year }}
+            {{ site_name() }} &mdash; {{ now()->year }}
         </div>
     </div>
 </body>

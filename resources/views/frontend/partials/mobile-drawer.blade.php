@@ -60,35 +60,39 @@
         </div>
 
         {{-- Nav Links --}}
-        <div class="px-3 py-3 border-b border-secondary-100 dark:border-secondary-700">
+        <nav class="px-3 py-3 border-b border-secondary-100 dark:border-secondary-700" aria-label="Mobile navigation">
             @foreach($mobileNavItems as $navItem)
                 <a href="{{ $navItem['url'] }}" wire:navigate x-on:click="mobileOpen = false"
-                    class="flex items-center {{ ($navItem['icon_key'] ?? '') === 'cart' ? 'justify-between' : '' }} gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ $navItem['css_class'] ?? '' }} {{ str_contains(url()->current(), $navItem['url']) ? 'bg-primary-50 text-primary-700 dark:bg-primary-500/10 dark:text-primary-400' : 'text-secondary-700 dark:text-secondary-300 hover:bg-secondary-50 dark:hover:bg-white/5' }}">
+                    class="drawer-link {{ str_contains(url()->current(), $navItem['url']) ? 'is-active' : '' }} {{ $navItem['css_class'] ?? '' }}">
                     @if($navItem['icon_key'])
                         <span class="h-5 w-5 shrink-0">{!! \App\Helpers\MenuHelper::getIconSvg($navItem['icon_key']) !!}</span>
                     @endif
-                    <span>{{ $navItem['name'] }}</span>
+                    <span class="min-w-0 flex-1 truncate">{{ $navItem['name'] }}</span>
                     @if(($navItem['icon_key'] ?? '') === 'cart')
                         <span x-show="$store.cart.count() > 0" x-text="$store.cart.count()" x-transition
                             class="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-primary-500 text-white text-[10px] font-bold"></span>
                     @endif
                 </a>
             @endforeach
-        </div>
+        </nav>
 
         {{-- Categories: Recursive Accordion --}}
         <div class="px-3 py-3 border-b border-secondary-100 dark:border-secondary-700">
             <button x-on:click="mobileCategoriesOpen = !mobileCategoriesOpen"
-                class="flex items-center justify-between w-full px-3 py-2.5 rounded-lg text-sm font-medium text-secondary-700 dark:text-secondary-300 hover:bg-secondary-50 dark:hover:bg-white/5 transition-colors">
-                <span class="flex items-center gap-3">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25a2.25 2.25 0 0 1-2.25-2.25v-2.25Z"/>
+                :aria-expanded="mobileCategoriesOpen"
+                class="drawer-link w-full">
+                <span class="flex items-center justify-between flex-1 min-w-0">
+                    <span class="flex items-center gap-3 min-w-0">
+                        <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-3.75-2.25v-2.25Z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25h-2.25a2.25 2.25 0 0 1-2.25-2.25v-2.25Z"/>
+                        </svg>
+                        Categories
+                    </span>
+                    <svg class="h-4 w-4 text-secondary-400 transition-transform duration-200 shrink-0" :class="mobileCategoriesOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
                     </svg>
-                    Categories
                 </span>
-                <svg class="h-4 w-4 text-secondary-400 transition-transform duration-200" :class="mobileCategoriesOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
-                </svg>
             </button>
             <div x-show="mobileCategoriesOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1" class="mt-1 ml-6 space-y-0.5">
                 @forelse($topCategories as $cat)
@@ -111,64 +115,42 @@
         {{-- Account --}}
         <div class="px-3 py-3 border-b border-secondary-100 dark:border-secondary-700">
             @auth
-                <div class="flex items-center gap-3 px-3 py-2.5 mb-2">
-                    <div class="h-10 w-10 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white text-sm font-bold shadow-sm">
-                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                    </div>
-                    <div>
-                        <p class="text-sm font-semibold text-secondary-900 dark:text-white">{{ auth()->user()->name }}</p>
-                        <p class="text-xs text-secondary-500 dark:text-secondary-400">{{ auth()->user()->email }}</p>
-                    </div>
-                </div>
+                <a href="{{ route('profile.edit') }}" wire:navigate x-on:click="mobileOpen = false"
+                    class="group relative flex items-center gap-3 p-3 mb-2 rounded-2xl bg-gradient-to-br from-secondary-50 to-white dark:from-white/[0.06] dark:to-transparent border border-secondary-200/80 dark:border-white/10 hover:border-primary-300 dark:hover:border-primary-500/40 transition-all shadow-sm">
+                    <span class="ring-2 ring-primary-500/30 group-hover:ring-primary-500/60 rounded-full transition-all">
+                        <x-user-avatar :user="auth()->user()" size="h-10 w-10" text-size="text-sm" />
+                    </span>
+                    <span class="min-w-0 flex-1">
+                        <span class="block truncate text-sm font-semibold text-secondary-900 dark:text-white">{{ auth()->user()->name }}</span>
+                        <span class="block truncate text-xs text-secondary-500 dark:text-secondary-400">{{ auth()->user()->email }}</span>
+                    </span>
+                    <svg class="h-4 w-4 shrink-0 text-secondary-400 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
+                    </svg>
+                </a>
 
                 @if (auth()->user()->role === 'customer')
                     <a href="{{ route('customer.orders.index') }}" wire:navigate x-on:click="mobileOpen = false"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-secondary-700 dark:text-secondary-300 hover:bg-secondary-50 dark:hover:bg-white/5 transition-colors">
-                        <svg class="h-5 w-5 text-secondary-400 dark:text-secondary-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        class="drawer-link">
+                        <svg class="h-5 w-5 text-secondary-400 dark:text-secondary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15a2.25 2.25 0 0 1 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z"/>
                         </svg>
                         My Orders
                     </a>
                 @endif
                 <a href="{{ route('frontend.favorites') }}" wire:navigate x-on:click="mobileOpen = false"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-secondary-700 dark:text-secondary-300 hover:bg-secondary-50 dark:hover:bg-white/5 transition-colors">
-                    <svg class="h-5 w-5 text-secondary-400 dark:text-secondary-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    class="drawer-link">
+                    <svg class="h-5 w-5 text-secondary-400 dark:text-secondary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"/>
                     </svg>
                     My Favorites
-                </a>
-                @if (auth()->user()->role === 'super_admin')
-                    <a href="{{ route('superadmin.dashboard') }}" x-on:click="mobileOpen = false"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-secondary-700 dark:text-secondary-300 hover:bg-secondary-50 dark:hover:bg-white/5 transition-colors">
-                        <svg class="h-5 w-5 text-secondary-400 dark:text-secondary-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v18m-9-9h18"/>
-                        </svg>
-                        Super Admin Panel
-                    </a>
-                @endif
-                @if (in_array(auth()->user()->role, ['admin', 'super_admin']))
-                    <a href="{{ route('admin.dashboard') }}" x-on:click="mobileOpen = false"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-secondary-700 dark:text-secondary-300 hover:bg-secondary-50 dark:hover:bg-white/5 transition-colors">
-                        <svg class="h-5 w-5 text-secondary-400 dark:text-secondary-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.56.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.893.149c-.425.07-.765.383-.93.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.397.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.273-.806.108-1.204-.165-.397-.505-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854.108-1.204l.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
-                        </svg>
-                        Admin Panel
-                    </a>
-                @endif
-                <a href="{{ route('profile.edit') }}" wire:navigate x-on:click="mobileOpen = false"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-secondary-700 dark:text-secondary-300 hover:bg-secondary-50 dark:hover:bg-white/5 transition-colors">
-                    <svg class="h-5 w-5 text-secondary-400 dark:text-secondary-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
-                    </svg>
-                    Profile
                 </a>
                 <div class="mx-3 my-2 border-t border-secondary-100 dark:border-secondary-700"></div>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" x-on:click="mobileOpen = false"
-                        class="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        class="drawer-link w-full text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10">
+                        <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15"/>
                         </svg>
                         Sign Out
@@ -176,57 +158,58 @@
                 </form>
             @else
                 <a href="{{ route('login') }}" x-on:click="mobileOpen = false"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-secondary-700 dark:text-secondary-300 hover:bg-secondary-50 dark:hover:bg-white/5 transition-colors">
-                    <svg class="h-5 w-5 text-secondary-400 dark:text-secondary-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    class="drawer-link">
+                    <svg class="h-5 w-5 text-secondary-400 dark:text-secondary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"/>
                     </svg>
                     Sign In
                 </a>
                 <a href="{{ route('register') }}" x-on:click="mobileOpen = false"
-                    class="flex items-center justify-center gap-2 mt-2 px-4 py-2.5 rounded-btn bg-primary-500 text-white text-sm font-semibold hover:bg-primary-600 transition-colors">
+                    class="flex items-center justify-center gap-2 mt-2 min-h-[44px] px-4 py-2.5 rounded-btn bg-primary-500 text-white text-sm font-semibold hover:bg-primary-600 active:scale-[0.98] transition-all">
                     Create Account
                 </a>
             @endauth
         </div>
 
-        {{-- Bottom Utilities --}}
-        <div class="px-3 py-4">
+        {{-- Preferences --}}
+        <div class="px-3 py-3">
+            <p class="px-3 pb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-secondary-400 dark:text-secondary-500">{{ __('Preferences') }}</p>
             <button x-on:click="$store.theme.toggle(); mobileOpen = false"
-                class="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-secondary-700 dark:text-secondary-300 hover:bg-secondary-50 dark:hover:bg-white/5 transition-colors">
-                <svg x-show="$store.theme.current === 'light'" class="h-5 w-5 text-secondary-400 dark:text-secondary-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                class="drawer-link w-full">
+                <svg x-show="$store.theme.current === 'light'" class="h-5 w-5 text-secondary-400 dark:text-secondary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"/>
                 </svg>
-                <svg x-show="$store.theme.current === 'dark'" class="h-5 w-5 text-secondary-400 dark:text-secondary-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="display: none;">
+                <svg x-show="$store.theme.current === 'dark'" class="h-5 w-5 text-secondary-400 dark:text-secondary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="display: none;">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"/>
                 </svg>
-                <span x-text="$store.theme.current === 'light' ? 'Dark Mode' : 'Light Mode'"></span>
+                <span class="flex-1 text-left" x-text="$store.theme.current === 'light' ? 'Dark Mode' : 'Light Mode'"></span>
             </button>
 
-            <div class="flex items-center gap-2 px-3 py-2.5">
+            <div class="flex items-center gap-2 px-3 min-h-[44px]">
                 <svg class="h-5 w-5 text-secondary-400 dark:text-secondary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5a17.92 17.92 0 0 1-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418"/>
                 </svg>
                 <div class="flex gap-1">
                     <button x-on:click="$store.i18n.setLocale('en')"
-                        class="px-2.5 py-1 rounded text-xs font-semibold transition-colors"
+                        class="min-h-[32px] px-3 rounded-lg text-xs font-semibold transition-colors"
                         :class="$store.i18n.locale === 'en' ? 'bg-primary-500 text-white' : 'bg-secondary-100 dark:bg-white/5 text-secondary-600 dark:text-secondary-400'">EN</button>
                     <button x-on:click="$store.i18n.setLocale('ja')"
-                        class="px-2.5 py-1 rounded text-xs font-semibold transition-colors"
+                        class="min-h-[32px] px-3 rounded-lg text-xs font-semibold transition-colors"
                         :class="$store.i18n.locale === 'ja' ? 'bg-primary-500 text-white' : 'bg-secondary-100 dark:bg-white/5 text-secondary-600 dark:text-secondary-400'">JA</button>
                     <button x-on:click="$store.i18n.setLocale('ne')"
-                        class="px-2.5 py-1 rounded text-xs font-semibold transition-colors"
+                        class="min-h-[32px] px-3 rounded-lg text-xs font-semibold transition-colors"
                         :class="$store.i18n.locale === 'ne' ? 'bg-primary-500 text-white' : 'bg-secondary-100 dark:bg-white/5 text-secondary-600 dark:text-secondary-400'">NE</button>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2 px-3 py-2.5">
+            <div class="flex items-center gap-2 px-3 min-h-[44px]">
                 <svg class="h-5 w-5 text-secondary-400 dark:text-secondary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
                 </svg>
-                <div class="flex gap-1" x-data>
+                <div class="flex flex-wrap gap-1" x-data>
                     <template x-for="(config, code) in window.currencyConfig" :key="code">
                         <button x-on:click="$store.currency.set(code)"
-                            class="px-2.5 py-1 rounded text-xs font-semibold transition-colors"
+                            class="min-h-[32px] px-3 rounded-lg text-xs font-semibold transition-colors"
                             :class="$store.currency.code === code ? 'bg-primary-500 text-white' : 'bg-secondary-100 dark:bg-white/5 text-secondary-600 dark:text-secondary-400'"
                             x-text="config.symbol + code"></button>
                     </template>
@@ -234,9 +217,53 @@
             </div>
         </div>
 
+        {{-- Administration --}}
+        @if (auth()->check() && in_array(auth()->user()->role, ['admin', 'super_admin']))
+            <div class="px-3 py-3 border-t border-secondary-100 dark:border-secondary-700">
+                <p class="px-3 pb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-secondary-400 dark:text-secondary-500">{{ __('Administration') }}</p>
+                <div class="grid grid-cols-1 gap-2">
+                    @if (auth()->user()->role === 'super_admin')
+                        <a href="{{ route('superadmin.dashboard') }}" wire:navigate x-on:click="mobileOpen = false"
+                            class="group flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-purple-50 to-fuchsia-50 dark:from-purple-500/10 dark:to-fuchsia-500/5 border border-purple-200/60 dark:border-purple-500/20 hover:border-purple-400 dark:hover:border-purple-400/50 transition-all">
+                            <span class="h-9 w-9 shrink-0 inline-flex items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-fuchsia-600 text-white shadow-sm">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v18m-9-9h18"/>
+                                </svg>
+                            </span>
+                            <span class="min-w-0 flex-1">
+                                <span class="block text-sm font-semibold text-secondary-900 dark:text-white">Super Admin Panel</span>
+                                <span class="block text-xs text-secondary-500 dark:text-secondary-400">Full platform control</span>
+                            </span>
+                            <svg class="h-4 w-4 text-purple-400 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
+                            </svg>
+                        </a>
+                    @endif
+                    @if (in_array(auth()->user()->role, ['admin', 'super_admin']))
+                        <a href="{{ route('admin.dashboard') }}" wire:navigate x-on:click="mobileOpen = false"
+                            class="group flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-primary-50 to-indigo-50 dark:from-primary-500/10 dark:to-indigo-500/5 border border-primary-200/60 dark:border-primary-500/20 hover:border-primary-400 dark:hover:border-primary-400/50 transition-all">
+                            <span class="h-9 w-9 shrink-0 inline-flex items-center justify-center rounded-lg bg-gradient-to-br from-primary-500 to-indigo-600 text-white shadow-sm">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                                </svg>
+                            </span>
+                            <span class="min-w-0 flex-1">
+                                <span class="block text-sm font-semibold text-secondary-900 dark:text-white">Admin Panel</span>
+                                <span class="block text-xs text-secondary-500 dark:text-secondary-400">Store management</span>
+                            </span>
+                            <svg class="h-4 w-4 text-primary-400 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
+                            </svg>
+                        </a>
+                    @endif
+                </div>
+            </div>
+        @endif
+
         {{-- Footer --}}
-        <div class="px-5 py-4 border-t border-secondary-100 dark:border-secondary-700 mt-auto">
-            <p class="text-xs text-secondary-400 dark:text-secondary-500 text-center">&copy; {{ date('Y') }} {{ config('app.name', 'Your Brand') }}. All rights reserved.</p>
+        <div class="px-5 py-4 border-t border-secondary-100 dark:border-secondary-700">
+            <p class="text-xs text-secondary-400 dark:text-secondary-500 text-center">&copy; {{ date('Y') }} {{ site_name() }}. All rights reserved.</p>
         </div>
     </div>
 </template>

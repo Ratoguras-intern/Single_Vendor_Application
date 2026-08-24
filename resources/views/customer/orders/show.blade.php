@@ -1,6 +1,6 @@
 @extends('layouts.frontend')
 
-@section('title', 'Order #' . $order->order_number . ' - NBK Vertex')
+@section('title', 'Order #' . $order->order_number . ' - ' . site_name())
 
 @php
     use App\Support\OrderStatuses;

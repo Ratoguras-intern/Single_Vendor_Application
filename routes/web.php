@@ -21,14 +21,13 @@ use App\Http\Controllers\Admin\SaleBannerController;
 use App\Http\Controllers\Customer\ReviewController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Customer\ReturnController as CustomerReturnController;
-use App\Http\Controllers\Frontend\AboutController;
+use App\Http\Controllers\Frontend\ContactController;
 use App\Http\Controllers\Api\CartController as ApiCartController;
 use App\Http\Controllers\Api\FavoriteController as ApiFavoriteController;
 use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\TranslationController;
 use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Frontend\CheckoutController;
-use App\Http\Controllers\Frontend\ContactController;
 use App\Http\Controllers\Frontend\FavoriteController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\PageController as FrontendPageController;
@@ -85,9 +84,7 @@ Route::prefix('api')->name('api.')->middleware('auth')->group(function () {
     Route::post('/favorites/{productId}', [ApiFavoriteController::class, 'toggle'])->name('favorites.toggle');
     Route::delete('/favorites/{productId}', [ApiFavoriteController::class, 'destroy'])->name('favorites.destroy');
 });
-Route::get('/contact', ContactController::class)->name('frontend.contact');
 Route::post('/contact', [ContactController::class, 'store'])->name('frontend.contact.store');
-Route::get('/about', AboutController::class)->name('frontend.about');
 
 require __DIR__.'/auth.php';
 
@@ -223,6 +220,18 @@ Route::middleware(['auth', 'admin'])
         Route::patch('/pages/{page}/toggle-status', [PageController::class, 'toggleStatus'])->name('pages.toggleStatus');
         Route::resource('pages', PageController::class);
 
+        // Content: FAQ, Blog, Careers, Press, Shipping, Inbox, Settings
+        Route::resource('faq-categories', \App\Http\Controllers\Admin\FaqCategoryController::class)->except(['show']);
+        Route::resource('faqs', \App\Http\Controllers\Admin\FaqController::class)->except(['show']);
+        Route::resource('post-categories', \App\Http\Controllers\Admin\PostCategoryController::class)->only(['index', 'store', 'edit', 'update', 'destroy']);
+        Route::resource('posts', \App\Http\Controllers\Admin\PostController::class)->except(['show']);
+        Route::resource('jobs', \App\Http\Controllers\Admin\JobController::class)->except(['show']);
+        Route::resource('press-releases', \App\Http\Controllers\Admin\PressReleaseController::class)->except(['show']);
+        Route::resource('shipping-methods', \App\Http\Controllers\Admin\ShippingMethodController::class)->except(['show']);
+        Route::resource('contact-messages', \App\Http\Controllers\Admin\ContactMessageController::class)->only(['index', 'show', 'destroy']);
+        Route::get('/content-settings', [\App\Http\Controllers\Admin\ContentSettingsController::class, 'edit'])->name('content-settings.edit');
+        Route::put('/content-settings', [\App\Http\Controllers\Admin\ContentSettingsController::class, 'update'])->name('content-settings.update');
+
         // Footer
         Route::get('/footer', [FooterController::class, 'edit'])->name('footer.edit');
         Route::put('/footer/{homepageSection}', [FooterController::class, 'update'])->name('footer.update');
@@ -268,5 +277,14 @@ Route::middleware(['auth', 'admin'])
             Route::patch('/navigations/{navigation}/toggle', [NavigationController::class, 'toggleMenu'])->name('navigations.toggleMenu');
     });
 });
+
+// Named aliases kept for existing references (newsletter, mobile nav, etc.)
+Route::get('/contact', fn () => redirect()->route('frontend.page', 'contact-us'))->name('frontend.contact');
+Route::get('/about', fn () => redirect()->route('frontend.page', 'about-us'))->name('frontend.about');
+
+// CMS-driven content pages
+Route::get('/blog/{post}', [FrontendPageController::class, 'blogPost'])->name('frontend.blog.post');
+Route::get('/careers/{job}', [FrontendPageController::class, 'career'])->name('frontend.careers.show');
+Route::get('/press/{release}', [FrontendPageController::class, 'pressRelease'])->name('frontend.press.show');
 
 Route::get('/{slug}', [FrontendPageController::class, 'show'])->name('frontend.page')->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*');

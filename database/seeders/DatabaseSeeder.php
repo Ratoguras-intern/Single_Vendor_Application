@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             HomepageSeeder::class,
             FeaturedHomepageCategorySeeder::class,
             PageSeeder::class,
+            ContentSeeder::class,
             NavigationSeeder::class,
         ]);
     }

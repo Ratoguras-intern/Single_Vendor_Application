@@ -4,7 +4,7 @@
 <div>
     <div class="mb-6">
         <h2 class="text-xl font-bold text-gray-800 dark:text-white">Branding Settings</h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage your website logo displayed across header, footer, and auth pages</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage your brand name, logo, and favicon displayed across the site</p>
     </div>
 
     @if(session('success'))
@@ -25,9 +25,10 @@
         </div>
     @endif
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {{-- Current Logo --}}
-        <div class="lg:col-span-2">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        {{-- Previews --}}
+        <div class="lg:col-span-2 space-y-6">
+            {{-- Current Logo --}}
             <div class="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6">
                 <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Current Logo</h3>
 
@@ -84,7 +85,7 @@
                     <div class="flex flex-col items-center justify-center py-10 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
                         <div class="h-16 w-16 rounded-xl bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-700 flex items-center justify-center mb-3">
                             @php
-                                $appName = config('app.name', 'Your Brand');
+                                $appName = site_name();
                                 $words = explode(' ', $appName);
                                 $initials = strtoupper(collect($words)->map(fn($w) => $w[0] ?? '')->take(2)->join(''));
                             @endphp
@@ -95,10 +96,83 @@
                     </div>
                 @endif
             </div>
+
+            {{-- Current Favicon --}}
+            <div class="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Current Favicon</h3>
+
+                @if($faviconUrl)
+                    <div class="flex items-center gap-6">
+                        <div class="shrink-0 flex items-end gap-3">
+                            <div class="h-16 w-16 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center p-2 overflow-hidden">
+                                <img src="{{ $faviconUrl }}" alt="Current favicon" class="max-h-full max-w-full object-contain">
+                            </div>
+                            <div class="hidden sm:flex flex-col gap-2">
+                                <span class="inline-flex items-center gap-1 rounded-md bg-gray-100 dark:bg-gray-800 px-2 py-1 text-[10px] font-medium text-gray-600 dark:text-gray-300">
+                                    <span class="h-3 w-3 rounded-sm bg-white ring-1 ring-gray-300 dark:ring-gray-600 inline-flex items-center justify-center overflow-hidden">
+                                        <img src="{{ $faviconUrl }}" alt="" class="h-full w-full object-contain">
+                                    </span>
+                                    Tab
+                                </span>
+                                <span class="inline-flex items-center gap-1 rounded-md bg-gray-900 px-2 py-1 text-[10px] font-medium text-gray-300">
+                                    <span class="h-3 w-3 rounded-sm bg-white inline-flex items-center justify-center overflow-hidden">
+                                        <img src="{{ $faviconUrl }}" alt="" class="h-full w-full object-contain">
+                                    </span>
+                                    Bookmark
+                                </span>
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Shown in browser tabs, bookmarks, and history.</p>
+                            <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Remove it from the Favicon panel on the right if needed.</p>
+                        </div>
+                    </div>
+                @elseif($logoUrl)
+                    <div class="flex items-center gap-4 py-2">
+                        <span class="h-8 w-8 rounded-md ring-1 ring-gray-300 dark:ring-gray-600 inline-flex items-center justify-center overflow-hidden bg-white shrink-0">
+                            <img src="{{ $logoUrl }}" alt="" class="h-full w-full object-contain">
+                        </span>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">No dedicated favicon — the logo is used as a fallback.</p>
+                    </div>
+                @else
+                    <div class="py-6 text-center border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">No favicon set</p>
+                        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">The built-in default icon is used</p>
+                    </div>
+                @endif
+            </div>
         </div>
 
-        {{-- Logo Picker Panel --}}
-        <div class="lg:col-span-1">
+        {{-- Controls --}}
+        <div class="lg:col-span-1 space-y-6">
+            {{-- Brand Name --}}
+            <div class="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Brand Name</h3>
+
+                <form method="POST" action="{{ route('admin.branding.update') }}">
+                    @csrf
+                    @method('PUT')
+
+                    <label for="site_name" class="block text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1.5">Display Name</label>
+                    <input type="text" id="site_name" name="site_name"
+                        value="{{ old('site_name', \site_name()) }}"
+                        maxlength="50"
+                        class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-sm text-gray-800 dark:text-white focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition-colors"
+                        placeholder="{{ config('app.name', 'NBK Vertex') }}">
+                    @error('site_name')
+                        <p class="mt-2 text-xs text-red-500 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+
+                    <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">Shown next to the logo and in page titles. Leave empty to use the default app name.</p>
+
+                    <button type="submit"
+                        class="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-700 transition-colors">
+                        Save Name
+                    </button>
+                </form>
+            </div>
+
+            {{-- Logo --}}
             <div class="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6">
                 <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">{{ $logoUrl ? 'Replace Logo' : 'Upload Logo' }}</h3>
 
@@ -121,13 +195,43 @@
                     </button>
                 </form>
 
-                {{-- Recommended specs --}}
-                <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Recommended</h4>
+                <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                     <ul class="space-y-1 text-xs text-gray-500 dark:text-gray-400">
-                        <li>Max width: 200px</li>
-                        <li>Transparent PNG or SVG</li>
-                        <li>Max file size: 2MB</li>
+                        <li>&bull; Max width: 200px</li>
+                        <li>&bull; Transparent PNG or SVG</li>
+                        <li>&bull; Max file size: 2MB</li>
+                    </ul>
+                </div>
+            </div>
+
+            {{-- Favicon --}}
+            <div class="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">{{ $faviconUrl ? 'Replace Favicon' : 'Upload Favicon' }}</h3>
+
+                <form method="POST" action="{{ route('admin.branding.update') }}" enctype="multipart/form-data"
+                    x-data
+                    @media-picker:select.window="if ($event.detail.name === 'favicon_media_id' && $event.detail.media.length) { window.dispatchEvent(new CustomEvent('toast', { detail: { message: 'Favicon selected — click Save Favicon to apply.', type: 'success' } })); }">
+                    @csrf
+                    @method('PUT')
+
+                    <x-media-picker.picker name="favicon_media_id" :preview="$faviconUrl" folder="logos"
+                        remove-name="remove_favicon"
+                        help="Square image, 32x32 or larger." />
+                    @error('favicon_media_id')
+                        <p class="mt-2 text-xs text-red-500 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+
+                    <button type="submit"
+                        class="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-700 transition-colors">
+                        {{ $faviconUrl ? 'Save Favicon' : 'Set Favicon' }}
+                    </button>
+                </form>
+
+                <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <ul class="space-y-1 text-xs text-gray-500 dark:text-gray-400">
+                        <li>&bull; Square, 32x32px minimum</li>
+                        <li>&bull; PNG with transparency</li>
+                        <li>&bull; Falls back to the logo</li>
                     </ul>
                 </div>
             </div>

@@ -10,7 +10,10 @@
 
 @section('content')
     <div class="mb-6 flex items-center justify-between">
-        <h2 class="text-xl font-bold text-gray-800 dark:text-white">Customer: {{ $customer->name }}</h2>
+        <h2 class="flex items-center gap-3 text-xl font-bold text-gray-800 dark:text-white">
+            <x-user-avatar :user="$customer" size="h-10 w-10" text-size="text-sm" />
+            Customer: {{ $customer->name }}
+        </h2>
         <div class="flex items-center gap-2">
             <a href="{{ route('admin.customers.orders', $customer) }}" class="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.03]">
                 View Orders

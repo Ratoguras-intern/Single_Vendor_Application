@@ -107,13 +107,13 @@
                             <td class="px-5 py-4">
                                 <div class="flex items-center gap-2">
                                     <button onclick="togglePage({{ $page->id }})"
-                                        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors
+                                        class="relative inline-flex h-6 w-11 shrink-0 items-center overflow-hidden rounded-full transition-colors
                                             {{ $page->status === 'published' ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600' }}"
                                         title="{{ $page->status === 'published' ? 'Unpublish' : 'Publish' }}">
                                         <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform
                                             {{ $page->status === 'published' ? 'translate-x-6' : 'translate-x-1' }}"></span>
                                     </button>
-                                    <span class="text-xs font-medium {{ $page->status === 'published' ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400' }}">
+                                    <span class="whitespace-nowrap text-xs font-medium {{ $page->status === 'published' ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400' }}">
                                         {{ ucfirst($page->status) }}
                                     </span>
                                 </div>

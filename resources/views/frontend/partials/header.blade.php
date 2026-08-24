@@ -54,13 +54,21 @@
             updateHeight();
             window.addEventListener('scroll', updateHeight, { passive: true });
             window.addEventListener('resize', updateHeight);
+            const bar = $el.previousElementSibling;
+            const targets = bar ? [$el, bar] : [$el];
+            const observer = new ResizeObserver(updateHeight);
+            targets.forEach(t => observer.observe(t));
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(updateHeight);
+            }
+            window.addEventListener('announcement:dismissed', updateHeight);
         });
     "
     :class="isScrolled ? 'scrolled' : ''"
     class="navbar"
     role="banner">
 
-    <div class="section py-3">
+    <div class="section py-2.5 sm:py-3">
         <div class="flex items-center justify-between gap-4 lg:gap-6">
 
             {{-- LEFT: Logo + Nav Links --}}
@@ -283,11 +291,11 @@
             </div>
 
             {{-- RIGHT: Icons --}}
-            <div class="flex items-center gap-0.5 sm:gap-1 shrink-0">
+            <div class="flex items-center gap-1 shrink-0">
 
                 {{-- Mobile search toggle --}}
                 <button x-on:click.stop="searchOpen = !searchOpen"
-                    class="md:hidden p-2 rounded-full hover:bg-secondary-100 dark:hover:bg-white/5 transition-colors text-secondary-600 dark:text-secondary-400"
+                    class="navbar-icon-btn md:hidden"
                     aria-label="Search">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <circle cx="11" cy="11" r="8"/>
@@ -297,7 +305,7 @@
 
                 {{-- Dark mode toggle --}}
                 <button x-on:click="$store.theme.toggle()"
-                    class="p-2 rounded-full hover:bg-secondary-100 dark:hover:bg-white/5 transition-colors text-secondary-600 dark:text-secondary-400"
+                    class="navbar-icon-btn"
                     aria-label="Toggle theme">
                     <template x-if="$store.theme.current === 'light'">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"/></svg>
@@ -310,7 +318,7 @@
                 {{-- Currency --}}
                 <div class="hidden sm:block relative">
                     <button x-on:click="currencyOpen = !currencyOpen"
-                        class="p-2 rounded-full hover:bg-secondary-100 dark:hover:bg-white/5 transition-colors text-secondary-600 dark:text-secondary-400"
+                        class="navbar-icon-btn"
                         aria-label="Select currency" :aria-expanded="currencyOpen">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
                     </button>
@@ -336,7 +344,7 @@
                 {{-- Language --}}
                 <div class="hidden sm:block relative">
                     <button x-on:click="langOpen = !langOpen"
-                        class="p-2 rounded-full hover:bg-secondary-100 dark:hover:bg-white/5 transition-colors text-secondary-600 dark:text-secondary-400"
+                        class="navbar-icon-btn"
                         aria-label="Select language" :aria-expanded="langOpen">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5a17.92 17.92 0 0 1-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418"/></svg>
                     </button>
@@ -361,7 +369,7 @@
 
                 {{-- Wishlist --}}
                 <a href="{{ route('frontend.favorites') }}" wire:navigate
-                    class="relative p-2 rounded-full hover:bg-secondary-100 dark:hover:bg-white/5 transition-all duration-200 group text-secondary-600 dark:text-secondary-400"
+                    class="navbar-icon-btn group"
                     aria-label="Favorites">
                     <svg class="h-5 w-5 group-hover:text-secondary-900 dark:group-hover:text-white transition-colors"
                         fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -379,7 +387,7 @@
                     x-on:mouseenter="openCart()"
                     x-on:mouseleave="closeCart()">
                     <a href="{{ route('frontend.cart') }}"
-                        class="relative p-2 rounded-full hover:bg-secondary-100 dark:hover:bg-white/5 transition-all duration-200 group text-secondary-600 dark:text-secondary-400"
+                        class="navbar-icon-btn group"
                         aria-label="Shopping cart"
                         @click.prevent="if(window.innerWidth >= 1024) { cartOpen = !cartOpen } else { window.location='{{ route('frontend.cart') }}' }">
                         <span class="relative inline-flex">
@@ -405,9 +413,7 @@
                             <button x-on:click="userMenuOpen = !userMenuOpen"
                                 class="inline-flex items-center gap-2 whitespace-nowrap rounded-btn text-sm font-medium transition-colors h-8 px-2.5 hover:bg-secondary-100 dark:hover:bg-white/5"
                                 aria-label="User menu" :aria-expanded="userMenuOpen">
-                                <div class="h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold text-white bg-gradient-to-br from-primary-500 to-primary-600 shadow-sm">
-                                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                                </div>
+                                <x-user-avatar :user="auth()->user()" size="h-7 w-7" text-size="text-xs" />
                                 <svg class="h-3 w-3 text-secondary-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
                                 </svg>
@@ -479,7 +485,7 @@
 
                 {{-- Mobile hamburger --}}
                 <button x-on:click="mobileOpen = !mobileOpen"
-                    class="lg:hidden p-2 rounded-full hover:bg-secondary-100 dark:hover:bg-white/5 transition-colors text-secondary-600 dark:text-secondary-400"
+                    class="navbar-icon-btn lg:hidden"
                     aria-label="Toggle navigation menu" :aria-expanded="mobileOpen">
                     <template x-if="!mobileOpen">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -501,7 +507,7 @@
         {{-- Mobile Search Bar --}}
         <div x-show="searchOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2"
             x-effect="if (searchOpen && window.innerWidth < 768 && $refs.mobileSearchInput) { $nextTick(() => $refs.mobileSearchInput.focus()) }"
-            class="md:hidden border-t border-secondary-100 dark:border-secondary-700 bg-white dark:bg-secondary-900 px-4 py-1.5 relative"
+            class="md:hidden border-t border-secondary-100 dark:border-secondary-700 bg-white dark:bg-secondary-900 px-4 py-2 relative"
             style="display: none;">
             <form action="{{ route('frontend.shop') }}" method="GET" class="relative">
                 <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-secondary-400 dark:text-secondary-500 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -513,7 +519,7 @@
                     x-on:blur="setTimeout(() => { searchFocused = false }, 200)"
                     x-ref="mobileSearchInput"
                     placeholder="Search products..." autocomplete="off"
-                    class="w-full pl-10 pr-10 py-2 rounded-xl border border-secondary-200 dark:border-secondary-600 bg-secondary-50 dark:bg-secondary-800 text-sm text-secondary-900 dark:text-white placeholder:text-secondary-400 dark:placeholder:text-secondary-500 focus:border-primary-500 dark:focus:border-primary-400 focus:bg-white dark:focus:bg-secondary-700 transition-all"
+                    class="w-full pl-10 pr-10 py-2.5 rounded-xl border border-secondary-200 dark:border-secondary-600 bg-secondary-50 dark:bg-secondary-800 text-sm text-secondary-900 dark:text-white placeholder:text-secondary-400 dark:placeholder:text-secondary-500 focus:border-primary-500 dark:focus:border-primary-400 focus:bg-white dark:focus:bg-secondary-700 transition-all"
                     aria-label="Search products">
                 <button type="button" x-show="searchQuery.length > 0" x-on:click="searchQuery = ''; searchResults = []; searchCategories = []"
                     class="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-secondary-200 dark:hover:bg-secondary-700 transition-colors text-secondary-400 dark:text-secondary-500"

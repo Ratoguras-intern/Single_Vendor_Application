@@ -84,6 +84,7 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'discount_price' => 'nullable|numeric|min:0|lt:price',
+            'discount_percent' => 'nullable|numeric|min:0|max:100',
             'stock' => 'required|integer|min:0',
             'sku' => 'required|string|max:255|unique:products,sku',
             'category_id' => 'required|exists:categories,id',
@@ -103,6 +104,11 @@ class ProductController extends Controller
             'is_popular' => 'nullable|boolean',
             'is_limited_edition' => 'nullable|boolean',
         ]);
+
+        if (!empty($validated['discount_percent'])) {
+            $validated['discount_price'] = round($validated['price'] * (1 - $validated['discount_percent'] / 100), 2);
+        }
+        unset($validated['discount_percent']);
 
         if (empty($validated['slug'])) {
             $validated['slug'] = Str::slug($validated['name']);
@@ -175,6 +181,7 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'discount_price' => 'nullable|numeric|min:0|lt:price',
+            'discount_percent' => 'nullable|numeric|min:0|max:100',
             'stock' => 'required|integer|min:0',
             'sku' => 'required|string|max:255|unique:products,sku,'.$product->id,
             'category_id' => 'required|exists:categories,id',
@@ -196,6 +203,11 @@ class ProductController extends Controller
             'is_popular' => 'nullable|boolean',
             'is_limited_edition' => 'nullable|boolean',
         ]);
+
+        if (!empty($validated['discount_percent'])) {
+            $validated['discount_price'] = round($validated['price'] * (1 - $validated['discount_percent'] / 100), 2);
+        }
+        unset($validated['discount_percent']);
 
         if (empty($validated['slug'])) {
             $validated['slug'] = Str::slug($validated['name']);

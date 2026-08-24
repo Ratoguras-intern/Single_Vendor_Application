@@ -1,6 +1,6 @@
 @extends('layouts.frontend')
 
-@section('title', 'Shopping Cart - NBK Vertex')
+@section('title', 'Shopping Cart - ' . site_name())
 
 @section('content')
 <section x-data class="py-8 sm:py-12">

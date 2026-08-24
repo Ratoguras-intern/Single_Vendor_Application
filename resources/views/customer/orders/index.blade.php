@@ -1,6 +1,6 @@
 @extends('layouts.frontend')
 
-@section('title', 'My Orders - NBK Vertex')
+@section('title', 'My Orders - ' . site_name())
 
 @php
     use App\Models\ProductReview;

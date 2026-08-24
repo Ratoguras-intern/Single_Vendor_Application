@@ -34,7 +34,7 @@
     </style>
 
     <div
-        x-data="orderDetail({{ $order->id }}, '{{ $order->status }}', {{ $currentStep ?? 'null' }}, '{{ $order->payment_status }}')"
+        x-data="orderDetail({{ $order->id }}, '{{ $order->status }}', {{ $currentStep ?? 'null' }}, '{{ $order->payment_status }}', {{ $order->status === \App\Support\OrderStatuses::DELIVERED ? 'true' : 'false' }})"
         class="print-area space-y-6"
     >
         {{-- Header --}}
@@ -78,9 +78,10 @@
                                 <div class="absolute top-5 -left-1/2 right-1/2 h-1 -translate-y-1/2"
                                     :class="({{ $index }} <= currentStep) ? 'bg-brand-500' : 'bg-gray-200 dark:bg-gray-700'"></div>
                             @endif
-                            <button type="button" @click="updateStatus('{{ $status }}')"
-                                :title="'Set status to {{ ucfirst($status) }}'"
-                                class="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all"
+                            <button type="button" @click="!isLocked && updateStatus('{{ $status }}')"
+                                :disabled="isLocked"
+                                :title="isLocked ? 'Delivered orders are locked' : 'Set status to {{ ucfirst($status) }}'"
+                                class="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all disabled:cursor-not-allowed"
                                 :class="{
                                     'border-brand-500 bg-brand-500 text-white': {{ $index }} < currentStep,
                                     'border-brand-500 bg-white text-brand-600 dark:bg-gray-900 dark:text-brand-400': {{ $index }} === currentStep,
@@ -104,7 +105,13 @@
                 </ol>
 
                 <div class="mt-6 flex flex-wrap items-center gap-2 border-t border-gray-200 pt-4 dark:border-gray-800 print:hidden">
-                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Quick actions:</span>
+                    <template x-if="isLocked">
+                        <div class="flex w-full items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
+                            <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            This order has been delivered. Status is locked and can no longer be changed.
+                        </div>
+                    </template>
+                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400" x-show="!isLocked">Quick actions:</span>
                     <template x-if="currentStep !== null && nextStatus">
                         <button type="button" @click="updateStatus(nextStatus)" class="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600">
                             Mark as <span class="capitalize" x-text="nextStatusLabel">Packed</span>
@@ -343,12 +350,13 @@
 
     @push('scripts')
         <script data-turbo-eval>
-            window.orderDetail = function orderDetail(orderId, status, step, paymentStatus) {
+            window.orderDetail = function orderDetail(orderId, status, step, paymentStatus, isLocked) {
                 return {
                     orderId,
                     status,
                     currentStep: step,
                     paymentStatus,
+                    isLocked: !!isLocked,
                     editingTracking: false,
                     trackingCarrier: '{{ addslashes($order->tracking_carrier ?? '') }}',
                     trackingNumber: '{{ addslashes($order->tracking_number ?? '') }}',

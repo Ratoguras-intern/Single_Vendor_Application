@@ -5,6 +5,9 @@
             <span class="block text-sm font-semibold text-gray-800 dark:text-white">{{ Auth::user()->name ?? 'Admin' }}</span>
             <span class="block text-xs text-gray-500 dark:text-gray-400">{{ Str::headline(Auth::user()->role ?? 'admin') }}</span>
         </span>
+        @if(Auth::check())
+            <x-user-avatar :user="Auth::user()" size="h-9 w-9" text-size="text-xs" class="hidden sm:block" />
+        @endif
         <svg class="hidden sm:block" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -12,9 +15,14 @@
 
     <div x-show="open" @click.away="open = false" x-transition
         class="absolute right-0 mt-2 w-56 rounded-lg border border-gray-200 bg-white py-2 shadow-lg dark:border-gray-800 dark:bg-gray-900 z-50">
-        <div class="px-4 py-2 border-b border-gray-100 dark:border-gray-800">
-            <p class="text-sm font-semibold text-gray-800 dark:text-white">{{ Auth::user()->name ?? 'Admin' }}</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400">{{ Auth::user()->email ?? '' }}</p>
+        <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+            @if(Auth::check())
+                <x-user-avatar :user="Auth::user()" size="h-10 w-10" text-size="text-sm" />
+            @endif
+            <div class="min-w-0">
+                <p class="text-sm font-semibold text-gray-800 dark:text-white truncate">{{ Auth::user()->name ?? 'Admin' }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ Auth::user()->email ?? '' }}</p>
+            </div>
         </div>
         <div class="py-1">
             <a href="{{ route('profile.edit') }}" data-turbo="false" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/[0.03]">

@@ -1,6 +1,6 @@
 @extends('layouts.frontend')
 
-@section('title', 'Home - NBK Vertex')
+@section('title', 'Home - ' . site_name())
 
 @php
     $sortedSections = $sections->sortBy('sort_order');

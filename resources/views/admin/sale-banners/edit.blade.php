@@ -30,6 +30,16 @@
         <form action="{{ route('admin.sale-banners.update', $saleBanner) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
+            @if ($errors->any())
+                <div class="mx-6 mt-4 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-300">
+                    <p class="mb-1 font-semibold">Please fix the following:</p>
+                    <ul class="list-disc pl-5">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             <div class="p-6">
                 <div x-show="tab === 'content'" x-cloak>
                     <div class="space-y-5">

@@ -26,32 +26,54 @@ class BrandingController extends Controller
             ];
         }
 
-        return view('admin.branding.edit', compact('logoPath', 'logoUrl', 'logoMeta'));
+        $faviconPath = Setting::get('site_favicon');
+        $faviconUrl = ($faviconPath && Storage::disk('public')->exists($faviconPath))
+            ? Storage::disk('public')->url($faviconPath)
+            : null;
+
+        return view('admin.branding.edit', compact(
+            'logoPath', 'logoUrl', 'logoMeta',
+            'faviconPath', 'faviconUrl'
+        ));
     }
 
     public function update(Request $request)
     {
         $validated = $request->validate([
+            'site_name' => 'nullable|string|max:50',
             'logo_media_id' => 'nullable|integer|exists:media,id',
+            'favicon_media_id' => 'nullable|integer|exists:media,id',
         ]);
 
-        $oldPath = Setting::get('site_logo');
+        if (array_key_exists('site_name', $validated)) {
+            $name = trim($validated['site_name']);
 
+            if ($name === '') {
+                Setting::forget('site_name');
+            } else {
+                Setting::set('site_name', $name);
+            }
+        }
+
+        $this->handleLogo($request, $validated);
+        $this->handleFavicon($request, $validated);
+
+        return redirect()->route('admin.branding.edit')
+            ->with('success', 'Branding updated successfully.');
+    }
+
+    protected function handleLogo(Request $request, array $validated): void
+    {
         // Picker "Remove" action — clear the logo without deleting a
         // media-tracked file (shared assets are never removed implicitly).
-        if ($request->boolean('remove_logo') && empty($validated['logo_media_id'])) {
-            if ($oldPath) {
-                $this->deleteOldLogo($oldPath, '');
-                Setting::forget('site_logo');
-            }
+        if ($request->boolean('remove_logo') && empty($validated['logo_media_id'] ?? null)) {
+            Setting::forget('site_logo');
 
-            return redirect()->route('admin.branding.edit')
-                ->with('success', 'Logo removed. The site now uses the default text-based brand.');
+            return;
         }
 
         if (empty($validated['logo_media_id'])) {
-            return redirect()->route('admin.branding.edit')
-                ->with('info', 'Choose an image from the media library to update the logo.');
+            return;
         }
 
         // Selection from the media library — reference the stored file,
@@ -59,29 +81,23 @@ class BrandingController extends Controller
         $media = Media::findOrFail($validated['logo_media_id']);
 
         Setting::set('site_logo', $media->path);
-        $this->deleteOldLogo($oldPath, $media->path);
-
-        return redirect()->route('admin.branding.edit')
-            ->with('success', 'Logo updated successfully.');
     }
 
-    /**
-     * Remove the previous logo file unless it is tracked in the media
-     * library (shared assets must never be deleted implicitly).
-     */
-    protected function deleteOldLogo(?string $oldPath, string $newPath): void
+    protected function handleFavicon(Request $request, array $validated): void
     {
-        if (!$oldPath || $oldPath === $newPath) {
+        if ($request->boolean('remove_favicon') && empty($validated['favicon_media_id'] ?? null)) {
+            Setting::forget('site_favicon');
+
             return;
         }
 
-        if (Media::where('path', $oldPath)->exists()) {
+        if (empty($validated['favicon_media_id'])) {
             return;
         }
 
-        if (Storage::disk('public')->exists($oldPath)) {
-            Storage::disk('public')->delete($oldPath);
-        }
+        $media = Media::findOrFail($validated['favicon_media_id']);
+
+        Setting::set('site_favicon', $media->path);
     }
 
     public function destroy()

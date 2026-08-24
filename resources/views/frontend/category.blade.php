@@ -1,7 +1,7 @@
 @extends('layouts.frontend')
 
 @php
-    $seoTitle = $category->seo_title ?: $category->name . ' - ' . config('app.name');
+    $seoTitle = $category->seo_title ?: $category->name . ' - ' . site_name();
     $seoDesc = $category->seo_description ?: $category->description;
 @endphp
 

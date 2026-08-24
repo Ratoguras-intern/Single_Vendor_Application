@@ -61,10 +61,10 @@
     <div class="border-t border-gray-200 dark:border-gray-800 pt-5">
         <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Countdown</h4>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div>
-                <label for="countdown_end_date" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">End Date</label>
-                <input type="date" name="countdown_end_date" id="countdown_end_date" value="{{ old('countdown_end_date', $banner?->countdown_end_date ?? '') }}"
-                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+            <div class="md:col-span-3">
+                <x-date-picker name="countdown_end_date" label="End Date"
+                    value="{{ old('countdown_end_date', $banner?->countdown_end_date ?? '') }}"
+                    help="Pick the last day of the countdown. Falls back to the banner end date when empty." />
             </div>
             <div>
                 <label for="countdown_end_time" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">End Time</label>

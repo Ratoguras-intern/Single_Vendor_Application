@@ -56,7 +56,7 @@
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $saleBanner->featuredProduct?->name ?? '—' }}</td>
                             <td class="px-5 py-4">
                                 <div class="flex items-center gap-2">
-                                    <button onclick="toggleSaleBanner({{ $saleBanner->id }})" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors
+                                    <button onclick="toggleSaleBanner({{ $saleBanner->id }})" class="relative inline-flex h-6 w-11 shrink-0 items-center overflow-hidden rounded-full transition-colors
                                         {{ $saleBanner->is_enabled ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600' }}">
                                         <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform
                                             {{ $saleBanner->is_enabled ? 'translate-x-6' : 'translate-x-1' }}"></span>

@@ -1,6 +1,6 @@
 @extends('layouts.frontend')
 
-@section('title', 'Return ' . $return->return_number . ' - NBK Vertex')
+@section('title', 'Return ' . $return->return_number . ' - ' . site_name())
 
 @php
     use App\Support\ReturnStatuses;

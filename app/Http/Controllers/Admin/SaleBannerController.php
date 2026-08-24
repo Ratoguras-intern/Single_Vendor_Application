@@ -177,7 +177,7 @@ class SaleBannerController extends Controller
             'text_color' => 'nullable|string|max:50',
             'show_countdown' => 'boolean',
             'countdown_end_date' => 'nullable|date',
-            'countdown_end_time' => 'nullable|date_format:H:i',
+            'countdown_end_time' => 'nullable|date_format:H:i,H:i:s',
             'countdown_timezone' => 'nullable|string|max:64',
             'enable_badge' => 'boolean',
             'enable_product_image' => 'boolean',

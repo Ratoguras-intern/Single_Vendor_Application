@@ -3,6 +3,17 @@
 use App\Services\CurrencyService;
 use Illuminate\Support\Facades\Storage;
 
+if (! function_exists('site_name')) {
+    /**
+     * Display name of the site, manageable from the branding panel.
+     * Falls back to the application config name.
+     */
+    function site_name(): string
+    {
+        return (string) (\App\Models\Setting::get('site_name') ?? config('app.name', 'NBK Vertex'));
+    }
+}
+
 if (! function_exists('admin_currency')) {
     function admin_currency(): string
     {

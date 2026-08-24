@@ -12,7 +12,7 @@
         use App\Support\OrderStatuses;
         $allStatuses = OrderStatuses::all();
         $allPaymentStatuses = ['pending', 'paid', 'failed', 'cod'];
-        $hasFilters = request()->filled('status') || request()->filled('payment_status') || request()->filled('month');
+        $hasFilters = request()->filled('status') || request()->filled('payment_status') || request()->filled('month') || request()->filled('date_from') || request()->filled('date_to');
     @endphp
 
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-6">
@@ -52,6 +52,10 @@
                 <label for="month" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Month</label>
                 <input type="month" name="month" id="month" value="{{ request('month') }}"
                     class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+            </div>
+            <div class="min-w-0 w-full sm:min-w-[270px] sm:w-[270px]">
+                <x-date-picker mode="range" label="Order Date" start-name="date_from" end-name="date_to"
+                    value="{{ trim(request('date_from') . ',' . request('date_to'), ',') }}" />
             </div>
             <div class="flex gap-2">
                 <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600">

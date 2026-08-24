@@ -50,7 +50,7 @@
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $section->max_products }}</td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ ucfirst($section->layout) }}</td>
                             <td class="px-5 py-4">
-                                <button onclick="toggleSection({{ $section->id }})" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors
+                                <button onclick="toggleSection({{ $section->id }})" class="relative inline-flex h-6 w-11 shrink-0 items-center overflow-hidden rounded-full transition-colors
                                     {{ $section->is_enabled ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600' }}">
                                     <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform
                                         {{ $section->is_enabled ? 'translate-x-6' : 'translate-x-1' }}"></span>

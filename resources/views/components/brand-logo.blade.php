@@ -8,7 +8,7 @@
 ])
 
 @php
-    $appName = config('app.name', 'Your Brand');
+    $appName = site_name();
     $words = explode(' ', $appName);
     $initials = strtoupper(collect($words)->map(fn($w) => $w[0] ?? '')->take(2)->join(''));
 

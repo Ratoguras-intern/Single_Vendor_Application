@@ -7,6 +7,28 @@
     display: none !important;
 }
 
+/* ─── Tiptap editor base (v3) ─────────────────────────────── */
+.tiptap {
+    outline: none;
+    white-space: pre-wrap;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+    color: #9ca3af;
+}
+.dark .tiptap p.is-editor-empty:first-child::before {
+    color: #6b7280;
+}
+
+/* Selected text inside the editor must not bleed over the toolbar */
+.tiptap ::selection {
+    background: rgba(59, 130, 246, 0.3);
+}
+
 @layer utilities {
     .no-scrollbar::-webkit-scrollbar {
         display: none;

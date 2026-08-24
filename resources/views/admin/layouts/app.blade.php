@@ -5,8 +5,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="turbo-cache-control" content="no-preview">
 
-    <title>{{ $title ?? 'Dashboard' }} | NBK Vertex</title>
+    <title>{{ $title ?? 'Dashboard' }} | {{ site_name() }}</title>
+    @include('partials.favicon')
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/admin.js'])

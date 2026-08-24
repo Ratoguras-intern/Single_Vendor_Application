@@ -76,9 +76,9 @@
     class="home-section"
 >
     <div class="section">
-        <div class="relative overflow-hidden rounded-card shadow-mega bg-secondary-900 dark:bg-secondary-800" role="region" aria-roledescription="carousel">
+        <div class="group/carousel relative overflow-hidden rounded-card bg-secondary-950 shadow-mega dark:bg-secondary-900" role="region" aria-roledescription="carousel">
             <div
-                class="flex transition-transform duration-700 ease-out"
+                class="flex transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
                 :style="'transform: translateX(-' + (current * 100) + '%)'"
             >
                 @foreach($banners as $i => $banner)
@@ -100,39 +100,47 @@
                         $r = hexdec(substr($oc, 0, 2) ?: '00');
                         $g = hexdec(substr($oc, 2, 2) ?: '00');
                         $b = hexdec(substr($oc, 4, 2) ?: '00');
-                        $alpha = max(0, min(100, (int) ($banner->overlay_opacity ?? 40))) / 100;
-                        $alphaBottom = $alpha * 0.35;
+                        $alpha = max(20, min(90, (int) ($banner->overlay_opacity ?? 55))) / 100;
+
                         $overlayGradient = $bgImage
-                            ? "linear-gradient(90deg, rgba({$r},{$g},{$b},{$alpha}) 0%, rgba({$r},{$g},{$b},0) 100%)"
-                            : "linear-gradient(180deg, rgba({$r},{$g},{$b},{$alpha}) 0%, rgba({$r},{$g},{$b},{$alphaBottom}) 100%)";
+                            ? "linear-gradient(90deg, rgba({$r},{$g},{$b},{$alpha}) 0%, rgba({$r},{$g},{$b},{$alpha}) 38%, rgba({$r},{$g},{$b}," . round($alpha * 0.25, 3) . ") 100%)"
+                            : null;
 
                         $link = $banner->link ?? ($banner->featuredProduct ? route('frontend.product.show', $banner->featuredProduct->id) : '#');
                         $productName = $banner->featuredProduct?->name ?? ($banner->title ?? '');
                     @endphp
                     <div
                         :class="active.has({{ $i }}) ? 'opacity-100' : 'opacity-0 pointer-events-none'"
-                        class="relative w-full shrink-0 min-h-[480px] sm:min-h-[440px] lg:min-h-[560px] overflow-hidden {{ $banner->visibility_classes }} transition-opacity duration-500"
+                        class="relative w-full shrink-0 min-h-[440px] sm:min-h-[420px] lg:min-h-[500px] overflow-hidden transition-opacity duration-700 {{ $banner->visibility_classes }}"
                         role="group"
                         :aria-roledescription="'slide'"
                         :aria-label="'Slide {{ $i + 1 }} of {{ $total }}'"
-                        aria-hidden="{{ $i > 0 ? 'true' : 'false' }}"
                         :aria-hidden="current === {{ $i }} ? 'false' : 'true'"
                         @if($banner->section_margin_css) style="{{ $banner->section_margin_css }}" @endif
                     >
+                        {{-- Backdrop --}}
                         <div class="absolute inset-0" @if($bgImage) style="background-image: url('{{ $bgImage }}'); background-size: cover; background-position: {{ $banner->image_position_css }};" @endif></div>
 
                         @if(! $bgImage && $banner->background_style)
                             <div class="absolute inset-0" style="{{ $banner->background_style }}"></div>
                         @endif
 
-                        @if($showOverlay)
-                            <div class="absolute inset-0 z-[1]" aria-hidden="true" style="background: {{ $overlayGradient }};"></div>
+                        @if(! $bgImage)
+                            <div class="absolute inset-0" aria-hidden="true" style="background:
+                                radial-gradient(ellipse 60% 80% at 85% 15%, rgba(255,255,255,0.08) 0%, transparent 55%),
+                                radial-gradient(ellipse 45% 65% at 10% 95%, rgba(255,255,255,0.05) 0%, transparent 60%);"></div>
                         @endif
 
-                        <div class="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-white/10 blur-3xl" aria-hidden="true"></div>
-                        <div class="absolute right-1/4 bottom-0 h-64 w-64 rounded-full bg-white/5 blur-3xl" aria-hidden="true"></div>
+                        @if($showOverlay && $overlayGradient)
+                            <div class="absolute inset-0 z-[1]" aria-hidden="true" style="background: {{ $overlayGradient }};"></div>
+                        @elseif($showOverlay)
+                            <div class="absolute inset-0 z-[1] bg-secondary-950/{{ max(10, (int) ($banner->overlay_opacity ?? 55)) }}"></div>
+                        @endif
 
-                        <div class="relative z-10 flex flex-col lg:flex-row items-center gap-8 lg:gap-12 px-6 py-10 sm:px-10 sm:py-14 lg:px-16 lg:py-14">
+                        <div class="absolute inset-x-0 top-0 z-[2] h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" aria-hidden="true"></div>
+
+                        {{-- Content --}}
+                        <div class="relative z-10 mx-auto flex h-full min-h-[inherit] w-full max-w-7xl flex-col justify-center px-6 py-12 sm:px-10 lg:flex-row lg:items-center lg:gap-16 lg:px-14 lg:py-16">
                             <div class="w-full lg:flex-1 {{ $verticalClasses[$banner->content_vertical ?? 'center'] ?? 'justify-center' }} flex flex-col">
                                 <div
                                     class="w-full max-w-xl"
@@ -140,56 +148,62 @@
                                     x-data="bannerCountdown('{{ $endIso }}', {{ $autoHide }}, {{ $i }})"
                                 >
                                     @if($banner->enable_badge && $banner->badge)
-                                        <span class="inline-flex items-center gap-2 rounded-full {{ $banner->badge_color ?? 'bg-primary-500' }} px-4 py-1.5 mb-4 sm:mb-5 self-start" :class="current === {{ $i }} ? 'animate-in' : 'opacity-0'">
-                                            <span class="h-1.5 w-1.5 rounded-full bg-white animate-pulse" aria-hidden="true"></span>
-                                            <span class="text-xs font-bold text-white tracking-wider uppercase">{{ $banner->badge }}</span>
-                                        </span>
+                                        <p class="mb-5 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/70" :class="current === {{ $i }} ? 'animate-in' : 'opacity-0'">
+                                            <span class="h-px w-8 bg-amber-400/80" aria-hidden="true"></span>
+                                            {{ $banner->badge }}
+                                        </p>
                                     @endif
 
-                                    <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight leading-[1.1] {{ $textColor }}" :class="current === {{ $i }} ? 'animate-in' : 'opacity-0'">{{ $banner->title }}</h2>
+                                    <h2 class="font-display text-4xl font-semibold leading-[1.05] tracking-tight {{ $textColor }} sm:text-5xl lg:text-[3.4rem]" :class="current === {{ $i }} ? 'animate-in' : 'opacity-0'">{{ $banner->title }}</h2>
+
+                                    @if($banner->subtitle)
+                                        <p class="mt-4 text-lg font-medium tracking-wide {{ $textColor }}/90 sm:text-xl" :class="current === {{ $i }} ? 'animate-in-delay-1' : 'opacity-0'">{{ $banner->subtitle }}</p>
+                                    @endif
 
                                     @if($banner->description)
-                                        <p class="mt-3 sm:mt-4 text-base sm:text-lg lg:text-xl leading-relaxed {{ $textColor }}/85" :class="current === {{ $i }} ? 'animate-in-delay-1' : 'opacity-0'">{{ $banner->description }}</p>
+                                        <p class="mt-3 max-w-md text-base leading-relaxed {{ $textColor }}/65" :class="current === {{ $i }} ? 'animate-in-delay-1' : 'opacity-0'">{{ $banner->description }}</p>
                                     @endif
 
                                     @if($banner->show_countdown && $endIso)
-                                        <div class="mt-5 sm:mt-6" :class="current === {{ $i }} ? 'animate-in-delay-2' : 'opacity-0'" x-show="show">
-                                            <div class="banner-countdown">
-                                                <div class="banner-countdown-unit"><span class="banner-countdown-value {{ $textColor }}" x-text="days"></span><span class="banner-countdown-label">Days</span></div>
-                                                <div class="banner-countdown-unit"><span class="banner-countdown-value {{ $textColor }}" x-text="hours"></span><span class="banner-countdown-label">Hours</span></div>
-                                                <div class="banner-countdown-unit"><span class="banner-countdown-value {{ $textColor }}" x-text="minutes"></span><span class="banner-countdown-label">Mins</span></div>
-                                                <div class="banner-countdown-unit"><span class="banner-countdown-value {{ $textColor }}" x-text="seconds"></span><span class="banner-countdown-label">Secs</span></div>
+                                        <div class="mt-7" :class="current === {{ $i }} ? 'animate-in-delay-2' : 'opacity-0'" x-show="show">
+                                            <div class="flex items-end gap-6 sm:gap-7">
+                                                <div><span class="block font-display text-2xl font-semibold tabular-nums leading-none {{ $textColor }} sm:text-3xl" x-text="days"></span><span class="mt-1.5 block text-[10px] font-medium uppercase tracking-[0.18em] {{ $textColor }}/50">Days</span></div>
+                                                <span class="pb-3.5 text-lg {{ $textColor }}/25" aria-hidden="true">&middot;</span>
+                                                <div><span class="block font-display text-2xl font-semibold tabular-nums leading-none {{ $textColor }} sm:text-3xl" x-text="hours"></span><span class="mt-1.5 block text-[10px] font-medium uppercase tracking-[0.18em] {{ $textColor }}/50">Hours</span></div>
+                                                <span class="pb-3.5 text-lg {{ $textColor }}/25" aria-hidden="true">&middot;</span>
+                                                <div><span class="block font-display text-2xl font-semibold tabular-nums leading-none {{ $textColor }} sm:text-3xl" x-text="minutes"></span><span class="mt-1.5 block text-[10px] font-medium uppercase tracking-[0.18em] {{ $textColor }}/50">Mins</span></div>
+                                                <span class="pb-3.5 text-lg {{ $textColor }}/25" aria-hidden="true">&middot;</span>
+                                                <div><span class="block font-display text-2xl font-semibold tabular-nums leading-none {{ $textColor }} sm:text-3xl" x-text="seconds"></span><span class="mt-1.5 block text-[10px] font-medium uppercase tracking-[0.18em] {{ $textColor }}/50">Secs</span></div>
                                             </div>
                                         </div>
                                     @endif
 
-                                    <div class="mt-5 sm:mt-6" x-show="expired">
-                                        <span class="inline-flex items-center gap-2 rounded-full bg-red-500/15 border border-red-400/40 px-4 py-1.5 text-sm font-semibold {{ $textColor }}">
-                                            <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>
-                                            Sale Ended
+                                    <div class="mt-7" x-show="expired">
+                                        <span class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-sm font-medium {{ $textColor }}">
+                                            This offer has ended
                                         </span>
                                     </div>
 
                                     @if($banner->enable_prices && $currentPrice !== null)
-                                        <div class="mt-5 sm:mt-6 flex items-center gap-3 flex-wrap" :class="current === {{ $i }} ? 'animate-in-delay-2' : 'opacity-0'">
-                                            <span class="font-display text-3xl sm:text-4xl font-bold {{ $textColor }}"><span x-text="$store.currency.format({{ $currentPrice }})"></span></span>
+                                        <div class="mt-7 flex flex-wrap items-baseline gap-x-4 gap-y-1" :class="current === {{ $i }} ? 'animate-in-delay-2' : 'opacity-0'">
+                                            <span class="font-display text-3xl font-bold tracking-tight {{ $textColor }} tabular-nums sm:text-4xl"><span x-text="$store.currency.format({{ $currentPrice }})"></span></span>
                                             @if($originalPrice !== null)
-                                                <span class="text-lg sm:text-xl {{ $textColor }}/60 line-through"><span x-text="$store.currency.format({{ $originalPrice }})"></span></span>
+                                                <span class="text-lg {{ $textColor }}/45 line-through tabular-nums"><span x-text="$store.currency.format({{ $originalPrice }})"></span></span>
                                             @endif
                                             @if($discount)
-                                                <span class="inline-flex items-center rounded-full bg-red-500 px-2.5 py-1 text-xs font-bold text-white animate-countdown-pulse">-{{ $discount }}% OFF</span>
+                                                <span class="self-center rounded-sm bg-amber-400 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-secondary-950">{{ $discount }}% off</span>
                                             @endif
                                         </div>
                                     @endif
 
                                     @if($banner->enable_buttons)
-                                        <div class="mt-6 sm:mt-8 flex flex-col sm:flex-row w-full sm:w-auto items-start gap-4" :class="current === {{ $i }} ? 'animate-in-delay-3' : 'opacity-0'">
-                                            <a href="{{ $link }}" :disabled="expired" :class="expired ? 'opacity-40 pointer-events-none' : ''" class="btn-primary btn-lg w-full sm:w-auto justify-center shadow-lg shadow-primary-500/25">
+                                        <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4" :class="current === {{ $i }} ? 'animate-in-delay-3' : 'opacity-0'">
+                                            <a href="{{ $link }}" :disabled="expired" :class="expired ? 'pointer-events-none opacity-40' : ''" class="btn-primary btn-lg w-full justify-center text-sm font-semibold uppercase tracking-[0.12em] sm:w-auto">
                                                 {{ $banner->button_text ?: 'Shop Now' }}
-                                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+                                                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
                                             </a>
                                             @if($banner->secondary_button_text)
-                                                <a href="{{ $banner->secondary_button_url ?: '#' }}" class="btn bg-white/10 {{ $textColor }} hover:bg-white/20 border border-white/20 btn-lg w-full sm:w-auto justify-center backdrop-blur-sm">{{ $banner->secondary_button_text }}</a>
+                                                <a href="{{ $banner->secondary_button_url ?: '#' }}" class="btn btn-lg w-full justify-center border border-white/25 bg-transparent {{ $textColor }} backdrop-blur-sm hover:border-white/50 hover:bg-white/10 sm:w-auto">{{ $banner->secondary_button_text }}</a>
                                             @endif
                                         </div>
                                     @endif
@@ -197,18 +211,19 @@
                             </div>
 
                             @if($productImage)
-                                <div class="relative w-full max-w-[240px] sm:max-w-xs lg:w-[38%] lg:max-w-none flex items-center justify-center shrink-0" :class="current === {{ $i }} ? 'animate-in-delay-2' : 'opacity-0'">
-                                    <div class="absolute inset-0 m-auto h-56 w-56 sm:h-72 sm:w-72 lg:h-[380px] lg:w-[380px] rounded-full bg-white/15 blur-3xl animate-pulse" aria-hidden="true"></div>
+                                <div class="relative mt-10 flex w-full shrink-0 items-center justify-center lg:mt-0 lg:w-[34%]" :class="current === {{ $i }} ? 'animate-in-delay-2' : 'opacity-0'">
+                                    <div class="absolute h-64 w-64 rounded-full bg-white/[0.06] blur-2xl sm:h-80 sm:w-80" aria-hidden="true"></div>
                                     @if($discount)
-                                        <span class="absolute -top-3 right-6 z-20 inline-flex items-center rounded-full bg-red-500 px-3 py-1.5 text-xs font-bold text-white shadow-lg animate-countdown-pulse">-{{ $discount }}%</span>
+                                        <span class="absolute -top-2 right-4 z-20 flex h-16 w-16 rotate-6 items-center justify-center rounded-full border border-secondary-950/10 bg-amber-400 text-center font-display text-sm font-bold leading-tight text-secondary-950 shadow-xl sm:right-10 lg:-top-4">-{{ $discount }}%</span>
                                     @endif
                                     <img
                                         src="{{ $productImage }}"
                                         alt="{{ $productName }}"
-                                        class="relative z-10 w-56 h-56 sm:w-72 sm:h-72 lg:h-[380px] lg:w-[380px] rounded-full object-cover shadow-2xl ring-4 ring-white/20 animate-float"
+                                        class="relative z-10 aspect-square w-56 rounded-2xl object-cover shadow-[0_32px_64px_-24px_rgba(0,0,0,0.55)] ring-1 ring-white/15 sm:w-72 lg:w-[340px]"
                                         @if($i === 0) fetchpriority="high" @else loading="lazy" decoding="async" @endif
                                         onerror="this.onerror=null;this.src='{{ asset('frontend-assets/images/no-image.jpg') }}';"
                                     >
+                                    <div class="absolute bottom-2 left-1/2 z-10 h-4 w-40 -translate-x-1/2 rounded-[100%] bg-black/40 blur-md" aria-hidden="true"></div>
                                 </div>
                             @endif
                         </div>
@@ -216,17 +231,23 @@
                 @endforeach
             </div>
 
-            <button x-on:click="prev()" aria-label="Previous sale banner" class="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-20 h-11 w-11 rounded-full bg-white/10 backdrop-blur-sm {{ $banners->first()->text_color ?? 'text-white' }} hover:bg-white/25 transition-all flex items-center justify-center border border-white/20">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
+            {{-- Controls --}}
+            <button x-on:click="prev()" aria-label="Previous sale banner" class="absolute left-4 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-secondary-950/30 text-white opacity-0 backdrop-blur-md transition-all duration-300 hover:bg-secondary-950/60 focus-visible:opacity-100 group-hover/carousel:opacity-100 md:flex">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
             </button>
-            <button x-on:click="next()" aria-label="Next sale banner" class="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-20 h-11 w-11 rounded-full bg-white/10 backdrop-blur-sm {{ $banners->first()->text_color ?? 'text-white' }} hover:bg-white/25 transition-all flex items-center justify-center border border-white/20">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
+            <button x-on:click="next()" aria-label="Next sale banner" class="absolute right-4 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-secondary-950/30 text-white opacity-0 backdrop-blur-md transition-all duration-300 hover:bg-secondary-950/60 focus-visible:opacity-100 group-hover/carousel:opacity-100 md:flex">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
             </button>
 
-            <div class="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2.5" role="tablist" aria-label="Sale banners">
-                @foreach($banners as $i => $banner)
-                    <button x-show="active.has({{ $i }})" x-on:click="goTo({{ $i }})" :aria-label="'Go to sale banner ' + ({{ $i }} + 1)" :aria-current="current === {{ $i }} ? 'true' : undefined" :class="current === {{ $i }} ? 'w-8 bg-primary-500' : 'w-2.5 bg-white/50 hover:bg-white/75'" class="h-2.5 rounded-full transition-all duration-300"></button>
-                @endforeach
+            <div class="absolute bottom-5 left-6 z-20 flex items-center gap-4 sm:left-10 lg:left-14" role="tablist" aria-label="Sale banners">
+                <span class="font-display text-xs font-semibold tabular-nums text-white/80" aria-hidden="true">
+                    <span x-text="String(current + 1).padStart(2, '0')"></span>&thinsp;/&thinsp;<span x-text="String(total).padStart(2, '0')"></span>
+                </span>
+                <div class="flex items-center gap-2">
+                    @foreach($banners as $i => $banner)
+                        <button x-show="active.has({{ $i }})" x-on:click="goTo({{ $i }})" :aria-label="'Go to sale banner ' + ({{ $i }} + 1)" :aria-current="current === {{ $i }} ? 'true' : undefined" :class="current === {{ $i }} ? 'w-7 bg-amber-400' : 'w-2 bg-white/35 hover:bg-white/60'" class="h-1 rounded-full transition-all duration-300"></button>
+                    @endforeach
+                </div>
             </div>
         </div>
     </div>

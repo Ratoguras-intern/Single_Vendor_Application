@@ -22,6 +22,14 @@ class OrderController extends Controller
             $query->where('payment_status', $request->payment_status);
         }
 
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $request->date_from)) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $request->date_to)) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
         if ($request->filled('month')) {
             $date = \Carbon\Carbon::parse($request->month . '-01');
             $query->whereYear('created_at', $date->year)
@@ -56,6 +64,10 @@ class OrderController extends Controller
 
         if (!array_key_exists($field, $validFields) || !in_array($value, $validFields[$field])) {
             return response()->json(['message' => 'Invalid field or value.'], 422);
+        }
+
+        if ($field === 'status' && $order->status === OrderStatuses::DELIVERED) {
+            return response()->json(['message' => 'This order has been delivered. Its status is locked and can no longer be changed.'], 422);
         }
 
         $oldValue = $order->$field;

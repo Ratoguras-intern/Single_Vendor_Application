@@ -1,6 +1,6 @@
 @extends('layouts.frontend')
 
-@section('title', $product['name'] . ' - NBK Vertex')
+@section('title', $product['name'] . ' - ' . site_name())
 
 @section('content')
 <section class="py-8 sm:py-12">

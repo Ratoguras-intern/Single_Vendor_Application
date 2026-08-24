@@ -1,6 +1,6 @@
 @php
     $footerSect = app(\App\Models\HomepageSection::class)->getCached()->get('premium-footer');
-    $companyName = $footerSect?->config['company_name'] ?? 'NBK Vertex';
+    $companyName = $footerSect?->config['company_name'] ?? site_name();
     $companyDesc = $footerSect?->config['company_description'] ?? 'A powerful e-commerce management platform. Streamline operations, boost sales, and scale your business with confidence.';
     $address = $footerSect?->config['address'] ?? '123 Fashion Street, Style City, SC 12345';
     $phone = $footerSect?->config['phone'] ?? '+1 (555) 123-4567';
@@ -19,9 +19,6 @@
 
     $defaultColumns = [
         ['heading' => 'Shop', 'links' => ['All Products', 'New Arrivals', 'Sale', 'Featured']],
-        ['heading' => 'Customer Care', 'links' => ['Contact Us', 'Help Center', 'Shipping Info', 'Returns & Exchanges']],
-        ['heading' => 'Company', 'links' => ['About Us', 'Careers', 'Blog', 'Press']],
-        ['heading' => 'Legal', 'links' => ['Privacy Policy', 'Terms & Conditions', 'Cookie Policy', 'Accessibility']],
     ];
     $footerColumns = !empty($footerColumns) ? $footerColumns : $defaultColumns;
 
@@ -32,15 +29,18 @@
         'Featured' => route('frontend.shop') . '?featured=1',
     ];
 
-    // Dynamically resolve CMS page URLs from their slugs
-    $footerPageMap = \App\Models\Page::forFooter()->pluck('slug', 'title')->toArray();
-    foreach ($footerColumns as $col) {
-        foreach ($col['links'] as $link) {
-            if (!isset($footerLinkUrls[$link]) && isset($footerPageMap[$link])) {
-                $footerLinkUrls[$link] = '/' . $footerPageMap[$link];
-            }
-        }
-    }
+    // Link columns driven by CMS pages grouped by footer_section
+    $pageSections = [
+        'Customer Care' => \App\Models\Page::getFooterPages('customer-care'),
+        'Company' => \App\Models\Page::getFooterPages('company'),
+        'Legal' => \App\Models\Page::getFooterPages('legal'),
+    ];
+
+    // Drop legacy static columns now managed as CMS page sections
+    $footerColumns = collect($footerColumns)
+        ->reject(fn ($col) => array_key_exists($col['heading'] ?? '', $pageSections))
+        ->values()
+        ->all();
 
     $paymentBadges = collect(config('payments.badges', []))->filter(fn ($badge) => !empty($badge['enabled']))->keys();
 @endphp
@@ -103,6 +103,21 @@
                             @endforeach
                         </ul>
                     </div>
+                @endforeach
+
+                @foreach($pageSections as $sectionHeading => $sectionPages)
+                    @if($sectionPages->isNotEmpty())
+                        <div>
+                            <h4 class="text-sm font-semibold mb-4 uppercase tracking-wider text-secondary-900 dark:text-white">{{ $sectionHeading }}</h4>
+                            <ul class="space-y-2.5">
+                                @foreach($sectionPages as $footerPage)
+                                    <li>
+                                        <a href="/{{ $footerPage->slug }}" class="text-sm text-secondary-500 dark:text-secondary-400 hover:text-secondary-900 dark:hover:text-white transition-colors inline-block">{{ $footerPage->title }}</a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                 @endforeach
             </div>
         </div>

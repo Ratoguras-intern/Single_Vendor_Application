@@ -15,7 +15,7 @@
             <p class="text-sm text-gray-500 dark:text-gray-400">Slug: <code class="text-xs bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">{{ $menu->slug }}</code></p>
         </div>
         <button onclick="toggleMenu({{ $menu->id }})"
-            class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors
+            class="relative inline-flex h-6 w-11 shrink-0 items-center overflow-hidden rounded-full transition-colors
                 {{ $menu->is_enabled ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600' }}">
             <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform
                 {{ $menu->is_enabled ? 'translate-x-6' : 'translate-x-1' }}"></span>

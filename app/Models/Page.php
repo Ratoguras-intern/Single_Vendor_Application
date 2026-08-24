@@ -9,15 +9,33 @@ use Illuminate\Support\Str;
 
 class Page extends Model
 {
+    public const TEMPLATES = [
+        '' => 'Default (Document)',
+        'contact' => 'Contact Us',
+        'help-center' => 'Help Center',
+        'shipping-info' => 'Shipping Info',
+        'returns' => 'Returns & Exchanges',
+        'about' => 'About Us',
+        'careers' => 'Careers',
+        'blog' => 'Blog',
+        'press' => 'Press',
+    ];
+
     protected $fillable = [
         'title',
+        'subtitle',
         'slug',
+        'template',
         'footer_section',
         'short_description',
         'content',
         'featured_image',
         'seo_title',
         'seo_description',
+        'canonical_url',
+        'og_title',
+        'og_description',
+        'og_image',
         'status',
         'show_in_footer',
         'footer_order',
@@ -76,15 +94,25 @@ class Page extends Model
 
     public function getFeaturedImageUrlAttribute(): ?string
     {
-        if (! $this->featured_image) {
+        return $this->mediaUrl($this->featured_image);
+    }
+
+    public function getOgImageUrlAttribute(): ?string
+    {
+        return $this->mediaUrl($this->og_image) ?? $this->featured_image_url;
+    }
+
+    protected function mediaUrl(?string $path): ?string
+    {
+        if (! $path) {
             return null;
         }
 
-        if (str_starts_with($this->featured_image, 'http')) {
-            return $this->featured_image;
+        if (str_starts_with($path, 'http')) {
+            return $path;
         }
 
-        return asset('storage/'.$this->featured_image);
+        return asset('storage/'.$path);
     }
 
     public static function getFooterPages(string $section): \Illuminate\Support\Collection
