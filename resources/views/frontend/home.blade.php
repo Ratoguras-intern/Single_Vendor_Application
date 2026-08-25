@@ -19,7 +19,7 @@
     @elseif($slug === 'trust-bar')
         @include('frontend.home.trust-bar')
     @elseif($slug === 'shop-by-category')
-        @include('frontend.home.shop-by-category')
+        @include('frontend.home.subcategories')
         @include('frontend.home.featured-collections')
     @elseif($slug === 'featured-products')
         @include('frontend.home.featured-products')

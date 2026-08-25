@@ -61,12 +61,14 @@
 
                 toggleMobileOpen() {
                     this.isMobileOpen = !this.isMobileOpen;
-                    document.body.classList.toggle('overflow-hidden', this.isMobileOpen);
+                    const el = document.getElementById('admin-content-area');
+                    if (el) el.classList.toggle('overflow-hidden', this.isMobileOpen);
                 },
 
                 setMobileOpen(val) {
                     this.isMobileOpen = val;
-                    document.body.classList.toggle('overflow-hidden', val);
+                    const el = document.getElementById('admin-content-area');
+                    if (el) el.classList.toggle('overflow-hidden', val);
                 },
 
                 setHovered(val) {
@@ -142,11 +144,11 @@
     @include('common.preloader')
     {{-- preloader end --}}
 
-    <div class="min-h-screen xl:flex">
+    <div class="xl:flex h-screen overflow-hidden">
         @include('admin.layouts.partials.backdrop')
         @include('admin.layouts.sidebar')
 
-        <div class="flex-1 transition-[margin-left] duration-300 ease-in-out"
+        <div id="admin-content-area" class="flex-1 h-screen overflow-y-auto transition-[margin-left] duration-300 ease-in-out"
             :class="{
                 'xl:ml-[290px]': $store.sidebar.isExpanded || $store.sidebar.isHovered,
                 'xl:ml-[90px]': !$store.sidebar.isExpanded && !$store.sidebar.isHovered,

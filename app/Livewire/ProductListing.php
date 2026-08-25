@@ -228,8 +228,7 @@ class ProductListing extends Component
         $trending = Product::with(['images', 'brand'])
             ->active()
             ->whereIn('category_id', $ids)
-            ->withSum('orderItems', 'quantity')
-            ->orderByDesc('order_items_sum_quantity')
+            ->inRandomOrder()
             ->limit($limit)
             ->get()
             ->map(fn ($p) => $this->mapProduct($p))
@@ -240,7 +239,7 @@ class ProductListing extends Component
         $newArrivals = Product::with(['images', 'brand'])
             ->active()
             ->whereIn('category_id', $ids)
-            ->latest()
+            ->inRandomOrder()
             ->limit($limit)
             ->get()
             ->map(fn ($p) => $this->mapProduct($p))
@@ -305,7 +304,7 @@ class ProductListing extends Component
             'name_desc' => $query->orderByDesc('name'),
             'discount' => $query->orderBy('discount_price', 'asc')->orderBy('price', 'desc'),
             'best_selling' => $query->withSum('orderItems', 'quantity')->orderByDesc('order_items_sum_quantity'),
-            default => $query->latest(),
+            default => $query->inRandomOrder(),
         };
     }
 

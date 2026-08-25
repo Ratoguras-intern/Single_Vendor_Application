@@ -48,7 +48,7 @@
 <footer class="border-t border-secondary-200 bg-white dark:border-secondary-700 dark:bg-secondary-900">
     <div class="section">
         <div class="py-10">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-8">
                 <div class="lg:col-span-2">
                     <div class="mb-5">
                         <x-brand-logo subtitle="Commerce Suite" />
@@ -119,6 +119,22 @@
                         </div>
                     @endif
                 @endforeach
+
+                @if(auth()->check() && in_array(auth()->user()->role, ['admin', 'super_admin']))
+                    <div>
+                        <h4 class="text-sm font-semibold mb-4 uppercase tracking-wider text-secondary-900 dark:text-white">Panel</h4>
+                        <ul class="space-y-2.5">
+                            @if(auth()->user()->role === 'super_admin')
+                                <li>
+                                    <a href="{{ route('superadmin.dashboard') }}" class="text-sm text-secondary-500 dark:text-secondary-400 hover:text-secondary-900 dark:hover:text-white transition-colors inline-block">Super Admin Panel</a>
+                                </li>
+                            @endif
+                            <li>
+                                <a href="{{ route('admin.dashboard') }}" class="text-sm text-secondary-500 dark:text-secondary-400 hover:text-secondary-900 dark:hover:text-white transition-colors inline-block">Admin Panel</a>
+                            </li>
+                        </ul>
+                    </div>
+                @endif
             </div>
         </div>
 

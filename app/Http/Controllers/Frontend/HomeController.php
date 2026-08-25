@@ -10,6 +10,7 @@ use App\Models\FeaturedHomepageCategory;
 use App\Models\HomepageSection;
 use App\Models\Product;
 use App\Models\SaleBanner;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Storage;
 
 class HomeController extends Controller
@@ -18,15 +19,15 @@ class HomeController extends Controller
     {
         $sections = HomepageSection::getCached()->filter(fn ($s) => $s->is_enabled);
 
-        $featuredProducts = $this->getFlaggedProducts('featured', 8);
+        $featuredProducts = $this->getFlaggedProducts('featured', $sections->get('featured-products')?->max_products ?? 8);
         $featuredCollections = $this->getFeaturedCollections();
-        $newArrivals = $this->getFlaggedProducts('newArrival', 10);
-        $trendingProducts = $this->getFlaggedProducts('trending', 8);
-        $flashSaleProducts = $this->getFlaggedProducts('flashSale', 8);
-        $bestSellers = $this->getFlaggedProducts('bestSeller', 8);
-        $recommendedProducts = $this->getFlaggedProducts('recommended', 8);
-        $popularProducts = $this->getFlaggedProducts('popular', 8);
-        $categories = $this->getCategories();
+        $newArrivals = $this->getFlaggedProducts('newArrival', $sections->get('new-arrivals')?->max_products ?? 10);
+        $trendingProducts = $this->getFlaggedProducts('trending', $sections->get('trending-products')?->max_products ?? 8);
+        $flashSaleProducts = $this->getFlaggedProducts('flashSale', $sections->get('flash-sale')?->max_products ?? 8);
+        $bestSellers = $this->getFlaggedProducts('bestSeller', $sections->get('best-sellers')?->max_products ?? 8);
+        $recommendedProducts = $this->getFlaggedProducts('recommended', $sections->get('recommended-products')?->max_products ?? 8);
+        $popularProducts = $this->getFlaggedProducts('popular', $sections->get('popular-products')?->max_products ?? 8);
+        $subcategories = $this->getSubcategories();
         $brands = $this->getBrands();
         $heroBanners = Banner::forPosition('hero')->active()->ordered()->get();
         $saleBanners = SaleBanner::running()->ordered()
@@ -48,7 +49,7 @@ class HomeController extends Controller
             'bestSellers',
             'recommendedProducts',
             'popularProducts',
-            'categories',
+            'subcategories',
             'brands',
             'heroBanners',
             'saleBanners',
@@ -64,8 +65,9 @@ class HomeController extends Controller
     {
         $products = Product::active()
             ->with(['images', 'brand'])
+            ->onSale()
             ->{$scope}()
-            ->latest()
+            ->inRandomOrder()
             ->limit($limit)
             ->get();
 
@@ -84,9 +86,10 @@ class HomeController extends Controller
 
                 $products = $category->products()
                     ->active()
+                    ->onSale()
                     ->with(['images', 'brand'])
-                    ->latest()
-                    ->limit(4)
+                    ->inRandomOrder()
+                    ->limit((int) Setting::get('limits.featured_collection_products', 4))
                     ->get();
 
                 return [
@@ -105,12 +108,14 @@ class HomeController extends Controller
             ->toArray();
     }
 
-    protected function getCategories(): array
+    protected function getSubcategories(): array
     {
         return Category::active()
-            ->topLevel()
+            ->whereNotNull('parent_id')
+            ->with('parent')
             ->withCount(['products' => fn ($q) => $q->where('status', true)])
             ->ordered()
+            ->limit((int) Setting::get('limits.subcategories', 10))
             ->get()
             ->map(fn ($cat) => [
                 'id' => $cat->id,
@@ -118,6 +123,8 @@ class HomeController extends Controller
                 'slug' => $cat->slug,
                 'image' => $cat->display_image,
                 'products_count' => $cat->total_products_count,
+                'parent_name' => $cat->parent?->name,
+                'parent_slug' => $cat->parent?->slug,
             ])
             ->toArray();
     }

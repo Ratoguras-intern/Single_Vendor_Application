@@ -48,6 +48,10 @@ class ProductController extends Controller
         ];
         if ($request->filled('visibility') && in_array($request->visibility, $allowedVisibility)) {
             $query->where($request->visibility, true);
+        } elseif ($request->input('visibility') === 'on_sale') {
+            $query->onSale()->whereNotNull('sale_ends_at');
+        } elseif ($request->input('visibility') === 'sale_expired') {
+            $query->where('sale_ends_at', '<', now());
         }
 
         $perPage = $request->input('per_page', '10');

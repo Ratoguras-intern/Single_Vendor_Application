@@ -31,6 +31,7 @@ class Product extends Model
         'is_recommended',
         'is_popular',
         'is_limited_edition',
+        'sale_ends_at',
     ];
 
     protected function casts(): array
@@ -49,6 +50,7 @@ class Product extends Model
             'is_recommended' => 'boolean',
             'is_popular' => 'boolean',
             'is_limited_edition' => 'boolean',
+            'sale_ends_at' => 'datetime',
         ];
     }
 
@@ -159,5 +161,12 @@ class Product extends Model
     public function scopeLimitedEdition($query)
     {
         return $query->where('is_limited_edition', true);
+    }
+
+    public function scopeOnSale($query)
+    {
+        return $query->where(function ($q) {
+            $q->whereNull('sale_ends_at')->orWhere('sale_ends_at', '>=', now());
+        });
     }
 }

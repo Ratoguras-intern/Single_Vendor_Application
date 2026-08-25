@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\OrderReturn;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -41,7 +42,7 @@ class DashboardController extends Controller
             ->sum('total_amount');
         $averageOrderValue = Order::where('payment_status', 'paid')->avg('total_amount') ?? 0;
 
-        $lowStockProducts = Product::where('stock', '<=', 10)->orderBy('stock')->limit(10)->get();
+        $lowStockProducts = Product::where('stock', '<=', 10)->orderBy('stock')->limit((int) Setting::get('limits.admin.low_stock', 10))->get();
 
         // --- Return Stats ---
         $pendingReturns = OrderReturn::whereIn('status', ['requested', 'pending_review'])->count();
@@ -83,7 +84,7 @@ class DashboardController extends Controller
             ->select('order_items.product_id', DB::raw('SUM(order_items.quantity) as total_sold'))
             ->groupBy('order_items.product_id')
             ->orderByDesc('total_sold')
-            ->limit(10)
+            ->limit((int) Setting::get('limits.admin.top_products', 10))
             ->with('product:id,name')
             ->get();
 
@@ -93,13 +94,13 @@ class DashboardController extends Controller
             ->withCount('orders')
             ->selectRaw('(SELECT COALESCE(SUM(o.total_amount), 0) FROM orders o WHERE o.user_id = users.id AND o.payment_status = ?) as total_spent', ['paid'])
             ->orderByDesc('total_spent')
-            ->limit(10)
+            ->limit((int) Setting::get('limits.admin.top_customers', 10))
             ->get();
 
         // --- Latest 10 Orders ---
         $latestOrders = Order::with('user:id,name,avatar_path')
             ->latest()
-            ->limit(10)
+            ->limit((int) Setting::get('limits.admin.latest_orders', 10))
             ->get();
 
         // --- Latest 10 Registered Customers ---
@@ -109,7 +110,7 @@ class DashboardController extends Controller
             ->selectRaw('(SELECT COALESCE(SUM(o.total_amount), 0) FROM orders o WHERE o.user_id = users.id AND o.payment_status = ?) as total_spent', ['paid'])
             ->selectRaw('(SELECT MAX(o2.created_at) FROM orders o2 WHERE o2.user_id = users.id) as last_order_date')
             ->latest()
-            ->limit(10)
+            ->limit((int) Setting::get('limits.admin.latest_customers', 10))
             ->get();
 
         return view('admin.dashboard.index', compact(

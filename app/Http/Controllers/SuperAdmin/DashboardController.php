@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -32,7 +33,7 @@ class DashboardController extends Controller
             ->whereYear('created_at', $now->year)
             ->sum('total_amount');
 
-        $lowStockProducts = Product::where('stock', '<=', 10)->orderBy('stock')->limit(10)->get();
+        $lowStockProducts = Product::where('stock', '<=', 10)->orderBy('stock')->limit((int) Setting::get('limits.superadmin.low_stock', 10))->get();
 
         $monthlySales = Order::where('payment_status', 'paid')
             ->where('created_at', '>=', $now->copy()->subMonths(11)->startOfMonth())
@@ -56,13 +57,13 @@ class DashboardController extends Controller
 
         $recentOrders = Order::with('user:id,name')
             ->latest()
-            ->limit(8)
+            ->limit((int) Setting::get('limits.superadmin.recent_orders', 8))
             ->get();
 
         $recentUsers = User::where('role', 'customer')
             ->select('id', 'name', 'email', 'created_at')
             ->latest()
-            ->limit(8)
+            ->limit((int) Setting::get('limits.superadmin.recent_users', 8))
             ->get();
 
         $topProducts = OrderItem::join('orders', 'order_items.order_id', '=', 'orders.id')
@@ -70,7 +71,7 @@ class DashboardController extends Controller
             ->select('order_items.product_id', DB::raw('SUM(order_items.quantity) as total_sold'))
             ->groupBy('order_items.product_id')
             ->orderByDesc('total_sold')
-            ->limit(5)
+            ->limit((int) Setting::get('limits.superadmin.top_products', 5))
             ->with('product:id,name')
             ->get();
 

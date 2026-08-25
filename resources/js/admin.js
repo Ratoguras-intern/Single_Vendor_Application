@@ -13,17 +13,22 @@ Turbo.start();
 // Delay before the progress bar appears so fast SPA navigations don't flash it.
 Turbo.config.drive.progressBarDelay = 250;
 
-// The preloader must only run on real page loads. On Turbo SPA navigations the
-// body is swapped instantly; showing the spinner just flickers and makes the
-// backend look like it keeps refreshing.
+// Preserve scroll position of the admin content area across Turbo navigations.
+let __adminScrollTop = 0;
 document.addEventListener('turbo:before-render', () => {
     window.__preloaderSkip = true;
+    const el = document.getElementById('admin-content-area');
+    if (el) __adminScrollTop = el.scrollTop;
 });
 document.addEventListener('turbo:render', () => {
     const preloader = document.getElementById('page-preloader');
     if (preloader) {
         preloader.style.display = 'none';
     }
+    requestAnimationFrame(() => {
+        const el = document.getElementById('admin-content-area');
+        if (el) el.scrollTop = __adminScrollTop;
+    });
 });
 
 // Re-run per-page inline scripts after every Turbo render. Page scripts use
@@ -74,11 +79,13 @@ window.__initAdminSidebar = () => {
         if (window.innerWidth < 1280) {
             store.setMobileOpen(false);
             store.isExpanded = false;
-            document.body.classList.remove('overflow-hidden');
+            const el = document.getElementById('admin-content-area');
+            if (el) el.classList.remove('overflow-hidden');
         } else {
             store.isMobileOpen = false;
             store.isExpanded = true;
-            document.body.classList.remove('overflow-hidden');
+            const el = document.getElementById('admin-content-area');
+            if (el) el.classList.remove('overflow-hidden');
         }
     };
 

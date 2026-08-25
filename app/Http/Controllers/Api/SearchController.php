@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Product;
+use App\Models\Setting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -30,7 +31,8 @@ class SearchController extends Controller
                   ->orWhere('description', 'like', "%{$query}%");
             })
             ->with(['images', 'category', 'brand'])
-            ->limit(8)
+            ->inRandomOrder()
+            ->limit((int) Setting::get('limits.search_products', 8))
             ->get()
             ->map(function ($product) {
                 $image = $product->primaryImage();
@@ -48,7 +50,7 @@ class SearchController extends Controller
         $categories = \App\Models\Category::query()
             ->where('status', true)
             ->where('name', 'like', "%{$query}%")
-            ->limit(4)
+            ->limit((int) Setting::get('limits.search_categories', 4))
             ->get(['id', 'name', 'slug'])
             ->map(fn ($c) => ['id' => $c->id, 'name' => $c->name, 'url' => route('frontend.shop') . '?category=' . $c->slug]);
 
@@ -88,7 +90,7 @@ class SearchController extends Controller
             ->withCount(['products' => fn ($q) => $q->where('status', true)])
             ->orderByDesc('products_count')
             ->orderBy('name')
-            ->limit(6)
+            ->limit((int) Setting::get('limits.popular_searches', 6))
             ->pluck('name')
             ->all();
     }

@@ -17,7 +17,7 @@
 @endphp
 
 <aside id="sidebar"
-    class="fixed flex flex-col mt-0 top-0 px-3 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 dark:text-gray-300 h-screen transition-all duration-300 ease-in-out z-[99999] border-r border-gray-200"
+    class="fixed flex flex-col mt-0 top-0 px-3 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 dark:text-gray-300 h-screen overflow-hidden transition-all duration-300 ease-in-out z-[99999] border-r border-gray-200"
     x-data="{
         openSubmenus: {},
         submenuKeys: @js($submenuKeys),
@@ -79,7 +79,7 @@
     </div>
 
     <!-- Navigation Menu -->
-    <div class="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
+    <div class="flex flex-col flex-1 min-h-0 overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav class="mb-3">
             <div class="flex flex-col gap-3">
                 @foreach ($menuGroups as $groupIndex => $menuGroup)
@@ -228,11 +228,11 @@
             </div>
         </nav>
 
-        <!-- Sidebar Widget -->
-        <div x-data x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
-            x-transition class="mt-auto">
-            @include('admin.layouts.partials.sidebar-widget')
-        </div>
+    </div>
 
+    <!-- Sidebar Widget (pinned at bottom, outside scroll area) -->
+    <div x-data x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
+        x-transition class="shrink-0 border-t border-gray-100 dark:border-gray-800 py-3 px-1">
+        @include('admin.layouts.partials.sidebar-widget')
     </div>
 </aside>

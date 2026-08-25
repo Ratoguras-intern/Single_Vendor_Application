@@ -66,6 +66,8 @@
                     <option value="is_recommended" {{ request('visibility') === 'is_recommended' ? 'selected' : '' }}>Recommended</option>
                     <option value="is_popular" {{ request('visibility') === 'is_popular' ? 'selected' : '' }}>Popular</option>
                     <option value="is_limited_edition" {{ request('visibility') === 'is_limited_edition' ? 'selected' : '' }}>Limited Edition</option>
+                    <option value="on_sale" {{ request('visibility') === 'on_sale' ? 'selected' : '' }}>On Sale</option>
+                    <option value="sale_expired" {{ request('visibility') === 'sale_expired' ? 'selected' : '' }}>Sale Expired</option>
                 </select>
             </div>
             <div class="min-w-0 w-full sm:w-auto sm:min-w-[130px]">
@@ -105,6 +107,7 @@
                         <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Price</th>
                         <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Stock</th>
                         <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Status</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Sale</th>
                         <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Visibility</th>
                         <th class="px-5 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Actions</th>
                     </tr>
@@ -148,6 +151,23 @@
                                         {{ ucfirst($product->status) }}
                                     </span>
                                 </div>
+                            </td>
+                            <td class="px-5 py-4">
+                                @if($product->sale_ends_at)
+                                    @if($product->sale_ends_at->isPast())
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-red-700 dark:bg-red-500/10 dark:text-red-400">
+                                            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                                            Expired {{ $product->sale_ends_at->diffForHumans() }}
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
+                                            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                                            Ends {{ $product->sale_ends_at->diffForHumans() }}
+                                        </span>
+                                    @endif
+                                @else
+                                    <span class="text-xs text-gray-400 dark:text-gray-500">—</span>
+                                @endif
                             </td>
                             <td class="px-5 py-4">
                                 <div class="flex flex-wrap gap-1">

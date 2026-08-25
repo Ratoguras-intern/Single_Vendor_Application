@@ -65,7 +65,7 @@ class ProductController extends Controller
         $relatedProducts = Product::with(['images', 'category', 'brand'])
             ->where('status', true)
             ->where('id', '!=', $id)
-            ->latest()
+            ->inRandomOrder()
             ->take(4)
             ->get()
             ->map(function ($p) {

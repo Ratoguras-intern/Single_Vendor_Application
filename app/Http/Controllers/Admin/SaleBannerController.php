@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\SaleBanner;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -53,6 +54,8 @@ class SaleBannerController extends Controller
 
         SaleBanner::create($this->packDisplaySettings($this->coerceBooleans($validated)));
 
+        $this->syncProductSaleEndsAt($validated);
+
         return redirect()->route('admin.sale-banners.index')
             ->with('success', 'Sale banner created successfully.');
     }
@@ -94,12 +97,16 @@ class SaleBannerController extends Controller
 
         $saleBanner->update($this->packDisplaySettings($this->coerceBooleans($validated)));
 
+        $this->syncProductSaleEndsAt($validated, $saleBanner);
+
         return redirect()->route('admin.sale-banners.index')
             ->with('success', 'Sale banner updated successfully.');
     }
 
     public function destroy(SaleBanner $saleBanner)
     {
+        $this->clearProductSaleEndsAt($saleBanner);
+
         foreach (['image', 'product_image'] as $field) {
             if ($saleBanner->{$field} && Storage::disk('public')->exists($saleBanner->{$field})) {
                 Storage::disk('public')->delete($saleBanner->{$field});
@@ -115,6 +122,8 @@ class SaleBannerController extends Controller
     public function toggleEnabled(SaleBanner $saleBanner)
     {
         $saleBanner->update(['is_enabled' => ! $saleBanner->is_enabled]);
+
+        $this->syncProductSaleEndsAt([], $saleBanner);
 
         return response()->json([
             'is_enabled' => $saleBanner->is_enabled,
@@ -267,6 +276,31 @@ class SaleBannerController extends Controller
             $image->save();
         } catch (\Exception $e) {
             Log::warning('Sale banner image processing failed: '.$e->getMessage());
+        }
+    }
+
+    protected function syncProductSaleEndsAt(array $validated, ?SaleBanner $existingBanner = null): void
+    {
+        $productId = $validated['featured_product_id'] ?? $existingBanner?->featured_product_id;
+        $endsAt = $validated['ends_at'] ?? $existingBanner?->ends_at;
+
+        if (! $productId) {
+            return;
+        }
+
+        $bannerActive = ($validated['is_enabled'] ?? $existingBanner?->is_enabled ?? false)
+            && $endsAt
+            && \Carbon\Carbon::parse($endsAt)->isFuture();
+
+        Product::where('id', $productId)->update([
+            'sale_ends_at' => $bannerActive ? $endsAt : null,
+        ]);
+    }
+
+    protected function clearProductSaleEndsAt(SaleBanner $saleBanner): void
+    {
+        if ($saleBanner->featured_product_id) {
+            Product::where('id', $saleBanner->featured_product_id)->update(['sale_ends_at' => null]);
         }
     }
 }

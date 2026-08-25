@@ -231,6 +231,8 @@ Route::middleware(['auth', 'admin'])
         Route::resource('contact-messages', \App\Http\Controllers\Admin\ContactMessageController::class)->only(['index', 'show', 'destroy']);
         Route::get('/content-settings', [\App\Http\Controllers\Admin\ContentSettingsController::class, 'edit'])->name('content-settings.edit');
         Route::put('/content-settings', [\App\Http\Controllers\Admin\ContentSettingsController::class, 'update'])->name('content-settings.update');
+        Route::get('/limit-settings', [\App\Http\Controllers\Admin\LimitSettingsController::class, 'edit'])->name('limit-settings.edit');
+        Route::put('/limit-settings', [\App\Http\Controllers\Admin\LimitSettingsController::class, 'update'])->name('limit-settings.update');
 
         // Footer
         Route::get('/footer', [FooterController::class, 'edit'])->name('footer.edit');
