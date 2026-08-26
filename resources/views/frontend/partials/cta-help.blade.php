@@ -9,7 +9,7 @@
 @endphp
 
 @if ($helpUrl || $contactUrl)
-    <section class="section pb-14 sm:pb-16 lg:pb-20">
+    <section class="section pt-16 sm:pt-20 pb-14 sm:pb-16 lg:pb-20">
         <div class="rounded-2xl bg-gradient-to-br from-secondary-900 via-secondary-800 to-secondary-900 dark:from-secondary-950 dark:via-secondary-900 dark:to-secondary-950 px-6 py-10 sm:px-12 sm:py-12 text-center relative overflow-hidden">
             <div class="absolute inset-0 opacity-[0.07]" aria-hidden="true">
                 <div class="absolute -top-20 right-10 w-72 h-72 rounded-full bg-primary-400 blur-3xl"></div>

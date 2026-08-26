@@ -48,8 +48,8 @@
 <footer class="border-t border-secondary-200 bg-white dark:border-secondary-700 dark:bg-secondary-900">
     <div class="section">
         <div class="py-10">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
-                <div class="lg:col-span-2">
+            <div class="flex flex-col lg:flex-row gap-8 lg:gap-12">
+                <div class="lg:w-1/3 shrink-0">
                     <div class="mb-5">
                         <x-brand-logo subtitle="Commerce Suite" />
                     </div>
@@ -92,34 +92,35 @@
                     </div>
                 </div>
 
-                @foreach($footerColumns as $col)
-                    <div>
-                        <h4 class="text-sm font-semibold mb-4 uppercase tracking-wider text-secondary-900 dark:text-white">{{ $col['heading'] }}</h4>
-                        <ul class="space-y-2.5">
-                            @foreach($col['links'] as $link)
-                                <li>
-                                    <a href="{{ $footerLinkUrls[$link] ?? '#' }}" class="text-sm text-secondary-500 dark:text-secondary-400 hover:text-secondary-900 dark:hover:text-white transition-colors inline-block">{{ $link }}</a>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endforeach
-
-                @foreach($pageSections as $sectionHeading => $sectionPages)
-                    @if($sectionPages->isNotEmpty())
+                <div class="flex-1 grid grid-cols-2 md:grid-cols-4 gap-8">
+                    @foreach($footerColumns as $col)
                         <div>
-                            <h4 class="text-sm font-semibold mb-4 uppercase tracking-wider text-secondary-900 dark:text-white">{{ $sectionHeading }}</h4>
+                            <h4 class="text-sm font-semibold mb-4 uppercase tracking-wider text-secondary-900 dark:text-white">{{ $col['heading'] }}</h4>
                             <ul class="space-y-2.5">
-                                @foreach($sectionPages as $footerPage)
+                                @foreach($col['links'] as $link)
                                     <li>
-                                        <a href="/{{ $footerPage->slug }}" class="text-sm text-secondary-500 dark:text-secondary-400 hover:text-secondary-900 dark:hover:text-white transition-colors inline-block">{{ $footerPage->title }}</a>
+                                        <a href="{{ $footerLinkUrls[$link] ?? '#' }}" class="text-sm text-secondary-500 dark:text-secondary-400 hover:text-secondary-900 dark:hover:text-white transition-colors inline-block">{{ $link }}</a>
                                     </li>
                                 @endforeach
                             </ul>
                         </div>
-                    @endif
-                @endforeach
+                    @endforeach
 
+                    @foreach($pageSections as $sectionHeading => $sectionPages)
+                        @if($sectionPages->isNotEmpty())
+                            <div>
+                                <h4 class="text-sm font-semibold mb-4 uppercase tracking-wider text-secondary-900 dark:text-white">{{ $sectionHeading }}</h4>
+                                <ul class="space-y-2.5">
+                                    @foreach($sectionPages as $footerPage)
+                                        <li>
+                                            <a href="/{{ $footerPage->slug }}" class="text-sm text-secondary-500 dark:text-secondary-400 hover:text-secondary-900 dark:hover:text-white transition-colors inline-block">{{ $footerPage->title }}</a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
             </div>
         </div>
 
