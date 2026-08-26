@@ -81,7 +81,7 @@
             </div>
 
             {{-- List view buttons --}}
-            <div x-show="viewMode === 'list'" class="flex flex-wrap items-center gap-2 mt-2">
+            <div x-show="viewMode === 'list'" style="display: none;" class="flex flex-wrap items-center gap-2 mt-2">
                 <button x-on:click="$store.cart.add({ id: {{ $product['id']}}, name: '{{ addslashes($product['name']) }}', price: {{ $product['price']}}, image: '{{ $product['image'] }}' })" class="btn-primary btn-sm" @if($isOutOfStock) disabled @endif>
                     <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
                     <span data-i18n="Add to Cart" x-text="$store.i18n.t('Add to Cart')">{{ __('Add to Cart') }}</span>
