@@ -167,7 +167,7 @@
     class="pb-0"
     @if($heroSectionMargin) style="{{ $heroSectionMargin }}" @endif
 >
-    <div class="relative w-full min-h-screen bg-secondary-900 overflow-hidden" @if($heroContainerStyle) style="{{ $heroContainerStyle }}" @endif>
+    <div class="relative w-full min-h-[70vh] sm:min-h-[80vh] md:min-h-screen bg-secondary-900 overflow-hidden" @if($heroContainerStyle) style="{{ $heroContainerStyle }}" @endif>
     @foreach($slides as $i => $slide)
         <div
             class="absolute inset-0 {{ $slide['visibility_classes'] }} {{ $i > 0 ? 'opacity-0' : '' }}"
@@ -240,14 +240,14 @@
                 <div class="absolute inset-0 z-[1]" aria-hidden="true" style="background: {{ $slide['overlay_rgba'] }};"></div>
             @endif
 
-            <div class="section relative z-10 w-full h-full flex flex-col justify-center {{ $alignClasses[$slide['text_alignment'] ?? 'left'] }} {{ $verticalClasses[$slide['content_vertical'] ?? null] ?? '' }}" @if($slide['content_padding_css']) style="{{ $slide['content_padding_css'] }}" @endif>
+            <div class="section relative z-10 w-full h-full flex flex-col justify-center px-4 sm:px-0 {{ $alignClasses[$slide['text_alignment'] ?? 'left'] }} {{ $verticalClasses[$slide['content_vertical'] ?? null] ?? '' }}" @if($slide['content_padding_css']) style="{{ $slide['content_padding_css'] }}" @endif>
                 <div class="w-full flex flex-col {{ !empty($slide['text_width_css']) && $slide['text_alignment'] === 'center' ? 'mx-auto' : '' }} {{ !empty($slide['text_width_css']) && $slide['text_alignment'] === 'right' ? 'ml-auto' : '' }}" @if($slide['text_width_css']) style="{{ $slide['text_width_css'] }}" @endif>
                     @if($slide['badge'])
-                        <span class="inline-flex items-center gap-2 rounded-full {{ $slide['badge_color'] }} px-4 py-1.5 mb-5 self-start" :class="current === {{ $i }} ? 'animate-in' : 'opacity-0'">
+                        <span class="inline-flex items-center gap-2 rounded-full {{ $slide['badge_color'] }} px-3 sm:px-4 py-1 sm:py-1.5 mb-4 sm:mb-5 self-start" :class="current === {{ $i }} ? 'animate-in' : 'opacity-0'">
                             <span class="text-xs font-bold text-white tracking-wider">{{ $slide['badge'] }}</span>
                         </span>
                     @endif
-                    <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-semibold tracking-tight leading-[1.05] {{ $slide['text_alignment'] === 'center' ? 'mx-auto' : '' }} {{ $slide['text_alignment'] === 'right' ? 'ml-auto' : '' }} {{ $slide['text_color'] }}" :class="current === {{ $i }} ? 'animate-in' : 'opacity-0'">{{ $slide['heading'] }}</h1>
+                    <h1 class="font-display text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-semibold tracking-tight leading-[1.05] {{ $slide['text_alignment'] === 'center' ? 'mx-auto' : '' }} {{ $slide['text_alignment'] === 'right' ? 'ml-auto' : '' }} {{ $slide['text_color'] }}" :class="current === {{ $i }} ? 'animate-in' : 'opacity-0'">{{ $slide['heading'] }}</h1>
                     <p class="mt-4 sm:mt-5 text-base sm:text-lg lg:text-xl max-w-xl leading-relaxed {{ $slide['text_alignment'] === 'center' ? 'mx-auto' : '' }} {{ $slide['text_alignment'] === 'right' ? 'ml-auto' : '' }} {{ $slide['text_color'] }}/80" :class="current === {{ $i }} ? 'animate-in-delay-1' : 'opacity-0'">{{ $slide['description'] }}</p>
                     @if($slide['show_countdown'] && $slide['ends_at'])
                         <div class="mt-6 sm:mt-7" :class="current === {{ $i }} ? 'animate-in-delay-2' : 'opacity-0'" x-data="bannerCountdown('{{ $slide['ends_at'] }}', true)" x-init="init()" x-show="show">
@@ -259,10 +259,10 @@
                             </div>
                         </div>
                     @endif
-                    <div class="mt-6 sm:mt-8 flex flex-col sm:flex-row w-full sm:w-auto items-start gap-4 {{ $slide['text_alignment'] === 'center' ? 'mx-auto' : '' }} {{ $slide['text_alignment'] === 'right' ? 'ml-auto' : '' }}" :class="current === {{ $i }} ? 'animate-in-delay-3' : 'opacity-0'">
+                    <div class="mt-5 sm:mt-6 md:mt-8 flex flex-col sm:flex-row w-full sm:w-auto items-start gap-3 sm:gap-4 {{ $slide['text_alignment'] === 'center' ? 'mx-auto' : '' }} {{ $slide['text_alignment'] === 'right' ? 'ml-auto' : '' }}" :class="current === {{ $i }} ? 'animate-in-delay-3' : 'opacity-0'">
                         <a href="{{ $slide['link_primary'] }}" class="btn-primary btn-lg w-full sm:w-auto justify-center shadow-lg shadow-primary-500/25">
                             {{ $slide['cta_primary'] }}
-                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+                            <svg class="h-4 w-4 sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
                         </a>
                         @if(!empty($slide['cta_secondary']))
                             <a href="{{ $slide['link_secondary'] }}" class="btn bg-white/10 text-white hover:bg-white/20 border border-white/20 btn-lg w-full sm:w-auto justify-center backdrop-blur-sm">{{ $slide['cta_secondary'] }}</a>
@@ -273,16 +273,16 @@
         </div>
     @endforeach
 
-    <button x-on:click="prev()" aria-label="Previous slide" class="absolute left-4 top-1/2 -translate-y-1/2 z-20 h-11 w-11 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/25 transition-all flex items-center justify-center border border-white/20">
-        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
+    <button x-on:click="prev()" aria-label="Previous slide" class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 h-9 w-9 sm:h-11 sm:w-11 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/25 transition-all flex items-center justify-center border border-white/20">
+        <svg class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
     </button>
-    <button x-on:click="next()" aria-label="Next slide" class="absolute right-4 top-1/2 -translate-y-1/2 z-20 h-11 w-11 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/25 transition-all flex items-center justify-center border border-white/20">
-        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
+    <button x-on:click="next()" aria-label="Next slide" class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 h-9 w-9 sm:h-11 sm:w-11 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/25 transition-all flex items-center justify-center border border-white/20">
+        <svg class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
     </button>
 
-    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2.5" role="tablist" aria-label="Slides">
+    <div class="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2 sm:gap-2.5" role="tablist" aria-label="Slides">
         @foreach($slides as $i => $slide)
-            <button x-on:click="goTo({{ $i }})" :aria-label="'Go to slide ' + ({{ $i }} + 1)" :aria-current="current === {{ $i }} ? 'true' : undefined" :class="current === {{ $i }} ? 'w-8 bg-primary-500' : 'w-2.5 bg-white/50 hover:bg-white/75'" class="h-2.5 rounded-full transition-all duration-300"></button>
+            <button x-on:click="goTo({{ $i }})" :aria-label="'Go to slide ' + ({{ $i }} + 1)" :aria-current="current === {{ $i }} ? 'true' : undefined" :class="current === {{ $i }} ? 'w-6 sm:w-8 bg-primary-500' : 'w-2 sm:w-2.5 bg-white/50 hover:bg-white/75'" class="h-2 sm:h-2.5 rounded-full transition-all duration-300"></button>
         @endforeach
     </div>
     </div>

@@ -6,10 +6,19 @@
 <section class="py-8 sm:py-12">
     <div class="section">
         <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 mb-10">
-            <div class="space-y-4">
-                <div class="rounded-card overflow-hidden bg-secondary-100 dark:bg-white/5">
-                    <img src="{{ $product['image'] }}" alt="{{ $product['name'] }}" class="w-full h-auto max-h-[500px] object-cover" loading="eager" onerror="this.src='{{ asset('frontend-assets/images/no-image.jpg') }}'" />
+            <div class="space-y-4" x-data="{ activeImage: '{{ $product['image'] }}', images: @js($product['images']) }">
+                <div class="rounded-card overflow-hidden bg-secondary-100 dark:bg-white/5 aspect-[4/3] max-h-[500px]">
+                    <img :src="activeImage" alt="{{ $product['name'] }}" class="w-full h-full object-cover" loading="eager" onerror="this.src='{{ asset('frontend-assets/images/no-image.jpg') }}'" />
                 </div>
+                @if(count($product['images']) > 1)
+                    <div class="flex gap-2 overflow-x-auto pb-2">
+                        @foreach($product['images'] as $img)
+                            <button type="button" x-on:click="activeImage = '{{ $img }}'" :class="activeImage === '{{ $img }}' ? 'ring-2 ring-primary-500' : 'opacity-70 hover:opacity-100'" class="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border border-secondary-200 dark:border-secondary-700">
+                                <img src="{{ $img }}" alt="{{ $product['name'] }}" class="w-full h-full object-cover" onerror="this.src='{{ asset('frontend-assets/images/no-image.jpg') }}'" />
+                            </button>
+                        @endforeach
+                    </div>
+                @endif
             </div>
 
             <div class="space-y-6">
@@ -176,10 +185,10 @@
 
                         {{-- Write a Review Form --}}
                         @auth
-                            @if($userHasPurchased && !$userReview)
+                            @if(!$userReview)
                                 <div class="card p-6">
                                     <h3 class="text-lg font-semibold text-secondary-900 dark:text-white mb-4">Write a Review</h3>
-                                    <form method="POST" action="{{ route('customer.reviews.store') }}" x-data="reviewForm()" x-on:submit.prevent="if(rating === 0) { error = 'Please select a rating'; return; } error = ''; $el.submit();">
+                                    <form method="POST" action="{{ route('customer.reviews.store') }}" x-data="reviewForm()" x-on:submit="if(rating === 0) { event.preventDefault(); error = 'Please select a rating'; return; } error = ''; $el.querySelector('input[name=rating]').value = rating;">
                                         @csrf
                                         <input type="hidden" name="product_id" value="{{ $product['id'] }}">
                                         <div class="space-y-4">
@@ -192,9 +201,9 @@
                                                             <svg class="h-7 w-7 transition-colors" :class="(hover >= {{ $i }} || rating >= {{ $i }}) ? 'text-primary-500 fill-primary-500' : 'text-secondary-300 dark:text-secondary-600 fill-secondary-300 dark:fill-secondary-600'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                                                         </button>
                                                     @endfor
-                                                    <input type="hidden" name="rating" :value="rating">
                                                     <span x-show="rating > 0" x-text="rating + '/5'" class="text-sm text-secondary-500 dark:text-secondary-400 ml-2"></span>
                                                 </div>
+                                                <input type="hidden" name="rating" :value="rating">
                                                 <p x-show="error" x-text="error" class="text-sm text-red-500 mt-1"></p>
                                             </div>
                                             <div>
@@ -282,15 +291,6 @@
                                         </form>
                                     </div>
                                 </div>
-                            @elseif(!$userHasPurchased)
-                                <div class="card p-6 text-center">
-                                    <div class="w-12 h-12 mx-auto rounded-full bg-secondary-100 dark:bg-secondary-800 flex items-center justify-center mb-3">
-                                        <svg class="h-6 w-6 text-secondary-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
-                                    </div>
-                                    <p class="text-sm text-secondary-600 dark:text-secondary-400">
-                                        Only customers who have purchased this product can leave a review.
-                                    </p>
-                                </div>
                             @endif
                         @else
                             <div class="card p-6 text-center">
@@ -304,28 +304,30 @@
                         {{-- Reviews List --}}
                         @forelse($reviews as $review)
                             <div class="card p-6">
-                                <div class="flex items-start justify-between mb-3">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <div class="h-9 w-9 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center shrink-0">
+                                        <span class="text-sm font-semibold text-primary-700 dark:text-primary-300">{{ strtoupper(substr($review->user->name, 0, 1)) }}</span>
+                                    </div>
                                     <div>
-                                        <div class="flex items-center gap-0.5 mb-1">
-                                            @for($i = 1; $i <= 5; $i++)
-                                                <svg class="h-4 w-4 {{ $i <= $review->rating ? 'text-primary-500 fill-primary-500' : 'text-secondary-300 dark:text-secondary-600 fill-secondary-300 dark:fill-secondary-600' }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                            @endfor
-                                        </div>
-                                        @if($review->title)
-                                            <h4 class="font-semibold text-secondary-900 dark:text-white">{{ $review->title }}</h4>
-                                        @endif
+                                        <p class="text-sm font-semibold text-secondary-900 dark:text-white">{{ $review->user->name }}</p>
+                                        <p class="text-xs text-secondary-400 dark:text-secondary-500">{{ $review->created_at->format('F j, Y') }}</p>
                                     </div>
                                     @if($review->is_verified_purchase)
-                                        <span class="inline-flex items-center gap-1 rounded-full bg-green-100 dark:bg-green-900/30 px-2.5 py-0.5 text-xs font-medium text-green-700 dark:text-green-400">
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-green-100 dark:bg-green-900/30 px-2.5 py-0.5 text-xs font-medium text-green-700 dark:text-green-400 ml-auto">
                                             <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
                                             Verified Purchase
                                         </span>
                                     @endif
                                 </div>
-                                <p class="text-sm text-secondary-600 dark:text-secondary-400 leading-relaxed mb-3">{{ $review->comment }}</p>
-                                <p class="text-xs text-secondary-400 dark:text-secondary-500">
-                                    {{ $review->user->name }} &middot; {{ $review->created_at->format('F j, Y') }}
-                                </p>
+                                <div class="flex items-center gap-0.5 mb-2">
+                                    @for($i = 1; $i <= 5; $i++)
+                                        <svg class="h-4 w-4 {{ $i <= $review->rating ? 'text-primary-500 fill-primary-500' : 'text-secondary-300 dark:text-secondary-600 fill-secondary-300 dark:fill-secondary-600' }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                    @endfor
+                                </div>
+                                @if($review->title)
+                                    <h4 class="font-semibold text-secondary-900 dark:text-white mb-1">{{ $review->title }}</h4>
+                                @endif
+                                <p class="text-sm text-secondary-600 dark:text-secondary-400 leading-relaxed">{{ $review->comment }}</p>
                             </div>
                         @empty
                             <div class="card p-8 text-center">
@@ -357,7 +359,7 @@
                 <a href="{{ route('frontend.shop') }}" class="text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"><span data-i18n="View All" x-text="$store.i18n.t('View All')">{{ __('View All') }}</span></a>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div x-data="{ viewMode: 'grid' }" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 @foreach($relatedProducts as $related)
                     @include('frontend.partials.product-card', ['product' => $related])
                 @endforeach

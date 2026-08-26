@@ -12,7 +12,7 @@
         use App\Support\OrderStatuses;
         $allStatuses = OrderStatuses::all();
         $allPaymentStatuses = ['pending', 'paid', 'failed', 'cod'];
-        $hasFilters = request()->filled('status') || request()->filled('payment_status') || request()->filled('month') || request()->filled('date_from') || request()->filled('date_to');
+        $hasFilters = request()->filled('search') || request()->filled('status') || request()->filled('payment_status') || request()->filled('month') || request()->filled('date_from') || request()->filled('date_to');
     @endphp
 
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-6">
@@ -28,6 +28,11 @@
     {{-- Filter Bar --}}
     <div class="mb-4 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
         <form action="{{ route('admin.orders.index') }}" method="GET" class="flex flex-wrap items-end gap-4">
+            <div class="flex-1 min-w-0 w-full sm:w-auto sm:min-w-[200px]">
+                <label for="search" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Search</label>
+                <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="Order # or customer name..."
+                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+            </div>
             <div class="min-w-0 w-full sm:w-auto sm:min-w-[150px]">
                 <label for="status" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
                 <select name="status" id="status"
@@ -70,7 +75,7 @@
         </form>
     </div>
 
-    <div class="flex min-h-[calc(100vh-17rem)] flex-col rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+    <div id="search-results" class="flex min-h-[calc(100vh-17rem)] flex-col rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div class="overflow-x-auto lg:overflow-x-visible">
             <table class="w-full">
                 <thead>
@@ -154,6 +159,14 @@
                                             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18h4a1 1 0 0 0 1-1v-3.28a1 1 0 0 0-.684-.948l-1.923-.641a1 1 0 0 1-.578-.502l-1.539-3.076A1 1 0 0 0 14.382 8H11"/><path d="M8 18a2 2 0 1 1-4 0 2 2 0 0 1 4 0"/><path d="M20 18a2 2 0 1 1-4 0 2 2 0 0 1 4 0"/></svg>
                                         </a>
                                     @endif
+
+                                    <form method="POST" action="{{ route('admin.orders.destroy', $order) }}" onsubmit="return confirm('Delete this order?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-white text-red-500 shadow-sm transition hover:bg-red-50 hover:text-red-700 dark:border-gray-700 dark:bg-gray-900 dark:text-red-400 dark:hover:bg-red-500/10">
+                                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>

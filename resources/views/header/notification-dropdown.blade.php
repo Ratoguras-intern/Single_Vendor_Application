@@ -44,5 +44,10 @@
             </div>
             @endforelse
         </div>
+        @if($notifications->count() > 0)
+        <div class="mt-3 border-t border-gray-200 dark:border-gray-800 pt-3">
+            <a href="{{ auth()->user()->isStaff() ? route('admin.notifications.index') : route('notifications.markRead') }}" class="block text-center text-xs font-medium text-brand-500 hover:underline">View all notifications</a>
+        </div>
+        @endif
     </div>
 </div>

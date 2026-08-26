@@ -19,27 +19,33 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'brand', 'images']);
+        $query = Product::with(['category', 'brand', 'images'])
+            ->select('products.*')
+            ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
+            ->leftJoin('brands', 'products.brand_id', '=', 'brands.id');
 
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "{$search}%")
-                    ->orWhere('slug', 'like', "{$search}%")
-                    ->orWhere('sku', 'like', "{$search}%");
+                $q->where('products.name', 'like', "%{$search}%")
+                    ->orWhere('products.slug', 'like', "%{$search}%")
+                    ->orWhere('products.sku', 'like', "%{$search}%")
+                    ->orWhere('products.description', 'like', "%{$search}%")
+                    ->orWhere('categories.name', 'like', "%{$search}%")
+                    ->orWhere('brands.name', 'like', "%{$search}%");
             });
         }
 
         if ($request->filled('category_id')) {
-            $query->where('category_id', $request->category_id);
+            $query->where('products.category_id', $request->category_id);
         }
 
         if ($request->filled('brand_id')) {
-            $query->where('brand_id', $request->brand_id);
+            $query->where('products.brand_id', $request->brand_id);
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status === 'active');
+            $query->where('products.status', $request->status === 'active');
         }
 
         $allowedVisibility = [
@@ -47,11 +53,11 @@ class ProductController extends Controller
             'is_flash_sale', 'is_recommended', 'is_popular', 'is_limited_edition',
         ];
         if ($request->filled('visibility') && in_array($request->visibility, $allowedVisibility)) {
-            $query->where($request->visibility, true);
+            $query->where('products.' . $request->visibility, true);
         } elseif ($request->input('visibility') === 'on_sale') {
-            $query->onSale()->whereNotNull('sale_ends_at');
+            $query->onSale()->whereNotNull('products.sale_ends_at');
         } elseif ($request->input('visibility') === 'sale_expired') {
-            $query->where('sale_ends_at', '<', now());
+            $query->where('products.sale_ends_at', '<', now());
         }
 
         $perPage = $request->input('per_page', '10');

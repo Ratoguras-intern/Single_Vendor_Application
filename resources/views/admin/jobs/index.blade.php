@@ -51,7 +51,7 @@
         </form>
     </div>
 
-    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
+    <div id="search-results" class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
             <thead class="bg-gray-50 dark:bg-gray-900/50">
                 <tr>
@@ -81,7 +81,7 @@
                                 <a href="{{ route('admin.jobs.edit', $job) }}" class="text-brand-600 hover:text-brand-700 dark:text-brand-400" title="Edit">
                                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/></svg>
                                 </a>
-                                <form action="{{ route('admin.jobs.destroy', $job) }}" method="POST" onsubmit="return confirm('Delete this job opening?')">
+                                <form action="{{ route('admin.jobs.destroy', $job) }}" method="POST" x-data @submit.prevent="$store.confirmModal.open({ title: 'Delete Job', message: 'Are you sure you want to delete this job opening?', form: $el })">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="text-red-500 hover:text-red-600" title="Delete">

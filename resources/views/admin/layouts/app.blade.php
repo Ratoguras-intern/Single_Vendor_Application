@@ -54,27 +54,42 @@
                 isMobileOpen: false,
                 isHovered: false,
 
+                _saveScroll() {
+                    const el = document.getElementById('admin-content-area');
+                    return el ? el.scrollTop : 0;
+                },
+
+                _restoreScroll(top) {
+                    const el = document.getElementById('admin-content-area');
+                    if (el) {
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                el.scrollTop = top;
+                            });
+                        });
+                    }
+                },
+
                 toggleExpanded() {
+                    const top = this._saveScroll();
                     this.isExpanded = !this.isExpanded;
                     this.isMobileOpen = false;
+                    this._restoreScroll(top);
                 },
 
                 toggleMobileOpen() {
                     this.isMobileOpen = !this.isMobileOpen;
-                    const el = document.getElementById('admin-content-area');
-                    if (el) el.classList.toggle('overflow-hidden', this.isMobileOpen);
                 },
 
                 setMobileOpen(val) {
                     this.isMobileOpen = val;
-                    const el = document.getElementById('admin-content-area');
-                    if (el) el.classList.toggle('overflow-hidden', val);
                 },
 
                 setHovered(val) {
-                    // Only allow hover effects on desktop when sidebar is collapsed
                     if (window.innerWidth >= 1280 && !this.isExpanded) {
+                        const top = this._saveScroll();
                         this.isHovered = val;
+                        this._restoreScroll(top);
                     }
                 }
             });
@@ -118,7 +133,65 @@
                     this.form = null;
                 }
             });
+
+            Alpine.store('promptModal', {
+                show: false,
+                title: '',
+                message: '',
+                value: '',
+                loading: false,
+                _resolve: null,
+                open(opts) {
+                    this.title = opts.title || 'Input Required';
+                    this.message = opts.message || '';
+                    this.value = opts.defaultValue || '';
+                    this.loading = false;
+                    this.show = true;
+                    return new Promise(resolve => { this._resolve = resolve; });
+                },
+                confirm() {
+                    if (this._resolve) this._resolve(this.value);
+                    this.show = false;
+                    this._resolve = null;
+                },
+                cancel() {
+                    if (this._resolve) this._resolve(null);
+                    this.show = false;
+                    this._resolve = null;
+                }
+            });
+
+            Alpine.data('adminSearch', () => ({
+                query: '',
+                open: false,
+                loading: false,
+                resultsHtml: '',
+                async fetchResults() {
+                    if (this.query.length < 2) {
+                        this.resultsHtml = '';
+                        return;
+                    }
+                    this.loading = true;
+                    try {
+                        const resp = await fetch('{{ route("admin.search") }}?q=' + encodeURIComponent(this.query), {
+                            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                        });
+                        const data = await resp.json();
+                        this.resultsHtml = data.html || '';
+                    } catch (e) {
+                        this.resultsHtml = '';
+                    } finally {
+                        this.loading = false;
+                    }
+                }
+            }));
         });
+    </script>
+
+    <script>
+        window.showPrompt = function(title, defaultValue) {
+            return Alpine.store('promptModal').open({ title: title, defaultValue: defaultValue });
+        };
     </script>
 
     <!-- Apply dark mode immediately to prevent flash -->
@@ -167,16 +240,17 @@
 
     <x-toast />
     <x-confirm-modal />
+    <x-prompt-modal />
     <x-media-picker.modal />
 
     <script>
         (function() {
             var timer;
             function liveFilter(form) {
-                var active = document.activeElement;
-                var selStart = active ? active.selectionStart : null;
-                var selEnd = active ? active.selectionEnd : null;
-                var searchVal = active ? active.value : '';
+                var searchInput = document.querySelector('#search-results input[name="search"]') || document.querySelector('input[name="search"]');
+                var searchVal = searchInput ? searchInput.value : '';
+                var selStart = searchInput ? searchInput.selectionStart : null;
+                var selEnd = searchInput ? searchInput.selectionEnd : null;
                 var params = new URLSearchParams(new FormData(form));
                 var url = form.action + '?' + params.toString();
                 fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })

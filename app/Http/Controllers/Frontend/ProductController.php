@@ -18,20 +18,21 @@ class ProductController extends Controller
         }
 
         $primaryImage = $productModel->primaryImage();
+        $allImages = $productModel->images->map(fn ($img) => product_image_url($img->image))->values()->all();
         $product = [
             'id' => $productModel->id,
             'name' => $productModel->name,
             'price' => $productModel->discount_price ?? $productModel->price,
             'original_price' => $productModel->discount_price ? $productModel->price : null,
             'image' => product_image_url($primaryImage?->image),
+            'images' => $allImages,
             'description' => $productModel->description,
             'stock' => $productModel->stock,
             'average_rating' => (float) $productModel->average_rating,
             'reviews_count' => $productModel->reviews_count,
         ];
 
-        $ratingBreakdown = ProductReview::approved()
-            ->where('product_id', $id)
+        $ratingBreakdown = ProductReview::where('product_id', $id)
             ->selectRaw('rating, COUNT(*) as count')
             ->groupBy('rating')
             ->pluck('count', 'rating')
@@ -42,8 +43,7 @@ class ProductController extends Controller
             $breakdown[$i] = $ratingBreakdown[$i] ?? 0;
         }
 
-        $reviews = ProductReview::approved()
-            ->with('user')
+        $reviews = ProductReview::with('user')
             ->where('product_id', $id)
             ->latest()
             ->paginate(10);
@@ -65,23 +65,38 @@ class ProductController extends Controller
         $relatedProducts = Product::with(['images', 'category', 'brand'])
             ->where('status', true)
             ->where('id', '!=', $id)
+            ->where('category_id', $productModel->category_id)
             ->inRandomOrder()
             ->take(4)
-            ->get()
-            ->map(function ($p) {
-                $image = $p->primaryImage();
+            ->get();
 
-                return [
-                    'id' => $p->id,
-                    'name' => $p->name,
-                    'price' => $p->discount_price ?? $p->price,
-                    'image' => product_image_url($image?->image),
-                    'description' => $p->description,
-                    'average_rating' => (float) $p->average_rating,
-                    'reviews_count' => $p->reviews_count,
-                ];
-            })
-            ->toArray();
+        if ($relatedProducts->count() < 4) {
+            $existing = $relatedProducts->pluck('id')->push($id)->toArray();
+            $filler = Product::with(['images', 'category', 'brand'])
+                ->where('status', true)
+                ->whereNotIn('id', $existing)
+                ->inRandomOrder()
+                ->take(4 - $relatedProducts->count())
+                ->get();
+            $relatedProducts = $relatedProducts->concat($filler);
+        }
+
+        $relatedProducts = $relatedProducts->map(function ($p) {
+            $image = $p->primaryImage();
+
+            return [
+                'id' => $p->id,
+                'name' => $p->name,
+                'price' => $p->discount_price ?? $p->price,
+                'original_price' => $p->discount_price ? $p->price : null,
+                'stock' => $p->stock,
+                'image' => product_image_url($image?->image),
+                'description' => $p->description,
+                'average_rating' => (float) $p->average_rating,
+                'reviews_count' => $p->reviews_count,
+            ];
+        })
+        ->toArray();
 
         return view('frontend.product-details', compact(
             'product',

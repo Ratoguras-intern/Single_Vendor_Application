@@ -73,13 +73,22 @@
                     </div>
 
                     <div class="mt-4 flex flex-col gap-2">
-                        <button
-                            x-on:click="$store.cart.addToCartQty($store.quickView.product, qty)"
-                            :disabled="$store.quickView.product.stock !== undefined && $store.quickView.product.stock <= 0"
-                            class="btn-primary w-full">
-                            <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
-                            <span>Add to Cart</span>
-                        </button>
+                        <div class="flex gap-2">
+                            <button
+                                x-on:click="$store.cart.addToCartQty($store.quickView.product, qty)"
+                                :disabled="$store.quickView.product.stock !== undefined && $store.quickView.product.stock <= 0"
+                                class="btn-primary flex-1">
+                                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                                <span>Add to Cart</span>
+                            </button>
+                            <button
+                                x-on:click="$store.wishlist.toggle($store.quickView.product.id)"
+                                :class="$store.wishlist.has($store.quickView.product.id) ? 'text-red-500 border-red-200 dark:border-red-800' : 'text-secondary-400 hover:text-red-400 border-secondary-300 dark:border-secondary-600'"
+                                class="inline-flex items-center justify-center rounded-input border px-3 transition-colors"
+                                aria-label="Add to wishlist">
+                                <svg class="h-5 w-5" :class="$store.wishlist.has($store.quickView.product.id) && 'fill-current'" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" :stroke-width="$store.wishlist.has($store.quickView.product.id) ? 0 : 2" :stroke="$store.wishlist.has($store.quickView.product.id) ? 'none' : 'currentColor'"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"/></svg>
+                            </button>
+                        </div>
                         <button
                             x-on:click="$store.cart.buyNowQty($store.quickView.product, qty)"
                             :disabled="$store.quickView.product.stock !== undefined && $store.quickView.product.stock <= 0"

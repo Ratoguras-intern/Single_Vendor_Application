@@ -2,10 +2,24 @@ import * as Turbo from '@hotwired/turbo';
 import Alpine from 'alpinejs';
 import collapse from '@alpinejs/collapse';
 import { initTiptapEditor } from './tiptap-editor';
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
 
 Alpine.plugin(collapse);
 window.Alpine = Alpine;
 window.Turbo = Turbo;
+
+window.Pusher = Pusher;
+
+window.Echo = new Echo({
+    broadcaster: 'reverb',
+    key: import.meta.env.VITE_REVERB_APP_KEY,
+    wsHost: import.meta.env.VITE_REVERB_APP_HOST,
+    wsPort: import.meta.env.VITE_REVERB_APP_PORT ?? 8080,
+    wssPort: import.meta.env.VITE_REVERB_APP_PORT ?? 8080,
+    forceTLS: (import.meta.env.VITE_REVERB_APP_SCHEME ?? 'http') === 'https',
+    enabledTransports: ['ws', 'wss'],
+});
 
 // ---------- Turbo Drive (SPA navigation without full page reload) ----------
 
@@ -14,21 +28,42 @@ Turbo.start();
 Turbo.config.drive.progressBarDelay = 250;
 
 // Preserve scroll position of the admin content area across Turbo navigations.
+// #admin-content-area is a custom scroll container (overflow-y-auto), not
+// window — so Turbo's built-in scroll restoration doesn't apply.  We save
+// scrollTop *before* Turbo swaps the body and restore it synchronously in
+// turbo:render, before any frame can paint at scrollTop=0.
 let __adminScrollTop = 0;
-document.addEventListener('turbo:before-render', () => {
+let __adminSidebarScrollTop = 0;
+
+function saveAdminScrollPositions() {
     window.__preloaderSkip = true;
-    const el = document.getElementById('admin-content-area');
-    if (el) __adminScrollTop = el.scrollTop;
+    const contentArea = document.getElementById('admin-content-area');
+    const sidebarNavigation = document.querySelector('#sidebar [x-ref="navigation"]');
+
+    if (contentArea) __adminScrollTop = contentArea.scrollTop;
+    if (sidebarNavigation) __adminSidebarScrollTop = sidebarNavigation.scrollTop;
+}
+
+function restoreAdminScrollPositions() {
+    const contentArea = document.getElementById('admin-content-area');
+    const sidebarNavigation = document.querySelector('#sidebar [x-ref="navigation"]');
+
+    if (contentArea) contentArea.scrollTop = __adminScrollTop;
+    if (sidebarNavigation) sidebarNavigation.scrollTop = __adminSidebarScrollTop;
+}
+
+document.addEventListener('turbo:before-visit', saveAdminScrollPositions);
+document.addEventListener('turbo:before-render', saveAdminScrollPositions);
+document.addEventListener('turbo:load', () => {
+    requestAnimationFrame(restoreAdminScrollPositions);
 });
 document.addEventListener('turbo:render', () => {
+    // Restore synchronously — the new DOM is already in place when this
+    // event fires.  No rAF delay: the browser hasn't painted yet.
     const preloader = document.getElementById('page-preloader');
     if (preloader) {
         preloader.style.display = 'none';
     }
-    requestAnimationFrame(() => {
-        const el = document.getElementById('admin-content-area');
-        if (el) el.scrollTop = __adminScrollTop;
-    });
 });
 
 // Re-run per-page inline scripts after every Turbo render. Page scripts use
@@ -68,6 +103,7 @@ document.addEventListener('turbo:before-fetch-response', (event) => {
 // Sidebar desktop/mobile sync. Registered once per page lifetime so Turbo body
 // swaps (which re-run x-init) don't leak resize listeners.
 let sidebarResizeBound = false;
+let sidebarInitialized = false;
 
 window.__initAdminSidebar = () => {
     const store = Alpine.store('sidebar');
@@ -76,20 +112,29 @@ window.__initAdminSidebar = () => {
     }
 
     const sync = () => {
+        const el = document.getElementById('admin-content-area');
+        const top = el ? el.scrollTop : 0;
         if (window.innerWidth < 1280) {
             store.setMobileOpen(false);
             store.isExpanded = false;
-            const el = document.getElementById('admin-content-area');
-            if (el) el.classList.remove('overflow-hidden');
         } else {
             store.isMobileOpen = false;
             store.isExpanded = true;
-            const el = document.getElementById('admin-content-area');
-            if (el) el.classList.remove('overflow-hidden');
+        }
+        if (el && top > 0) {
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => { el.scrollTop = top; });
+            });
         }
     };
 
-    sync();
+    // Only run sync on the very first init — not on every Turbo render.
+    // Turbo body swaps re-run x-init, but the Alpine store persists across
+    // navigations so resetting sidebar state would disrupt scroll position.
+    if (!sidebarInitialized) {
+        sidebarInitialized = true;
+        sync();
+    }
 
     if (!sidebarResizeBound) {
         sidebarResizeBound = true;

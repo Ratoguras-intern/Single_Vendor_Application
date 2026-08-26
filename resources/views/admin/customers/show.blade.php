@@ -13,8 +13,52 @@
         <h2 class="flex items-center gap-3 text-xl font-bold text-gray-800 dark:text-white">
             <x-user-avatar :user="$customer" size="h-10 w-10" text-size="text-sm" />
             Customer: {{ $customer->name }}
+            @if ($customer->is_frozen)
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-700 dark:bg-red-500/10 dark:text-red-400">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="22" y1="12" y2="12"/><path d="m20 16-4-4 4-4"/><path d="m4 8 4 4-4 4"/><path d="m16 4-4 4-4-4"/><path d="m8 20 4-4-4-4"/><line x1="12" x2="12" y1="2" y2="22"/></svg>
+                    Frozen
+                    @if ($customer->frozen_reason)
+                        <span class="text-xs font-normal opacity-75">— {{ $customer->frozen_reason }}</span>
+                    @endif
+                </span>
+            @endif
         </h2>
         <div class="flex items-center gap-2">
+            @if ($customer->id !== Auth::id())
+                @if ($customer->is_frozen)
+                    <form action="{{ route('admin.customers.unfreeze', $customer) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-green-300 bg-white px-4 py-2.5 text-sm font-medium text-green-700 hover:bg-green-50 dark:border-green-700 dark:text-green-400 dark:hover:bg-green-500/10">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="22" y1="12" y2="12"/><path d="m20 16-4-4 4-4"/><path d="m4 8 4 4-4 4"/><path d="m16 4-4 4-4-4"/><path d="m8 20 4-4-4-4"/><line x1="12" x2="12" y1="2" y2="22"/></svg>
+                            Unfreeze Account
+                        </button>
+                    </form>
+                @else
+                    <form action="{{ route('admin.customers.freeze', $customer) }}" method="POST" x-data="{ show: false }">
+                        @csrf
+                        <input type="hidden" name="frozen_reason" :value="reason || null">
+                        <button type="button" @click="show = !show" class="inline-flex items-center gap-2 rounded-lg border border-blue-300 bg-white px-4 py-2.5 text-sm font-medium text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-500/10">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="22" y1="12" y2="12"/><path d="m20 16-4-4 4-4"/><path d="m4 8 4 4-4 4"/><path d="m16 4-4 4-4-4"/><path d="m8 20 4-4-4-4"/><line x1="12" x2="12" y1="2" y2="22"/></svg>
+                            Freeze Account
+                        </button>
+                        <template x-if="show">
+                            <div class="fixed inset-0 z-50 flex items-center justify-center" x-cloak>
+                                <div class="fixed inset-0 bg-black/50" @click="show = false"></div>
+                                <div x-transition class="relative z-10 w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-2xl dark:border-gray-700 dark:bg-gray-900">
+                                    <h3 class="mb-1 text-lg font-semibold text-gray-800 dark:text-white">Freeze Account</h3>
+                                    <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">Frozen users cannot log in until unfrozen.</p>
+                                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Reason (optional)</label>
+                                    <textarea x-model="reason" maxlength="500" rows="3" placeholder="Why freeze this account?" class="mb-4 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white"></textarea>
+                                    <div class="flex justify-end gap-2">
+                                        <button type="button" @click="show = false" class="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800">Cancel</button>
+                                        <button type="submit" class="rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600">Freeze</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </form>
+                @endif
+            @endif
             <a href="{{ route('admin.customers.orders', $customer) }}" class="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.03]">
                 View Orders
             </a>

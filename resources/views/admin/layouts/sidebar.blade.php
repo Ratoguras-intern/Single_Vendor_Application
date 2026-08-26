@@ -43,12 +43,28 @@
         toggleSubmenu(groupIndex, itemIndex) {
             const key = groupIndex + '-' + itemIndex;
             const newState = !this.openSubmenus[key];
+            const contentArea = document.getElementById('admin-content-area');
+            const navigation = this.$refs.navigation;
+            const contentScrollTop = contentArea ? contentArea.scrollTop : 0;
+            const navigationScrollTop = navigation ? navigation.scrollTop : 0;
 
-            this.openSubmenus = {};
+            for (const k of Object.keys(this.openSubmenus)) {
+                delete this.openSubmenus[k];
+            }
 
             if (newState) {
                 this.openSubmenus[key] = true;
             }
+
+            // Alpine updates the submenu DOM on the next tick. Restore both
+            // scroll containers after that update so opening a menu cannot
+            // reset a scrolled sidebar (or the page content) to the top.
+            this.$nextTick(() => {
+                requestAnimationFrame(() => {
+                    if (contentArea) contentArea.scrollTop = contentScrollTop;
+                    if (navigation) navigation.scrollTop = navigationScrollTop;
+                });
+            });
         },
         isSubmenuOpen(groupIndex, itemIndex) {
             const key = groupIndex + '-' + itemIndex;
@@ -75,11 +91,11 @@
         :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ?
         'xl:justify-center' :
         'justify-start'">
-        <x-brand-logo sidebar subtitle="{{ auth()->user()->role === 'super_admin' ? 'SUPER ADMIN' : 'ADMIN SUITE' }}" />
+        <x-brand-logo sidebar href="{{ url()->current() }}" subtitle="{{ auth()->user()->role === 'super_admin' ? 'SUPER ADMIN' : 'ADMIN SUITE' }}" />
     </div>
 
     <!-- Navigation Menu -->
-    <div class="flex flex-col flex-1 min-h-0 overflow-y-auto duration-300 ease-linear no-scrollbar">
+    <div x-ref="navigation" class="flex flex-col flex-1 min-h-0 overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav class="mb-3">
             <div class="flex flex-col gap-3">
                 @foreach ($menuGroups as $groupIndex => $menuGroup)
@@ -109,7 +125,7 @@
                                 <li>
                                     @if (isset($item['subItems']))
                                         <!-- Menu Item with Submenu -->
-                                        <button @click="toggleSubmenu({{ $groupIndex }}, {{ $itemIndex }})"
+                                        <button type="button" @click="toggleSubmenu({{ $groupIndex }}, {{ $itemIndex }})"
                                             class="menu-item group w-full"
                                             :class="[
                                                 isSubmenuOpen({{ $groupIndex }}, {{ $itemIndex }}) ?

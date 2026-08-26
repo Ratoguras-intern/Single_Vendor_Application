@@ -14,6 +14,16 @@ class OrderController extends Controller
     {
         $query = Order::with('user');
 
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('order_number', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($q2) use ($search) {
+                        $q2->where('name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
@@ -112,6 +122,14 @@ class OrderController extends Controller
             'tracking_carrier' => $order->tracking_carrier,
             'tracking_number' => $order->tracking_number,
         ]);
+    }
+
+    public function destroy(Order $order)
+    {
+        $order->delete();
+
+        return redirect()->route('admin.orders.index')
+            ->with('success', 'Order deleted.');
     }
 
     public function receipt(Order $order)

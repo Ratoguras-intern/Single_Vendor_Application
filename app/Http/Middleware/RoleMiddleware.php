@@ -27,6 +27,11 @@ class RoleMiddleware
             return redirect()->route('login');
         }
 
+        if ($user->is_frozen) {
+            Auth::logout();
+            return redirect()->route('login')->with('error', 'Your account is frozen. Please contact support.');
+        }
+
         if (!in_array($user->role, $roles)) {
             abort(403);
         }

@@ -41,7 +41,7 @@
         </button>
     </form>
 
-    <div class="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+    <div id="search-results" class="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead>

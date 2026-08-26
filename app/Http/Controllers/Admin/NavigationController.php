@@ -137,6 +137,20 @@ class NavigationController extends Controller
             ->with('success', 'Settings saved.');
     }
 
+    public function destroyMenu(NavigationMenu $navigation)
+    {
+        $navigation->items()->each(function ($item) {
+            $item->children()->delete();
+        });
+        $navigation->items()->delete();
+        $navigation->delete();
+
+        $this->clearNavCache();
+
+        return redirect()->route('admin.navigations.index')
+            ->with('success', 'Menu and all its items deleted.');
+    }
+
     public function toggleMenu(NavigationMenu $navigation): JsonResponse
     {
         $navigation->update(['is_enabled' => !$navigation->is_enabled]);

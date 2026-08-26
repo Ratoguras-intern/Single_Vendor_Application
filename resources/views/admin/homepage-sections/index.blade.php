@@ -57,10 +57,19 @@
                                 </button>
                             </td>
                             <td class="px-5 py-4">
-                                <a href="{{ route('admin.homepage-sections.show', $section) }}"
-                                    class="text-brand-500 hover:text-brand-600 dark:text-brand-400 dark:hover:text-brand-300">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                </a>
+                                <div class="flex items-center gap-1.5">
+                                    <a href="{{ route('admin.homepage-sections.show', $section) }}"
+                                        class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-500 shadow-sm transition hover:bg-gray-50 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-white/[0.06] dark:hover:text-gray-200">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    </a>
+                                    <form method="POST" action="{{ route('admin.homepage-sections.destroy', $section) }}" onsubmit="return confirm('Delete this section?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-white text-red-500 shadow-sm transition hover:bg-red-50 hover:text-red-700 dark:border-gray-700 dark:bg-gray-900 dark:text-red-400 dark:hover:bg-red-500/10">
+                                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @endforeach
@@ -71,6 +80,24 @@
 
     @push('scripts')
     <script type="text/turbo-script">
+        function showToast(message, type = 'info') {
+            const colors = {
+                success: 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/30 text-green-800 dark:text-green-300',
+                error: 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/30 text-red-800 dark:text-red-300',
+            };
+            const icons = {
+                success: '<div class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-green-500 text-white"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div>',
+                error: '<div class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-500 text-white"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 6L6 18M6 6l12 12"/></svg></div>',
+            };
+            const wrap = document.createElement('div');
+            wrap.className = 'fixed top-5 right-5 z-[100001] pointer-events-none';
+            wrap.innerHTML = `<div class="pointer-events-auto flex items-start gap-3 rounded-lg border p-4 shadow-lg backdrop-blur-sm ${colors[type] || colors.success} opacity-0 translate-x-8 transition-all duration-300">${icons[type] || icons.success}<p class="flex-1 text-sm font-medium">${message}</p></div>`;
+            document.body.appendChild(wrap);
+            const el = wrap.firstElementChild;
+            requestAnimationFrame(() => { el.classList.remove('opacity-0', 'translate-x-8'); el.classList.add('opacity-100', 'translate-x-0'); });
+            setTimeout(() => { el.classList.add('opacity-0', 'translate-x-8'); setTimeout(() => wrap.remove(), 300); }, 3000);
+        }
+
         function toggleSection(id) {
             fetch(`/admin/homepage-sections/${id}/toggle`, {
                 method: 'PATCH',
@@ -100,7 +127,7 @@
                             },
                             body: JSON.stringify({ order })
                         }).then(r => r.json()).then(d => {
-                            if (d.message) console.log(d.message);
+                            if (d.message) showToast(d.message, 'success');
                         });
                     }
                 });

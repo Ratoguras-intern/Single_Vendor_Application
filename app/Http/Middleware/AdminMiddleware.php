@@ -20,6 +20,11 @@ class AdminMiddleware
             return redirect()->route('login');
         }
 
+        if (Auth::user()->is_frozen) {
+            Auth::logout();
+            return redirect()->route('login')->with('error', 'Your account is frozen. Please contact support.');
+        }
+
         if (!in_array(Auth::user()->role, ['admin', 'super_admin'])) {
             abort(403);
         }

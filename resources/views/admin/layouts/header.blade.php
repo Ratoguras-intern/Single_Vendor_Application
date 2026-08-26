@@ -49,7 +49,7 @@
             </button>
 
             <!-- Logo (mobile only) -->
-            <a href="/" data-turbo="false" class="xl:hidden">
+            <a href="{{ url()->current() }}" data-turbo="false" class="xl:hidden">
                 <x-brand-logo :showText="false" />
             </a>
 
@@ -65,11 +65,10 @@
             </button>
 
             <!-- Search Bar (desktop only) -->
-            <div class="hidden xl:block">
-                <form>
+            <div class="hidden xl:block" x-data="adminSearch()">
+                <div class="relative">
                     <div class="relative">
                         <span class="absolute -translate-y-1/2 pointer-events-none left-4 top-1/2">
-                            <!-- Search Icon -->
                             <svg class="fill-gray-500 dark:fill-gray-400" width="20" height="20"
                                 viewBox="0 0 20 20" fill="none">
                                 <path fill-rule="evenodd" clip-rule="evenodd"
@@ -77,15 +76,44 @@
                                     fill="" />
                             </svg>
                         </span>
-                        <input type="text" placeholder="Search..."
+                        <input type="text" placeholder="Search... (Ctrl+K)" x-ref="searchInput"
+                            @focus="open = true"
+                            @input.debounce.300ms="fetchResults()"
+                            @keydown.escape="open = false; $refs.searchInput.blur()"
+                            @keydown.ctrl.k.prevent="open = true; $nextTick(() => $refs.searchInput.focus())"
+                            @keydown.meta.k.prevent="open = true; $nextTick(() => $refs.searchInput.focus())"
+                            x-model="query"
                             class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pl-12 pr-14 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/3 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 xl:w-[430px]" />
-                        {{-- <button
-                            class="absolute right-2.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50 px-[7px] py-[4.5px] text-xs -tracking-[0.2px] text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400">
-                            <span> ⌘ </span>
-                            <span> K </span>
-                        </button> --}}
+                        <kbd x-show="!open" class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none hidden rounded border border-gray-200 bg-gray-50 px-1.5 py-0.5 text-[10px] font-medium text-gray-400 dark:border-gray-700 dark:bg-white/5 dark:text-gray-500 xl:inline">&#8984;K</kbd>
                     </div>
-                </form>
+
+                    <!-- Search Results Dropdown -->
+                    <div x-show="open && query.length >= 2" x-transition:enter="transition ease-out duration-100"
+                        x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0"
+                        x-transition:leave="transition ease-in duration-75"
+                        x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-1"
+                        x-cloak @click.outside="open = false"
+                        class="absolute left-0 top-full z-50 mt-2 w-full min-w-[430px] max-h-[500px] overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-800 dark:bg-gray-900">
+
+                        <div x-show="loading" class="flex items-center justify-center py-6">
+                            <svg class="h-5 w-5 animate-spin text-brand-500" viewBox="0 0 24 24" fill="none">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                            </svg>
+                        </div>
+
+                        <div x-show="!loading && resultsHtml" x-html="resultsHtml"></div>
+
+                        <div x-show="!loading && !resultsHtml && query.length >= 2" class="flex flex-col items-center justify-center px-4 py-8 text-center">
+                            <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 dark:bg-white/5">
+                                <svg class="h-6 w-6 text-gray-400 dark:text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                                </svg>
+                            </div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">No results for <span x-text="'\u201c' + query + '\u201d'"></span></p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -93,6 +121,18 @@
         <div :class="isApplicationMenuOpen ? 'flex' : 'hidden'"
             class="items-center justify-between w-full gap-4 px-5 py-4 xl:flex shadow-theme-md xl:justify-end xl:px-0 xl:shadow-none">
             <div class="flex items-center gap-2 2xsm:gap-3">
+                <!-- View Home -->
+                <a href="/" target="_blank" data-turbo="false"
+                    class="flex h-11 items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:text-white"
+                    title="View Store">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                        <polyline points="9 22 9 12 15 12 15 22" />
+                    </svg>
+                    <span class="hidden sm:inline">Home</span>
+                </a>
+
                 <!-- Currency Switcher -->
                 <div class="relative"
                     x-data='{
@@ -123,8 +163,10 @@
                         aria-label="Select currency">
                         <span x-text="config[code] ? config[code].symbol : '{{ currency_symbol() }}'"></span>
                         <span x-text="code"></span>
-                        <svg :class="open ? 'rotate-180' : ''" class="transition-transform" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                            <path d="M2.5 4L6 7.5L9.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <svg :class="open ? 'rotate-180' : ''" class="transition-transform" width="12"
+                            height="12" viewBox="0 0 12 12" fill="none">
+                            <path d="M2.5 4L6 7.5L9.5 4" stroke="currentColor" stroke-width="1.5"
+                                stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                     </button>
                     <div x-show="open" x-transition x-cloak

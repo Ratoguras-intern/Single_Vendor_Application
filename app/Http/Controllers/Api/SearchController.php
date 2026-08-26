@@ -14,8 +14,9 @@ class SearchController extends Controller
     public function __invoke(Request $request): JsonResponse
     {
         $query = $request->input('q', '');
+        $brandSlug = $request->input('brand', '');
 
-        if (strlen($query) < 2) {
+        if (strlen($query) < 2 && empty($brandSlug)) {
             return response()->json([
                 'products'       => [],
                 'categories'     => [],
@@ -30,6 +31,7 @@ class SearchController extends Controller
                 $q->where('name', 'like', "%{$query}%")
                   ->orWhere('description', 'like', "%{$query}%");
             })
+            ->when($brandSlug, fn ($q) => $q->whereHas('brand', fn ($b) => $b->where('slug', $brandSlug)))
             ->with(['images', 'category', 'brand'])
             ->inRandomOrder()
             ->limit((int) Setting::get('limits.search_products', 8))

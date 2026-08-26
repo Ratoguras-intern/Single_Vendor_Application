@@ -6,12 +6,30 @@
     x-transition:leave="transition ease-in duration-150"
     x-transition:leave-start="opacity-100 translate-y-0"
     x-transition:leave-end="opacity-0 -translate-y-2"
-    class="bg-white dark:bg-secondary-800 border-b border-secondary-200 dark:border-secondary-700 shadow-dropdown z-[60] relative md:absolute md:left-0 md:right-0 md:top-full"
-    style="display: none;">
+    class="bg-white dark:bg-secondary-800 border-b border-secondary-200 dark:border-secondary-700 shadow-dropdown z-[60] fixed left-0 right-0 md:absolute md:left-0 md:right-0 md:top-full"
+    style="top: var(--navbar-height, 0px); display: none;">
 
     <div class="section py-4">
+        {{-- Brand Filter --}}
+        @if(isset($brands) && $brands->isNotEmpty())
+            <div class="flex flex-wrap gap-1.5 mb-3 px-4">
+                <button type="button" x-on:click="searchBrand = ''; liveSearch()"
+                    :class="!searchBrand ? 'bg-primary-500 text-white' : 'bg-secondary-100 dark:bg-white/10 text-secondary-600 dark:text-secondary-400 hover:bg-secondary-200 dark:hover:bg-white/15'"
+                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-colors">
+                    All Brands
+                </button>
+                @foreach($brands->take(10) as $brandItem)
+                    <button type="button" x-on:click="searchBrand = '{{ $brandItem->slug }}'; liveSearch()"
+                        :class="searchBrand === '{{ $brandItem->slug }}' ? 'bg-primary-500 text-white' : 'bg-secondary-100 dark:bg-white/10 text-secondary-600 dark:text-secondary-400 hover:bg-secondary-200 dark:hover:bg-white/15'"
+                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-colors">
+                        {{ $brandItem->name }}
+                    </button>
+                @endforeach
+            </div>
+        @endif
+
         {{-- Search Results --}}
-        <div x-show="searchQuery.length >= 2 && searchFocused" class="mt-4" style="display: none;">
+        <div x-show="(searchQuery.length >= 2 || searchBrand) && searchFocused" class="mt-4" style="display: none;">
             {{-- Loading --}}
             <template x-if="searchLoading">
                 <div class="flex items-center justify-center py-6">
@@ -24,12 +42,12 @@
             </template>
 
             {{-- Results --}}
-            <template x-if="!searchLoading && searchResults.length === 0 && searchQuery.length >= 2">
+            <template x-if="!searchLoading && searchResults.length === 0 && (searchQuery.length >= 2 || searchBrand)">
                 <div class="text-center py-6">
                     <svg class="h-10 w-10 text-secondary-300 dark:text-secondary-600 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
                     </svg>
-                    <p class="text-sm text-secondary-500 dark:text-secondary-400">No results found for "<span x-text="searchQuery" class="font-medium"></span>"</p>
+                    <p class="text-sm text-secondary-500 dark:text-secondary-400">No results found for "<span x-text="searchQuery" class="font-medium"></span>"<template x-if="searchBrand"><span class="font-medium" x-text="' in ' + searchBrand"></span></template></p>
                 </div>
             </template>
 
@@ -71,7 +89,7 @@
                         </template>
                     </div>
 
-                    <a :href="'{{ route('frontend.shop') }}?search=' + encodeURIComponent(searchQuery)"
+                    <a :href="'{{ route('frontend.shop') }}?search=' + encodeURIComponent(searchQuery) + (searchBrand ? '&brand[]=' + encodeURIComponent(searchBrand) : '')"
                         class="block text-center text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 py-3 mt-2 border-t border-secondary-100 dark:border-secondary-700 transition-colors">
                         View all results
                     </a>
@@ -80,7 +98,7 @@
         </div>
 
         {{-- Recent & Popular (shown when no query) --}}
-        <div x-show="searchQuery.length < 2 && searchFocused" class="mt-4 grid grid-cols-2 gap-8" style="display: none;">
+        <div x-show="searchQuery.length < 2 && !searchBrand && searchFocused" class="mt-4 grid grid-cols-2 gap-8" style="display: none;">
             {{-- Recent Searches --}}
             <div x-show="recentSearches.length > 0">
                 <h4 class="text-xs font-bold uppercase tracking-wider text-secondary-400 dark:text-secondary-500 mb-3">Recent Searches</h4>
@@ -115,7 +133,7 @@
         </div>
 
         {{-- Quick Links --}}
-        <div x-show="searchQuery.length < 2 && !searchFocused" class="mt-4 pt-4 border-t border-secondary-100 dark:border-secondary-700">
+        <div x-show="searchQuery.length < 2 && !searchBrand && !searchFocused" class="mt-4 pt-4 border-t border-secondary-100 dark:border-secondary-700">
             <h4 class="text-xs font-bold uppercase tracking-wider text-secondary-400 dark:text-secondary-500 mb-3">Quick Links</h4>
             <div class="flex flex-wrap gap-2">
                 <a href="{{ route('frontend.shop') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary-100 dark:bg-white/10 text-sm text-secondary-600 dark:text-secondary-400 hover:bg-secondary-200 dark:hover:bg-white/15 transition-colors">

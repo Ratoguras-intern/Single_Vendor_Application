@@ -47,7 +47,7 @@
     </div>
 
     {{-- Reviews Table --}}
-    <div class="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden">
+    <div id="search-results" class="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
@@ -104,7 +104,7 @@
                                             <button type="submit" class="text-xs font-medium text-yellow-600 hover:text-yellow-700 dark:text-yellow-400">Reject</button>
                                         </form>
                                     @endif
-                                    <form method="POST" action="{{ route('admin.reviews.destroy', $review) }}" onsubmit="return confirm('Delete this review?')">
+                                    <form method="POST" action="{{ route('admin.reviews.destroy', $review) }}" x-data @submit.prevent="$store.confirmModal.open({ title: 'Delete Review', message: 'Are you sure you want to delete this review?', form: $el })">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="text-xs font-medium text-red-500 hover:text-red-600">Delete</button>

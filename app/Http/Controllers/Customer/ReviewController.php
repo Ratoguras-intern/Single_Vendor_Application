@@ -35,10 +35,6 @@ class ReviewController extends Controller
             ->whereHas('items', fn ($q) => $q->where('product_id', $productId))
             ->exists();
 
-        if (! $hasDeliveredOrder) {
-            return back()->withErrors(['product_id' => 'Only customers who have purchased this product can leave a review.']);
-        }
-
         $deliveredOrder = Order::where('user_id', $user->id)
             ->where('status', 'delivered')
             ->whereHas('items', fn ($q) => $q->where('product_id', $productId))
@@ -52,11 +48,13 @@ class ReviewController extends Controller
             'rating' => $data['rating'],
             'title' => $data['title'] ?? null,
             'comment' => $data['comment'],
-            'status' => 'pending',
-            'is_verified_purchase' => true,
+            'status' => 'approved',
+            'is_verified_purchase' => $hasDeliveredOrder,
         ]);
 
-        return back()->with('success', 'Your review has been submitted and is pending approval.');
+        ProductReview::updateProductRating($productId);
+
+        return back()->with('success', 'Your review has been published.');
     }
 
     public function update(Request $request, ProductReview $review)
@@ -75,10 +73,12 @@ class ReviewController extends Controller
             'rating' => $request->input('rating'),
             'title' => $request->input('title'),
             'comment' => $request->input('comment'),
-            'status' => 'pending',
+            'status' => 'approved',
         ]);
 
-        return back()->with('success', 'Your review has been updated and is pending re-approval.');
+        ProductReview::updateProductRating($review->product_id);
+
+        return back()->with('success', 'Your review has been updated.');
     }
 
     public function destroy(ProductReview $review)

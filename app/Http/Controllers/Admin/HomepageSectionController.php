@@ -73,6 +73,15 @@ class HomepageSectionController extends Controller
         ]);
     }
 
+    public function destroy(HomepageSection $homepageSection)
+    {
+        $homepageSection->delete();
+        HomepageSection::clearCache();
+
+        return redirect()->route('admin.homepage-sections.index')
+            ->with('success', 'Section deleted.');
+    }
+
     public function updateOrder(Request $request)
     {
         $validated = $request->validate([
@@ -80,13 +89,15 @@ class HomepageSectionController extends Controller
             'order.*' => 'integer|exists:homepage_sections,id',
         ]);
 
+        $oldOrder = HomepageSection::pluck('id')->map(fn ($id) => (int) $id)->values()->toArray();
+
         foreach ($validated['order'] as $index => $id) {
             HomepageSection::where('id', $id)->update(['sort_order' => $index]);
         }
 
         HomepageSection::clearCache();
 
-        return response()->json(['message' => 'Order updated.']);
+        return response()->json(['message' => 'Section order updated.']);
     }
 
     private function updateFlashSale(array &$config, Request $request): void

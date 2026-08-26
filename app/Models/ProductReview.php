@@ -55,7 +55,7 @@ class ProductReview extends Model
 
     public static function updateProductRating(int $productId): void
     {
-        $stats = static::approved()->where('product_id', $productId)
+        $stats = static::where('product_id', $productId)
             ->selectRaw('COALESCE(AVG(rating), 0) as avg_rating, COUNT(*) as total')
             ->first();
 

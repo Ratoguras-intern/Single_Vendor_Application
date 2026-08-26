@@ -148,5 +148,6 @@
     @include('frontend.partials.scripts')
     @livewireScriptConfig
     @stack('scripts')
+    <x-chat-widget />
 </body>
 </html>

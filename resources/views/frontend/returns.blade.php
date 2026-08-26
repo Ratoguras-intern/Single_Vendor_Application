@@ -27,7 +27,7 @@
                     <p class="section-subheading mt-2">Returns accepted within {{ $windowDays }} days of delivery.</p>
                 @endif
             </div>
-            @include('frontend.partials.process-steps', ['steps' => $processSteps, 'columns' => 6])
+            @include('frontend.partials.process-steps', ['steps' => $processSteps, 'columns' => 5])
         </div>
     </section>
 @endif

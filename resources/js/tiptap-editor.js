@@ -40,11 +40,13 @@ export function initTiptapEditor(hiddenSelector = '#content-hidden', editorSelec
                 case 'blockquote': editor.chain().focus().toggleBlockquote().run(); break;
                 case 'horizontalRule': editor.chain().focus().setHorizontalRule().run(); break;
                 case 'link':
-                    const url = window.prompt('Enter URL:', editor.getAttributes('link').href || 'https://');
-                    if (url !== null) {
-                        if (url === '') editor.chain().focus().extendMarkRange('link').unsetLink().run();
-                        else editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
-                    } break;
+                    const currentHref = editor.getAttributes('link').href || 'https://';
+                    window.showPrompt('Enter URL:', currentHref).then(url => {
+                        if (url !== null) {
+                            if (url === '') editor.chain().focus().extendMarkRange('link').unsetLink().run();
+                            else editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+                        }
+                    }); break;
                 case 'undo': editor.chain().focus().undo().run(); break;
                 case 'redo': editor.chain().focus().redo().run(); break;
             }

@@ -1,6 +1,7 @@
 @props([
     'indexUrl' => route('admin.media.index'),
     'storeUrl' => route('admin.media.store'),
+    'importUrl' => route('admin.media.import-url'),
 ])
 
 {{-- ─────────────────────────────────────────────────────────────────────────
@@ -30,6 +31,7 @@
     x-cloak
     data-index-url="{{ $indexUrl }}"
     data-store-url="{{ $storeUrl }}"
+    data-import-url="{{ $importUrl }}"
     data-max-size-kb="{{ (int) config('media.max_size', 2048) }}"
     data-allowed-mimes="{{ json_encode(array_values((array) config('media.allowed_mimes'))) }}"
     data-folders="{{ json_encode(array_map(fn ($key, $cfg) => ['key' => $key, 'label' => $cfg['label']], array_keys((array) config('media.folders', [])), (array) config('media.folders', []))) }}"
@@ -117,6 +119,58 @@
                                     placeholder="Search media..."
                                     class="w-full pl-10 pr-4 py-2 rounded-xl border border-secondary-200 dark:border-secondary-600 bg-secondary-50 dark:bg-secondary-800 text-sm text-secondary-900 dark:text-white placeholder:text-secondary-400 focus:border-primary-400 focus:ring-2 focus:ring-primary-500/10 transition-all"
                                     aria-label="Search media">
+                            </div>
+
+                            {{-- URL import (mobile) --}}
+                            <div class="sm:hidden relative" x-data="{ showUrlMobile: false }">
+                                <button type="button" x-on:click="showUrlMobile = !showUrlMobile"
+                                    class="shrink-0 inline-flex items-center justify-center rounded-lg border border-secondary-300 dark:border-secondary-600 bg-secondary-50 dark:bg-secondary-800 p-2 text-secondary-700 dark:text-secondary-300 hover:bg-secondary-100 dark:hover:bg-white/5 transition-colors">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m9.86-2.813a4.5 4.5 0 0 0-1.242-7.244l-4.5-4.5a4.5 4.5 0 0 0-6.364 6.364L4.34 8.374" transform="translate(2 4)"/></svg>
+                                </button>
+                                <div x-show="showUrlMobile" x-on:click.outside="showUrlMobile = false" x-cloak
+                                    class="absolute right-0 top-full mt-2 z-30 w-72 rounded-xl border border-secondary-200 dark:border-secondary-700 bg-white dark:bg-secondary-800 shadow-xl p-3">
+                                    <label class="text-xs font-medium text-secondary-500 dark:text-secondary-400 mb-1.5 block">Paste image URL</label>
+                                    <div class="flex gap-1.5">
+                                        <input type="url" x-model="urlInput" x-on:keydown.enter.prevent="importFromUrl()"
+                                            placeholder="https://example.com/image.jpg"
+                                            class="flex-1 min-w-0 rounded-lg border border-secondary-300 dark:border-secondary-600 bg-secondary-50 dark:bg-secondary-900 px-3 py-2 text-sm text-secondary-900 dark:text-white placeholder:text-secondary-400 focus:border-primary-400 focus:ring-2 focus:ring-primary-500/10"
+                                            :disabled="importing">
+                                        <button type="button" x-on:click="importFromUrl()" :disabled="importing || !urlInput.trim()"
+                                            class="shrink-0 inline-flex items-center justify-center rounded-lg bg-primary-600 p-2 text-white hover:bg-primary-700 transition-colors disabled:opacity-50">
+                                            <svg x-show="!importing" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                                            <svg x-show="importing" class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- URL import (desktop) --}}
+                            <div class="hidden sm:flex items-center gap-1.5">
+                                <div class="relative" x-data="{ showUrl: false }">
+                                    <button type="button" x-on:click="showUrl = !showUrl"
+                                        class="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-secondary-300 dark:border-secondary-600 bg-secondary-50 dark:bg-secondary-800 px-3 py-2 text-sm font-medium text-secondary-700 dark:text-secondary-300 hover:bg-secondary-100 dark:hover:bg-white/5 transition-colors"
+                                        :class="showUrl && 'bg-primary-50 dark:bg-primary-500/10 border-primary-300 dark:border-primary-600 text-primary-700 dark:text-primary-400'">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m9.86-2.813a4.5 4.5 0 0 0-1.242-7.244l-4.5-4.5a4.5 4.5 0 0 0-6.364 6.364L4.34 8.374" transform="translate(2 4)"/></svg>
+                                        <span class="hidden lg:inline">URL</span>
+                                    </button>
+                                    <div x-show="showUrl" x-on:click.outside="showUrl = false" x-cloak
+                                        class="absolute right-0 top-full mt-2 z-30 w-80 sm:w-96 rounded-xl border border-secondary-200 dark:border-secondary-700 bg-white dark:bg-secondary-800 shadow-xl p-3">
+                                        <label class="text-xs font-medium text-secondary-500 dark:text-secondary-400 mb-1.5 block">Paste image URL</label>
+                                        <div class="flex gap-1.5">
+                                            <input type="url" x-model="urlInput" x-on:keydown.enter.prevent="importFromUrl()"
+                                                placeholder="https://example.com/image.jpg"
+                                                class="flex-1 min-w-0 rounded-lg border border-secondary-300 dark:border-secondary-600 bg-secondary-50 dark:bg-secondary-900 px-3 py-2 text-sm text-secondary-900 dark:text-white placeholder:text-secondary-400 focus:border-primary-400 focus:ring-2 focus:ring-primary-500/10"
+                                                :disabled="importing">
+                                            <button type="button" x-on:click="importFromUrl()" :disabled="importing || !urlInput.trim()"
+                                                class="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3 py-2 text-sm font-medium text-white hover:bg-primary-700 transition-colors disabled:opacity-50">
+                                                <svg x-show="!importing" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                                                <svg x-show="importing" class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                                                <span x-text="importing ? 'Importing...' : 'Import'"></span>
+                                            </button>
+                                        </div>
+                                        <p class="mt-1.5 text-[11px] text-secondary-400">Image will be added to <span x-text="activeFolderLabel"></span></p>
+                                    </div>
+                                </div>
                             </div>
 
                             {{-- Upload button --}}
@@ -302,9 +356,14 @@ function mediaPicker() {
         uploading: false,
         dragOver: false,
 
+        // url import
+        urlInput: '',
+        importing: false,
+
         init() {
             this.indexUrl = this.$el.dataset.indexUrl;
             this.storeUrl = this.$el.dataset.storeUrl;
+            this.importUrlEndpoint = this.$el.dataset.importUrl;
             this.maxSizeKb = parseInt(this.$el.dataset.maxSizeKb, 10) || 2048;
             this.allowedMimes = JSON.parse(this.$el.dataset.allowedMimes || '[]');
             this.folders = JSON.parse(this.$el.dataset.folders || '[]');
@@ -334,6 +393,7 @@ function mediaPicker() {
             this.selected = [];
             this.queue = [];
             this.search = '';
+            this.urlInput = '';
             this.open = true;
             document.body.classList.add('overflow-hidden');
             this.loadMedia(true);
@@ -343,6 +403,7 @@ function mediaPicker() {
         close() {
             if (!this.open) return;
             this.open = false;
+            this.urlInput = '';
             document.body.classList.remove('overflow-hidden');
         },
 
@@ -417,6 +478,54 @@ function mediaPicker() {
                 detail: { name: this.targetName, media: [...this.selected] },
             }));
             this.close();
+        },
+
+        // ── URL Import ─────────────────────────────────────────────
+        async importFromUrl() {
+            const url = this.urlInput.trim();
+            if (!url) return;
+
+            this.importing = true;
+            try {
+                const res = await fetch(this.importUrlEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                    },
+                    body: JSON.stringify({
+                        url,
+                        folder: this.folder !== 'all' && this.folder !== 'recent' && this.folder !== 'other' ? this.folder : null,
+                    }),
+                });
+
+                const json = await res.json();
+
+                if (!res.ok) {
+                    this.toast(json.message || 'Failed to import image.', 'error');
+                    return;
+                }
+
+                this.urlInput = '';
+                this.toast(json.message || 'Image imported.', 'success');
+
+                // Reload and auto-select the imported item(s)
+                this.search = '';
+                await this.loadMedia(true);
+
+                if (json.data?.length) {
+                    json.data.forEach((imported) => {
+                        const item = this.items.find((i) => i.id === imported.id);
+                        if (item) this.toggle(item);
+                    });
+                }
+            } catch {
+                this.toast('Network error while importing image.', 'error');
+            } finally {
+                this.importing = false;
+            }
         },
 
         // ── Uploads ────────────────────────────────────────────────

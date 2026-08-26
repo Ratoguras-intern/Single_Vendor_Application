@@ -31,7 +31,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
                     @forelse ($admins as $admin)
-                        <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02]">
+                        <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02] {{ $admin->is_frozen ? 'bg-red-50/50 dark:bg-red-500/5' : '' }}">
                             <td class="px-5 py-4">
                                 <div class="flex items-center gap-3">
                                     <div class="h-9 w-9 rounded-full flex items-center justify-center text-sm font-bold text-white {{ $admin->role === 'super_admin' ? 'bg-brand-500' : 'bg-gray-400' }}">
@@ -41,6 +41,12 @@
                                         {{ $admin->name }}
                                         @if ($admin->id === Auth::id())
                                             <span class="ml-1 text-xs text-gray-400 dark:text-gray-500">(you)</span>
+                                        @endif
+                                        @if ($admin->is_frozen)
+                                            <span class="ml-1.5 inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700 dark:bg-red-500/10 dark:text-red-400">
+                                                <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="22" y1="12" y2="12"/><path d="m20 16-4-4 4-4"/><path d="m4 8 4 4-4 4"/><path d="m16 4-4 4-4-4"/><path d="m8 20 4-4-4-4"/><line x1="12" x2="12" y1="2" y2="22"/></svg>
+                                                Frozen
+                                            </span>
                                         @endif
                                     </span>
                                 </div>
@@ -63,6 +69,37 @@
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                     </a>
                                     @if ($admin->id !== Auth::id())
+                                        @if ($admin->is_frozen)
+                                            <form action="{{ route('superadmin.admins.unfreeze', $admin) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="text-gray-400 hover:text-green-500 dark:hover:text-green-400" title="Unfreeze Admin">
+                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="22" y1="12" y2="12"/><path d="m20 16-4-4 4-4"/><path d="m4 8 4 4-4 4"/><path d="m16 4-4 4-4-4"/><path d="m8 20 4-4-4-4"/><line x1="12" x2="12" y1="2" y2="22"/></svg>
+                                                </button>
+                                            </form>
+                                        @else
+                                            <form action="{{ route('superadmin.admins.freeze', $admin) }}" method="POST" x-data="{ show: false }">
+                                                @csrf
+                                                <input type="hidden" name="frozen_reason" :value="reason || null">
+                                                <button type="button" @click="show = !show" class="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400" title="Freeze Admin">
+                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="22" y1="12" y2="12"/><path d="m20 16-4-4 4-4"/><path d="m4 8 4 4-4 4"/><path d="m16 4-4 4-4-4"/><path d="m8 20 4-4-4-4"/><line x1="12" x2="12" y1="2" y2="22"/></svg>
+                                                </button>
+                                                <template x-if="show">
+                                                    <div class="fixed inset-0 z-50 flex items-center justify-center" x-cloak>
+                                                        <div class="fixed inset-0 bg-black/50" @click="show = false"></div>
+                                                        <div x-transition class="relative z-10 w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-2xl dark:border-gray-700 dark:bg-gray-900">
+                                                            <h3 class="mb-1 text-lg font-semibold text-gray-800 dark:text-white">Freeze Admin</h3>
+                                                            <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">Frozen admins cannot log in until unfrozen.</p>
+                                                            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Reason (optional)</label>
+                                                            <input type="text" x-model="reason" maxlength="500" placeholder="Why freeze this admin?" class="mb-4 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+                                                            <div class="flex justify-end gap-2">
+                                                                <button type="button" @click="show = false" class="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800">Cancel</button>
+                                                                <button type="submit" class="rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600">Freeze</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </form>
+                                        @endif
                                         <form action="{{ route('superadmin.admins.toggleStatus', $admin) }}" method="POST">
                                             @csrf
                                             @method('PATCH')

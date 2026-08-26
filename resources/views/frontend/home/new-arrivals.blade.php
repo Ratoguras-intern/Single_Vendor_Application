@@ -10,7 +10,7 @@
                 <h2 class="section-heading">{{ $section?->title ?? 'New Arrivals' }}</h2>
                 <p class="section-subheading">{{ $section?->subtitle ?? 'Fresh drops, just landed' }}</p>
             </div>
-            <a href="{{ route('frontend.shop') }}" class="hidden sm:inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors">
+            <a href="{{ route('frontend.shop') }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors whitespace-nowrap">
                 View All
                 <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
             </a>
@@ -18,10 +18,12 @@
     </div>
 
     <div x-data="{ viewMode: 'grid' }" class="relative group">
+        <div class="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white dark:from-secondary-900 to-transparent z-10 pointer-events-none sm:hidden"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white dark:from-secondary-900 to-transparent z-10 pointer-events-none sm:hidden"></div>
         <div class="section">
-            <div class="flex gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-4">
+            <div class="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-4">
                 @foreach(array_slice($newArrivals, 0, $section?->max_products ?? 10) as $product)
-                    <div class="flex-shrink-0 w-[280px] sm:w-[300px] snap-start">
+                    <div class="flex-shrink-0 w-[220px] sm:w-[260px] md:w-[280px] lg:w-[300px] snap-start">
                         @include('frontend.partials.product-card', ['product' => $product])
                     </div>
                 @endforeach

@@ -120,6 +120,36 @@ class AdminUserController extends Controller
             ->with('success', 'Admin deleted successfully.');
     }
 
+    public function freeze(User $admin, Request $request)
+    {
+        if ($admin->id === auth()->id()) {
+            return back()->with('error', 'You cannot freeze your own account.');
+        }
+
+        if ($admin->role === 'super_admin' && $this->countSuperAdmins() <= 1) {
+            return back()->with('error', 'Cannot freeze the last super admin account.');
+        }
+
+        $validated = $request->validate([
+            'frozen_reason' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $admin->freeze($validated['frozen_reason'] ?? null);
+
+        return back()->with('success', 'Admin account frozen.');
+    }
+
+    public function unfreeze(User $admin)
+    {
+        if ($admin->id === auth()->id()) {
+            return back()->with('error', 'You cannot unfreeze your own account.');
+        }
+
+        $admin->unfreeze();
+
+        return back()->with('success', 'Admin account unfrozen.');
+    }
+
     protected function guardLastSuperAdmin(User $admin, array $validated): void
     {
         if ($admin->role === 'super_admin'

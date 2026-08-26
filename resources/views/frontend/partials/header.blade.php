@@ -8,6 +8,7 @@
         cartOpen: false,
         cartTimer: null,
         searchQuery: '',
+        searchBrand: '',
         searchResults: [],
         searchCategories: [],
         searchLoading: false,
@@ -19,9 +20,11 @@
         popularSearches: [],
 
         liveSearch() {
-            if (this.searchQuery.length < 2) { this.searchResults = []; this.searchCategories = []; return; }
+            if (this.searchQuery.length < 2 && !this.searchBrand) { this.searchResults = []; this.searchCategories = []; return; }
             this.searchLoading = true;
-            fetch('{{ route("api.search") }}?q=' + encodeURIComponent(this.searchQuery))
+            let url = '{{ route("api.search") }}?q=' + encodeURIComponent(this.searchQuery);
+            if (this.searchBrand) url += '&brand=' + encodeURIComponent(this.searchBrand);
+            fetch(url)
                 .then(r => r.json())
                 .then(data => {
                     this.searchResults = data.products || [];
@@ -66,6 +69,7 @@
     "
     :class="isScrolled ? 'scrolled' : ''"
     class="navbar"
+    @click.window="if (!$el.contains($event.target)) searchOpen = false"
     role="banner">
 
     <div class="section py-2.5 sm:py-3">
@@ -497,8 +501,8 @@
         </div>
     </div>
 
-    {{-- Search Area: wraps mobile bar + overlay for unified click-outside handling --}}
-    <div class="md:contents" @click.outside="searchOpen = false">
+    {{-- Search Area: wraps mobile bar + overlay --}}
+    <div class="md:contents">
         {{-- Mobile Search Bar --}}
         <div x-show="searchOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2"
             x-effect="if (searchOpen && window.innerWidth < 768 && $refs.mobileSearchInput) { $nextTick(() => $refs.mobileSearchInput.focus()) }"

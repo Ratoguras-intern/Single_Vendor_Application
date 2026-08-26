@@ -10,13 +10,40 @@ use Illuminate\Support\Facades\DB;
 
 class CustomerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $customers = User::where('role', 'customer')
+        $query = User::where('role', 'customer')
             ->withCount('orders')
-            ->withSum('orders', 'total_amount')
-            ->latest()
-            ->paginate(10);
+            ->withSum('orders', 'total_amount');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('is_frozen')) {
+            $query->where('is_frozen', $request->is_frozen === '1');
+        }
+
+        $perPage = $request->input('per_page', '25');
+        $allowedPerPage = ['10', '25', '50', '100', 'all'];
+        if (!in_array($perPage, $allowedPerPage, true)) {
+            $perPage = '25';
+        }
+
+        $query->latest();
+
+        $customers = $perPage === 'all'
+            ? $query->get()
+            : $query->paginate((int) $perPage)->withQueryString();
 
         return view('admin.customers.index', compact('customers'));
     }
@@ -73,6 +100,36 @@ class CustomerController extends Controller
 
         return redirect()->route('admin.customers.index')
             ->with('success', 'Customer deleted successfully.');
+    }
+
+    public function freeze(User $customer, Request $request)
+    {
+        if ($customer->role !== 'customer') {
+            abort(404);
+        }
+
+        if ($customer->id === Auth::id()) {
+            return back()->with('error', 'You cannot freeze your own account.');
+        }
+
+        $validated = $request->validate([
+            'frozen_reason' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $customer->freeze($validated['frozen_reason'] ?? null);
+
+        return back()->with('success', 'Customer account frozen.');
+    }
+
+    public function unfreeze(User $customer)
+    {
+        if ($customer->role !== 'customer') {
+            abort(404);
+        }
+
+        $customer->unfreeze();
+
+        return back()->with('success', 'Customer account unfrozen.');
     }
 
     public function bulkDestroy(Request $request)

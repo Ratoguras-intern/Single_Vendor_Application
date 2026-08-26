@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\BrandingController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FeaturedCategoryController;
 use App\Http\Controllers\Admin\FooterController;
+use App\Http\Controllers\Admin\GlobalSearchController;
 use App\Http\Controllers\Admin\HomepageSectionController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\NavigationController;
@@ -112,6 +113,8 @@ Route::middleware(['auth', 'role:super_admin'])
             ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
             ->parameters(['admins' => 'admin']);
         Route::patch('/admins/{admin}/toggle-status', [App\Http\Controllers\SuperAdmin\AdminUserController::class, 'toggleStatus'])->name('admins.toggleStatus');
+        Route::post('/admins/{admin}/freeze', [App\Http\Controllers\SuperAdmin\AdminUserController::class, 'freeze'])->name('admins.freeze');
+        Route::post('/admins/{admin}/unfreeze', [App\Http\Controllers\SuperAdmin\AdminUserController::class, 'unfreeze'])->name('admins.unfreeze');
 
         Route::resource('users', App\Http\Controllers\SuperAdmin\UserController::class)
             ->only(['index', 'edit', 'update', 'destroy']);
@@ -148,6 +151,12 @@ Route::middleware(['auth', 'customer'])
         Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
         Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
         Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+
+        // Chat
+        Route::get('/chat', [\App\Http\Controllers\Customer\ChatController::class, 'conversations'])->name('chat.conversations');
+        Route::post('/chat', [\App\Http\Controllers\Customer\ChatController::class, 'open'])->name('chat.open');
+        Route::get('/chat/{conversation}', [\App\Http\Controllers\Customer\ChatController::class, 'messages'])->name('chat.messages');
+        Route::post('/chat/{conversation}', [\App\Http\Controllers\Customer\ChatController::class, 'send'])->name('chat.send');
     });
 
 Route::middleware(['auth', 'admin'])
@@ -156,9 +165,13 @@ Route::middleware(['auth', 'admin'])
     ->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+        // Global Search
+        Route::get('/search', [GlobalSearchController::class, 'search'])->name('search');
+
         // Media Library (shared by all admin modules via the media picker)
         Route::get('/media', [MediaController::class, 'index'])->name('media.index');
         Route::post('/media', [MediaController::class, 'store'])->name('media.store');
+        Route::post('/media/import-url', [MediaController::class, 'importUrl'])->name('media.import-url');
         Route::delete('/media/{media}', [MediaController::class, 'destroy'])->name('media.destroy');
 
         // Branding (super_admin only)
@@ -190,13 +203,14 @@ Route::middleware(['auth', 'admin'])
         Route::delete('/products/bulk-destroy', [ProductController::class, 'bulkDestroy'])->name('products.bulkDestroy');
         Route::delete('/products/destroy-all', [ProductController::class, 'destroyAll'])->name('products.destroyAll');
         Route::resource('products', ProductController::class);
-        Route::resource('orders', OrderController::class)->only(['index', 'show']);
+        Route::resource('orders', OrderController::class)->only(['index', 'show', 'destroy']);
         Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
         Route::patch('/orders/{order}/tracking', [OrderController::class, 'updateTracking'])->name('orders.updateTracking');
         Route::get('/orders/{order}/receipt', [OrderController::class, 'receipt'])->name('orders.receipt');
 
         Route::get('/returns', [AdminReturnController::class, 'index'])->name('returns.index');
         Route::get('/returns/{return}', [AdminReturnController::class, 'show'])->name('returns.show');
+        Route::delete('/returns/{return}', [AdminReturnController::class, 'destroy'])->name('returns.destroy');
         Route::post('/returns/{return}/approve', [AdminReturnController::class, 'approve'])->name('returns.approve');
         Route::post('/returns/{return}/reject', [AdminReturnController::class, 'reject'])->name('returns.reject');
         Route::post('/returns/{return}/more-info', [AdminReturnController::class, 'requestMoreInfo'])->name('returns.moreInfo');
@@ -213,6 +227,8 @@ Route::middleware(['auth', 'admin'])
 
         Route::delete('/customers/bulk-destroy', [CustomerController::class, 'bulkDestroy'])->name('customers.bulkDestroy');
         Route::resource('customers', CustomerController::class)->only(['index', 'show', 'destroy']);
+        Route::post('/customers/{customer}/freeze', [CustomerController::class, 'freeze'])->name('customers.freeze');
+        Route::post('/customers/{customer}/unfreeze', [CustomerController::class, 'unfreeze'])->name('customers.unfreeze');
         Route::get('/customers/{customer}/orders', [CustomerController::class, 'orders'])->name('customers.orders');
 
         // Pages
@@ -229,6 +245,21 @@ Route::middleware(['auth', 'admin'])
         Route::resource('press-releases', \App\Http\Controllers\Admin\PressReleaseController::class)->except(['show']);
         Route::resource('shipping-methods', \App\Http\Controllers\Admin\ShippingMethodController::class)->except(['show']);
         Route::resource('contact-messages', \App\Http\Controllers\Admin\ContactMessageController::class)->only(['index', 'show', 'destroy']);
+
+        // Notifications
+        Route::get('/notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('notifications.index');
+        Route::post('/notifications/{notification}/read', [\App\Http\Controllers\Admin\NotificationController::class, 'markRead'])->name('notifications.markRead');
+        Route::post('/notifications/mark-all-read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
+        Route::delete('/notifications/{notification}', [\App\Http\Controllers\Admin\NotificationController::class, 'destroy'])->name('notifications.destroy');
+        Route::delete('/notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'destroyAll'])->name('notifications.destroyAll');
+
+        // Chat
+        Route::get('/chat', [\App\Http\Controllers\Admin\ChatController::class, 'index'])->name('chat.index');
+        Route::get('/chat/{conversation}', [\App\Http\Controllers\Admin\ChatController::class, 'show'])->name('chat.show');
+        Route::post('/chat/{conversation}/reply', [\App\Http\Controllers\Admin\ChatController::class, 'reply'])->name('chat.reply');
+        Route::post('/chat/{conversation}/close', [\App\Http\Controllers\Admin\ChatController::class, 'close'])->name('chat.close');
+        Route::post('/chat/{conversation}/reopen', [\App\Http\Controllers\Admin\ChatController::class, 'reopen'])->name('chat.reopen');
+        Route::get('/chat/{conversation}/messages', [\App\Http\Controllers\Admin\ChatController::class, 'messages'])->name('chat.messages');
         Route::get('/content-settings', [\App\Http\Controllers\Admin\ContentSettingsController::class, 'edit'])->name('content-settings.edit');
         Route::put('/content-settings', [\App\Http\Controllers\Admin\ContentSettingsController::class, 'update'])->name('content-settings.update');
         Route::get('/limit-settings', [\App\Http\Controllers\Admin\LimitSettingsController::class, 'edit'])->name('limit-settings.edit');
@@ -243,6 +274,7 @@ Route::middleware(['auth', 'admin'])
         Route::get('/homepage-sections/{homepageSection}', [HomepageSectionController::class, 'show'])->name('homepage-sections.show');
         Route::put('/homepage-sections/{homepageSection}', [HomepageSectionController::class, 'update'])->name('homepage-sections.update');
         Route::patch('/homepage-sections/{homepageSection}/toggle', [HomepageSectionController::class, 'toggleEnabled'])->name('homepage-sections.toggle');
+        Route::delete('/homepage-sections/{homepageSection}', [HomepageSectionController::class, 'destroy'])->name('homepage-sections.destroy');
         Route::patch('/homepage-sections/order', [HomepageSectionController::class, 'updateOrder'])->name('homepage-sections.updateOrder');
 
         Route::resource('banners', BannerController::class);
@@ -277,6 +309,7 @@ Route::middleware(['auth', 'admin'])
             Route::patch('/navigations/{navigation}/items/order', [NavigationController::class, 'updateOrder'])->name('navigations.updateOrder');
             Route::put('/navigations/{navigation}/config', [NavigationController::class, 'updateConfig'])->name('navigations.updateConfig');
             Route::patch('/navigations/{navigation}/toggle', [NavigationController::class, 'toggleMenu'])->name('navigations.toggleMenu');
+            Route::delete('/navigations/{navigation}', [NavigationController::class, 'destroyMenu'])->name('navigations.destroyMenu');
     });
 });
 

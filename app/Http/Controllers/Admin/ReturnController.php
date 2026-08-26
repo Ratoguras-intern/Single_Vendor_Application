@@ -179,6 +179,14 @@ class ReturnController extends Controller
         return back()->with('success', 'Refund recorded successfully.');
     }
 
+    public function destroy(OrderReturn $return)
+    {
+        $return->delete();
+
+        return redirect()->route('admin.returns.index')
+            ->with('success', 'Return deleted.');
+    }
+
     public function complete(OrderReturn $return)
     {
         if ($return->status !== ReturnStatuses::REFUNDED) {

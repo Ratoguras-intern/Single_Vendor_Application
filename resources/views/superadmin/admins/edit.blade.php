@@ -12,7 +12,18 @@
 
 @section('content')
     <div class="mb-6">
-        <h2 class="text-xl font-bold text-gray-800 dark:text-white">Edit Admin</h2>
+        <h2 class="flex items-center gap-3 text-xl font-bold text-gray-800 dark:text-white">
+            Edit Admin: {{ $admin->name }}
+            @if ($admin->is_frozen)
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-700 dark:bg-red-500/10 dark:text-red-400">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="22" y1="12" y2="12"/><path d="m20 16-4-4 4-4"/><path d="m4 8 4 4-4 4"/><path d="m16 4-4 4-4-4"/><path d="m8 20 4-4-4-4"/><line x1="12" x2="12" y1="2" y2="22"/></svg>
+                    Frozen
+                    @if ($admin->frozen_reason)
+                        <span class="text-xs font-normal opacity-75">— {{ $admin->frozen_reason }}</span>
+                    @endif
+                </span>
+            @endif
+        </h2>
     </div>
 
     <div class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">

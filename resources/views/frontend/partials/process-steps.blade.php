@@ -7,10 +7,17 @@
     $stepList = collect($steps)->map(fn ($s) => is_array($s)
         ? ['title' => $s['title'] ?? '', 'description' => $s['description'] ?? '']
         : ['title' => $s->title ?? '', 'description' => $s->description ?? '']);
+    $gridColumns = match ((int) $columns) {
+        2 => 'lg:grid-cols-2',
+        3 => 'lg:grid-cols-3',
+        4 => 'lg:grid-cols-4',
+        6 => 'lg:grid-cols-6',
+        default => 'lg:grid-cols-5',
+    };
 @endphp
 
 @if ($stepList->isNotEmpty())
-    <ol class="grid grid-cols-1 sm:grid-cols-2 {{ $columns >= 5 ? 'lg:grid-cols-5' : 'lg:grid-cols-'.$columns }} gap-4">
+    <ol class="grid grid-cols-1 sm:grid-cols-2 {{ $gridColumns }} gap-4">
         @foreach ($stepList as $index => $step)
             <li class="relative card flex flex-col items-start">
                 <span class="text-xs font-bold tracking-[0.2em] text-primary-500 dark:text-primary-400 mb-3">

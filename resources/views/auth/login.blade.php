@@ -6,6 +6,15 @@
 
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
+    @if (session('error'))
+        <div class="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-400">
+            {{ session('error') }}
+            @if (session('frozen_reason'))
+                <p class="mt-1 font-medium">Reason: {{ session('frozen_reason') }}</p>
+            @endif
+        </div>
+    @endif
+
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
@@ -52,5 +61,12 @@
                 Create account
             </a>
         </p>
+        @if (session('is_frozen_error'))
+            <p class="mt-2 text-sm text-secondary-500">
+                <a href="{{ route('frontend.contact') }}" class="font-medium text-primary-600 hover:text-primary-700">
+                    Contact Support &rarr;
+                </a>
+            </p>
+        @endif
     </div>
 </x-guest-layout>

@@ -12,7 +12,7 @@ use App\Models\Favorite;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'phone', 'role', 'status', 'avatar_path'])]
+#[Fillable(['name', 'email', 'password', 'phone', 'role', 'status', 'avatar_path', 'is_frozen', 'frozen_reason', 'frozen_at', 'failed_login_attempts'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -24,7 +24,38 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_frozen' => 'boolean',
+            'frozen_at' => 'datetime',
         ];
+    }
+
+    public function freeze(string $reason = null): void
+    {
+        $this->update([
+            'is_frozen' => true,
+            'frozen_reason' => $reason,
+            'frozen_at' => now(),
+        ]);
+    }
+
+    public function unfreeze(): void
+    {
+        $this->update([
+            'is_frozen' => false,
+            'frozen_reason' => null,
+            'frozen_at' => null,
+            'failed_login_attempts' => 0,
+        ]);
+    }
+
+    public function incrementFailedLoginAttempts(): void
+    {
+        $this->increment('failed_login_attempts');
+    }
+
+    public function resetFailedLoginAttempts(): void
+    {
+        $this->update(['failed_login_attempts' => 0]);
     }
 
     public function avatarUrl(): ?string

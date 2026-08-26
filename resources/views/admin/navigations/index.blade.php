@@ -27,12 +27,21 @@
                         </p>
                         <p class="mt-2 text-xs text-gray-400 dark:text-gray-500 font-mono">{{ $menu->slug }}</p>
                     </div>
-                    <button onclick="event.preventDefault(); toggleMenu({{ $menu->id }})"
-                        class="relative inline-flex h-6 w-11 shrink-0 items-center overflow-hidden rounded-full transition-colors
-                            {{ $menu->is_enabled ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600' }}">
-                        <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform
-                            {{ $menu->is_enabled ? 'translate-x-6' : 'translate-x-1' }}"></span>
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <button onclick="event.preventDefault(); toggleMenu({{ $menu->id }})"
+                            class="relative inline-flex h-6 w-11 shrink-0 items-center overflow-hidden rounded-full transition-colors
+                                {{ $menu->is_enabled ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600' }}">
+                            <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform
+                                {{ $menu->is_enabled ? 'translate-x-6' : 'translate-x-1' }}"></span>
+                        </button>
+                        <form method="POST" action="{{ route('admin.navigations.destroyMenu', $menu) }}" onsubmit="return confirm('Delete this menu and all its items?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-white text-red-500 shadow-sm transition hover:bg-red-50 hover:text-red-700 dark:border-gray-700 dark:bg-gray-900 dark:text-red-400 dark:hover:bg-red-500/10">
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </a>
         @endforeach

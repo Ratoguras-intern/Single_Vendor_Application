@@ -145,6 +145,7 @@ class ProductListing extends Component
     public function render()
     {
         $category = null;
+        $heroCategory = null;
         $children = collect();
         $breadcrumbs = [];
         $recommendations = ['trending' => [], 'new_arrivals' => []];
@@ -154,6 +155,8 @@ class ProductListing extends Component
             $category = Category::where('slug', $this->categorySlug)->active()->first();
 
             if ($category) {
+                $heroCategory = $category->banner_url ? $category : ($category->parent && $category->parent->banner_url ? $category->parent : $category);
+
                 $ids = $category->children()->active()->pluck('id')->push($category->id)->all();
                 $children = $category->children()
                     ->active()
@@ -201,7 +204,7 @@ class ProductListing extends Component
 
         return view('livewire.product-listing', compact(
             'products', 'brands', 'priceRange', 'sidebarBanners', 'viewStorageKey',
-            'category', 'children', 'breadcrumbs', 'recommendations'
+            'category', 'heroCategory', 'children', 'breadcrumbs', 'recommendations'
         ));
     }
 

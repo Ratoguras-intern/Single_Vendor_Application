@@ -49,9 +49,9 @@ class CurrencyService
         $symbol = $currencyConfig['symbol'];
 
         if ($currency === 'JPY') {
-            return $symbol . number_format($converted, 0);
+            return $symbol . ' ' . number_format($converted, 0);
         }
 
-        return $symbol . number_format($converted, 2);
+        return $symbol . ' ' . number_format($converted, 2);
     }
 }

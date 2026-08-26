@@ -17,80 +17,18 @@
         </a>
     </div>
 
-    <div class="mb-4 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
-        <form action="{{ route('admin.products.index') }}" method="GET" class="flex flex-wrap items-end gap-4">
-            <div class="flex-1 min-w-0 w-full sm:w-auto sm:min-w-[200px]">
-                <label for="search" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Search</label>
-                <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="Search by name, slug, SKU..."
-                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
-            </div>
-            <div class="min-w-0 w-full sm:w-auto sm:min-w-[150px]">
-                <label for="category_id" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
-                <select name="category_id" id="category_id"
-                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
-                    <option value="">All</option>
-                    @foreach ($categories as $categoryOption)
-                        <option value="{{ $categoryOption['id'] }}" {{ request('category_id') == $categoryOption['id'] ? 'selected' : '' }}>{{ $categoryOption['name'] }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="min-w-0 w-full sm:w-auto sm:min-w-[150px]">
-                <label for="brand_id" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Brand</label>
-                <select name="brand_id" id="brand_id"
-                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
-                    <option value="">All</option>
-                    @foreach ($brands as $brand)
-                        <option value="{{ $brand->id }}" {{ request('brand_id') == $brand->id ? 'selected' : '' }}>{{ $brand->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="min-w-0 w-full sm:w-auto sm:min-w-[120px]">
-                <label for="status" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
-                <select name="status" id="status"
-                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
-                    <option value="">All</option>
-                    <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
-                    <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
-                </select>
-            </div>
-            <div class="min-w-0 w-full sm:w-auto sm:min-w-[150px]">
-                <label for="visibility" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Visibility</label>
-                <select name="visibility" id="visibility"
-                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
-                    <option value="">All</option>
-                    <option value="is_featured" {{ request('visibility') === 'is_featured' ? 'selected' : '' }}>Featured</option>
-                    <option value="is_new_arrival" {{ request('visibility') === 'is_new_arrival' ? 'selected' : '' }}>New Arrivals</option>
-                    <option value="is_trending" {{ request('visibility') === 'is_trending' ? 'selected' : '' }}>Trending</option>
-                    <option value="is_best_seller" {{ request('visibility') === 'is_best_seller' ? 'selected' : '' }}>Best Sellers</option>
-                    <option value="is_flash_sale" {{ request('visibility') === 'is_flash_sale' ? 'selected' : '' }}>Flash Sales</option>
-                    <option value="is_recommended" {{ request('visibility') === 'is_recommended' ? 'selected' : '' }}>Recommended</option>
-                    <option value="is_popular" {{ request('visibility') === 'is_popular' ? 'selected' : '' }}>Popular</option>
-                    <option value="is_limited_edition" {{ request('visibility') === 'is_limited_edition' ? 'selected' : '' }}>Limited Edition</option>
-                    <option value="on_sale" {{ request('visibility') === 'on_sale' ? 'selected' : '' }}>On Sale</option>
-                    <option value="sale_expired" {{ request('visibility') === 'sale_expired' ? 'selected' : '' }}>Sale Expired</option>
-                </select>
-            </div>
-            <div class="min-w-0 w-full sm:w-auto sm:min-w-[130px]">
-                <label for="per_page" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Show</label>
-                <select name="per_page" id="per_page"
-                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
-                    <option value="10" {{ $perPage === '10' ? 'selected' : '' }}>10 / page</option>
-                    <option value="25" {{ $perPage === '25' ? 'selected' : '' }}>25 / page</option>
-                    <option value="50" {{ $perPage === '50' ? 'selected' : '' }}>50 / page</option>
-                    <option value="100" {{ $perPage === '100' ? 'selected' : '' }}>100 / page</option>
-                    <option value="all" {{ $perPage === 'all' ? 'selected' : '' }}>All</option>
-                </select>
-            </div>
-            <div class="flex gap-2">
-                <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600">
-                    Filter
-                </button>
-                <a href="{{ route('admin.products.index') }}" class="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.03]">
-                    Reset
-                </a>
-            </div>
-        </form>
-    </div>
+    @php
+        $catOptions = collect($categories)->pluck('name', 'id')->toArray();
+        $brandOptions = $brands->pluck('name', 'id')->toArray();
+    @endphp
+    <x-admin.filter-bar action="{{ route('admin.products.index') }}" :hasFilters="request()->hasAny(['search','category_id','brand_id','status','visibility','per_page'])">
+        <x-admin.filter-search name="search" label="Search" placeholder="Search by name, slug, SKU..." />
+        <x-admin.filter-select name="category_id" label="Category" :options="$catOptions" />
+        <x-admin.filter-select name="brand_id" label="Brand" :options="$brandOptions" />
+        <x-admin.filter-select name="status" label="Status" :options="['active' => 'Active', 'inactive' => 'Inactive']" />
+        <x-admin.filter-select name="visibility" label="Visibility" :options="['is_featured' => 'Featured', 'is_new_arrival' => 'New Arrivals', 'is_trending' => 'Trending', 'is_best_seller' => 'Best Sellers', 'is_flash_sale' => 'Flash Sales', 'is_recommended' => 'Recommended', 'is_popular' => 'Popular', 'is_limited_edition' => 'Limited Edition', 'on_sale' => 'On Sale', 'sale_expired' => 'Sale Expired']" />
+        <x-admin.filter-per-page value="{{ $perPage }}" />
+    </x-admin.filter-bar>
 
     <div id="search-results">
     <div class="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
@@ -118,13 +56,19 @@
                             <td class="px-5 py-4"><input type="checkbox" name="product_ids[]" value="{{ $product->id }}" class="product-cb rounded border-gray-300 text-brand-500 focus:ring-brand-500"></td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $product->id }}</td>
                             <td class="px-5 py-4">
-                                @if ($product->primaryImage())
-                                    <img src="{{ product_image_url($product->primaryImage()->image) }}" alt="{{ $product->name }}" class="h-10 w-10 rounded-lg object-cover">
-                                @else
-                                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
-                                        <span class="text-xs font-medium text-gray-500 dark:text-gray-400">N/A</span>
-                                    </div>
-                                @endif
+                                @php $primaryImage = $product->images->firstWhere('is_primary') ?? $product->images->first(); @endphp
+                                <div class="relative inline-block">
+                                    @if ($primaryImage)
+                                        <img src="{{ product_image_url($primaryImage->image) }}" alt="" class="h-10 w-10 rounded-lg object-cover">
+                                    @else
+                                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
+                                            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.41a2.25 2.25 0 013.182 0l2.909 2.91M3.75 21h16.5a1.5 1.5 0 001.5-1.5V5.25a1.5 1.5 0 00-1.5-1.5H3.75a1.5 1.5 0 00-1.5 1.5v14.25a1.5 1.5 0 001.5 1.5z"/></svg>
+                                        </div>
+                                    @endif
+                                    @if ($product->images->count() > 1)
+                                        <span class="absolute -bottom-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-500 px-1 text-[10px] font-bold text-white">{{ $product->images->count() }}</span>
+                                    @endif
+                                </div>
                             </td>
                             <td class="px-5 py-4 text-sm font-medium text-gray-800 dark:text-white">
                                 <a href="{{ route('admin.products.show', $product) }}" class="hover:text-brand-500">{{ $product->name }}</a>
@@ -201,18 +145,21 @@
                                 </div>
                             </td>
                             <td class="px-5 py-4">
-                                <div class="flex items-center gap-2">
-                                    <a href="{{ route('admin.products.show', $product) }}" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/></svg>
+                                <div class="flex items-center gap-1.5">
+                                    <a href="{{ route('admin.products.show', $product) }}" title="View Product"
+                                        class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-500 shadow-sm transition hover:bg-gray-50 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-white/[0.06] dark:hover:text-gray-200">
+                                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                     </a>
-                                    <a href="{{ route('admin.products.edit', $product) }}" class="text-brand-500 hover:text-brand-600">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <a href="{{ route('admin.products.edit', $product) }}" title="Edit Product"
+                                        class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-white text-brand-500 shadow-sm transition hover:bg-brand-50 hover:text-brand-600 dark:border-gray-700 dark:bg-gray-900 dark:text-brand-400 dark:hover:bg-brand-500/10">
+                                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                     </a>
-                                    <form action="{{ route('admin.products.destroy', $product) }}" method="POST" x-data @submit.prevent="$store.confirmModal.open({ title: 'Delete Product', message: 'Are you sure you want to delete this product?', form: $el })">
+                                    <form action="{{ route('admin.products.destroy', $product) }}" method="POST" x-data @submit.prevent="$store.confirmModal.open({ title: 'Delete Product', message: 'Are you sure you want to delete {{ addslashes($product->name) }}? This action cannot be undone.', form: $el })">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-red-500 hover:text-red-600">
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 6H21M19 6V20C19 21.1 18.1 22 17 22H7C5.9 22 5 21.1 5 20V6M8 6V4C8 2.9 8.9 2 10 2H14C15.1 2 16 2.9 16 4V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                        <button type="submit" title="Delete Product"
+                                            class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-300 bg-white text-red-500 shadow-sm transition hover:bg-red-50 hover:text-red-600 dark:border-gray-700 dark:bg-gray-900 dark:text-red-400 dark:hover:bg-red-500/10">
+                                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                                         </button>
                                     </form>
                                 </div>

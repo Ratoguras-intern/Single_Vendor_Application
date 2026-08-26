@@ -91,14 +91,10 @@ class ContentSettingsController extends Controller
         Setting::set('help.aside_text', (string) ($validated['help_aside_text'] ?? ''));
         Setting::set('shipping.caption_dispatch', (string) ($validated['caption_dispatch'] ?? ''));
         Setting::set('shipping.caption_packing', (string) ($validated['caption_packing'] ?? ''));
-        Setting::set('about.value1_title', (string) ($validated['value1_title'] ?? ''));
-        Setting::set('about.value1_text', (string) ($validated['value1_text'] ?? ''));
-        Setting::set('about.value2_title', (string) ($validated['value2_title'] ?? ''));
-        Setting::set('about.value2_text', (string) ($validated['value2_text'] ?? ''));
-        Setting::set('about.value3_title', (string) ($validated['value3_title'] ?? ''));
-        Setting::set('about.value3_text', (string) ($validated['value3_text'] ?? ''));
-        Setting::set('about.badge_title', (string) ($validated['badge_title'] ?? ''));
-        Setting::set('about.badge_sub', (string) ($validated['badge_sub'] ?? ''));
+        foreach (['value1_title','value1_text','value2_title','value2_text','value3_title','value3_text','badge_title','badge_sub'] as $field) {
+            $val = (string) ($validated[$field] ?? '');
+            filled($val) ? Setting::set("about.{$field}", $val) : Setting::forget("about.{$field}");
+        }
 
         return redirect()->route('admin.content-settings.edit')
             ->with('success', 'Content settings saved successfully.');

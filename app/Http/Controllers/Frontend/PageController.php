@@ -141,7 +141,12 @@ class PageController extends Controller
     {
         return view('frontend.shipping-info', array_merge($data, [
             'methods' => ShippingMethod::active()->get(),
-            'processSteps' => collect(\App\Models\Setting::get('shipping.process_steps', [])),
+            'processSteps' => $this->processSteps('shipping.process_steps', [
+                ['title' => 'Order confirmed', 'description' => 'We confirm your order and email the receipt straight away.'],
+                ['title' => 'Packed with care', 'description' => 'Your items are checked, packed securely, and prepared for dispatch.'],
+                ['title' => 'Handed to courier', 'description' => 'You receive tracking details as soon as your parcel leaves us.'],
+                ['title' => 'Delivered to you', 'description' => 'Follow the delivery updates until your order arrives at your door.'],
+            ]),
             'areas' => collect(preg_split('/\r\n|\r|\n/', (string) \App\Models\Setting::get('shipping.areas', '')))->filter()->values(),
             'importantNotes' => collect(preg_split('/\r\n|\r|\n/', (string) \App\Models\Setting::get('shipping.important_info', '')))->filter()->values(),
             'freeThreshold' => \App\Models\Setting::get('shipping.free_threshold'),
@@ -153,7 +158,12 @@ class PageController extends Controller
     {
         return view('frontend.returns', array_merge($data, [
             'windowDays' => \App\Models\Setting::get('returns.window_days'),
-            'processSteps' => collect(\App\Models\Setting::get('returns.process_steps', [])),
+            'processSteps' => $this->processSteps('returns.process_steps', [
+                ['title' => 'Start a request', 'description' => 'Choose the delivered item from your orders and tell us why you are returning it.'],
+                ['title' => 'Receive approval', 'description' => 'We review your request and send the return instructions by email.'],
+                ['title' => 'Pack and send', 'description' => 'Pack the item securely with any included accessories and drop it off with the courier.'],
+                ['title' => 'Inspection and refund', 'description' => 'Once received, we inspect the item and issue your refund to the original payment method.'],
+            ]),
             'startReturnUrl' => auth()->check()
                 ? route('customer.returns.index')
                 : route('login'),
@@ -221,6 +231,26 @@ class PageController extends Controller
                 'phone' => \App\Models\Setting::get('press.contact_phone') ?? ($footerConfig['phone'] ?? null),
             ],
         ]));
+    }
+
+    /**
+     * Settings are stored as JSON text, while templates need an array of
+     * process-step objects. Fall back to useful defaults until an admin saves
+     * their own steps from Content Settings.
+     */
+    protected function processSteps(string $key, array $fallback)
+    {
+        $steps = \App\Models\Setting::get($key, []);
+
+        if (is_string($steps)) {
+            $steps = json_decode($steps, true);
+        }
+
+        $steps = is_array($steps) ? collect($steps)
+            ->filter(fn ($step) => is_array($step) && filled($step['title'] ?? null))
+            ->values() : collect();
+
+        return $steps->isNotEmpty() ? $steps : collect($fallback);
     }
 
     protected function seoData(Page $page): array

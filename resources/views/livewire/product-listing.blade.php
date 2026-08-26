@@ -2,11 +2,11 @@
     @if($category)
         {{-- ═══ Category Hero ═══ --}}
         <section class="relative overflow-hidden bg-gradient-to-br from-secondary-900 via-secondary-800 to-primary-900">
-            @if($category->banner_mobile_url)
-                <img src="{{ $category->banner_mobile_url }}" alt="{{ $category->name }}" class="absolute inset-0 w-full h-full object-{{ $category->banner_object_fit }} opacity-30 sm:hidden" style="object-position: {{ $category->banner_object_position }}" loading="lazy">
+            @if($heroCategory->banner_mobile_url)
+                <img src="{{ $heroCategory->banner_mobile_url }}" alt="{{ $category->name }}" class="absolute inset-0 w-full h-full object-{{ $heroCategory->banner_object_fit }} opacity-30 sm:hidden" style="object-position: {{ $heroCategory->banner_object_position }}" loading="lazy">
             @endif
-            @if($category->banner_url)
-                <img src="{{ $category->banner_url }}" alt="{{ $category->name }}" class="absolute inset-0 w-full h-full object-{{ $category->banner_object_fit }} opacity-30 hidden sm:block" style="object-position: {{ $category->banner_object_position }}" loading="lazy">
+            @if($heroCategory->banner_url)
+                <img src="{{ $heroCategory->banner_url }}" alt="{{ $category->name }}" class="absolute inset-0 w-full h-full object-{{ $heroCategory->banner_object_fit }} opacity-30 hidden sm:block" style="object-position: {{ $heroCategory->banner_object_position }}" loading="lazy">
             @endif
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
             <div class="section relative py-12 sm:py-16 lg:py-20">

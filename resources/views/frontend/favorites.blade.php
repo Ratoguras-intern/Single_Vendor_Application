@@ -3,7 +3,7 @@
 @section('title', 'My Favorites - ' . site_name())
 
 @section('content')
-<section x-data class="py-8 sm:py-12">
+<section x-data="{ viewMode: 'grid' }" class="py-8 sm:py-12">
     <div class="section">
         <div class="mb-6">
             <h1 class="page-heading" data-i18n="My Favorites" x-text="$store.i18n.t('My Favorites')">{{ __('My Favorites') }}</h1>
@@ -32,6 +32,8 @@
                                 'description' => $product->description,
                                 'brand' => $product->brand?->name,
                                 'stock' => $product->stock,
+                                'average_rating' => (float) $product->average_rating,
+                                'reviews_count' => $product->reviews_count,
                                 'discount_percentage' => $discountPct > 0 ? $discountPct : null,
                                 'is_new_arrival' => $product->is_new_arrival,
                                 'is_flash_sale' => $product->is_flash_sale,

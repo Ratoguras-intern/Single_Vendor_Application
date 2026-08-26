@@ -45,11 +45,36 @@ class LoginRequest extends FormRequest
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
+            $user = \App\Models\User::where('email', $this->input('email'))->first();
+            if ($user) {
+                $user->incrementFailedLoginAttempts();
+                if ($user->failed_login_attempts >= 5 && ! $user->is_frozen) {
+                    $user->freeze('Auto-freezed after 5 failed login attempts.');
+                    session()->flash('frozen_reason', $user->frozen_reason);
+                    session()->flash('is_frozen_error', true);
+                    throw ValidationException::withMessages([
+                        'email' => 'Your account has been frozen due to too many failed login attempts. Please contact support.',
+                    ]);
+                }
+            }
+
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
             ]);
         }
 
+        $user = Auth::user();
+
+        if ($user->is_frozen) {
+            Auth::logout();
+            session()->flash('frozen_reason', $user->frozen_reason);
+            session()->flash('is_frozen_error', true);
+            throw ValidationException::withMessages([
+                'email' => 'Your account has been frozen. Please contact support to unfreeze.',
+            ]);
+        }
+
+        $user->resetFailedLoginAttempts();
         RateLimiter::clear($this->throttleKey());
     }
 
