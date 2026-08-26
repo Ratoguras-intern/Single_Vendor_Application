@@ -8,6 +8,9 @@ use Illuminate\Support\Str;
 
 class CategorySeeder extends Seeder
 {
+
+
+
     private array $categories = [
         'Fashion' => [
             'description' => 'Trendy clothing, footwear, and accessories for every style.',
