@@ -7,15 +7,26 @@ return new class extends Migration
 {
     public function up(): void
     {
+        $menuId = DB::table('navigation_menus')->where('slug', 'admin-sidebar')->value('id');
+
+        if (! $menuId) {
+            return;
+        }
+
+        $maxSort = DB::table('navigation_items')
+            ->where('menu_id', $menuId)
+            ->whereNull('parent_id')
+            ->max('sort_order');
+
         DB::table('navigation_items')->insert([
-            'menu_id' => 4,
-            'parent_id' => 104,
+            'menu_id' => $menuId,
+            'parent_id' => null,
             'name' => 'Live Chat',
             'url' => 'admin.chat.index',
             'icon_key' => 'mail',
             'target' => '_self',
             'is_enabled' => true,
-            'sort_order' => 15,
+            'sort_order' => ($maxSort ?? 0) + 1,
             'permission' => null,
             'badge' => null,
             'css_class' => null,
@@ -27,9 +38,13 @@ return new class extends Migration
 
     public function down(): void
     {
-        DB::table('navigation_items')
-            ->where('url', 'admin.chat.index')
-            ->where('menu_id', 4)
-            ->delete();
+        $menuId = DB::table('navigation_menus')->where('slug', 'admin-sidebar')->value('id');
+
+        if ($menuId) {
+            DB::table('navigation_items')
+                ->where('url', 'admin.chat.index')
+                ->where('menu_id', $menuId)
+                ->delete();
+        }
     }
 };

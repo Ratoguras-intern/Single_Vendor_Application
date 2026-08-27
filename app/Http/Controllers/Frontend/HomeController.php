@@ -84,8 +84,14 @@ class HomeController extends Controller
                     return null;
                 }
 
-                $products = $category->products()
+                $categoryIds = $category->children()
                     ->active()
+                    ->pluck('id')
+                    ->push($category->id)
+                    ->all();
+
+                $products = Product::active()
+                    ->whereIn('category_id', $categoryIds)
                     ->onSale()
                     ->with(['images', 'brand'])
                     ->inRandomOrder()
