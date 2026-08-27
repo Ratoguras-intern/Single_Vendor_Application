@@ -78,6 +78,7 @@
                     <span x-show="!sending">Send Message</span>
                     <span x-show="sending" class="flex items-center justify-center gap-2"><span class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span> Sending...</span>
                 </button>
+                <p x-show="error" class="text-xs text-red-500 mt-1" x-text="error"></p>
             </div>
         </div>
 
@@ -116,6 +117,7 @@
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4Z" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </button>
             </div>
+            <p x-show="error && view === 'chat'" class="px-3 py-1 text-xs text-red-500 border-t border-gray-100 dark:border-gray-800" x-text="error"></p>
             <div x-show="activeCon?.status === 'closed'" class="border-t border-gray-100 px-4 py-3 text-center dark:border-gray-800">
                 <p class="text-xs text-gray-400">This conversation is closed.</p>
             </div>
@@ -136,6 +138,7 @@ document.addEventListener('alpine:init', () => {
         newSubject: '',
         newMessage: '',
         sending: false,
+        error: null,
         unreadCount: 0,
         channel: null,
 
@@ -184,6 +187,8 @@ document.addEventListener('alpine:init', () => {
         async startConversation() {
             if (this.sending) return;
             this.sending = true;
+            this.error = null;
+            console.log('[chat] startConversation called', { subject: this.newSubject, message: this.newMessage });
             try {
                 const res = await fetch('/account/chat', {
                     method: 'POST',
@@ -196,18 +201,27 @@ document.addEventListener('alpine:init', () => {
                 });
                 if (res.ok) {
                     const data = await res.json();
+                    console.log('[chat] success', data);
                     this.conversations.unshift(data.conversation);
                     this.newSubject = '';
                     this.newMessage = '';
                     this.openConversation(data.conversation);
+                } else {
+                    let msg = 'Failed to send. (HTTP ' + res.status + ')';
+                    try { const body = await res.json(); msg = body.message || body.error || msg; console.error('[chat] server error', res.status, body); } catch (_) { console.error('[chat] non-json response', res.status); }
+                    this.error = msg;
                 }
-            } catch (e) {}
+            } catch (e) {
+                this.error = 'Network error. Please try again.';
+                console.error('[chat]', e);
+            }
             this.sending = false;
         },
 
         async sendMessage() {
             if (!this.chatText.trim() || this.sending || !this.activeCon) return;
             this.sending = true;
+            this.error = null;
             const text = this.chatText;
             this.chatText = '';
 
@@ -227,9 +241,14 @@ document.addEventListener('alpine:init', () => {
                     this.$nextTick(() => this.scrollToBottom());
                 } else {
                     this.chatText = text;
+                    let msg = 'Failed to send message.';
+                    try { const body = await res.json(); msg = body.message || body.error || msg; } catch (_) {}
+                    this.error = msg;
                 }
             } catch (e) {
                 this.chatText = text;
+                this.error = 'Network error. Please try again.';
+                console.error('[chat]', e);
             }
             this.sending = false;
         },

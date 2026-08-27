@@ -165,6 +165,21 @@
             </div>
 
             <div class="space-y-6">
+                {{-- Live Chat --}}
+                <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
+                    <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Live Chat</h3>
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="hidden" name="chat_widget_enabled" value="0">
+                        <input type="checkbox" name="chat_widget_enabled" value="1"
+                            {{ old('chat_widget_enabled', $values['chat_widget_enabled']) == '1' ? 'checked' : '' }}
+                            class="h-5 w-5 rounded border-gray-300 text-brand-500 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-900">
+                        <div>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Enable chat widget on storefront</span>
+                            <p class="text-xs text-gray-400 dark:text-gray-500">Show or hide the floating chat icon for customers.</p>
+                        </div>
+                    </label>
+                </div>
+
                 {{-- Press Contact --}}
                 <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
                     <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Press Contact</h3>

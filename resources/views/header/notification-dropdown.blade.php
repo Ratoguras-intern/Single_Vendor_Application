@@ -15,12 +15,13 @@
         @endif
     </button>
 
-    <div x-show="open" @click.away="open = false" x-transition
-        class="absolute right-0 mt-2 w-80 rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-800 dark:bg-gray-900 z-50">
+    <div x-show="open" @click.away="open = false" x-transition x-cloak
+        class="absolute right-0 mt-2 w-80 rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-800 dark:bg-gray-900 z-50"
+        style="display: none;">
         <div class="flex items-center justify-between mb-3">
             <h4 class="text-sm font-semibold text-gray-800 dark:text-white">Notifications</h4>
             @if($unreadCount > 0)
-            <form method="POST" action="{{ route('notifications.markRead') }}" class="inline">
+            <form method="POST" action="{{ route('notifications.markRead') }}" class="inline" data-turbo="false">
                 @csrf
                 <button type="submit" class="text-xs text-brand-500 hover:underline">Mark all read</button>
             </form>
@@ -28,7 +29,7 @@
         </div>
         <div class="space-y-3 max-h-80 overflow-y-auto">
             @forelse($notifications as $notification)
-            <a href="{{ route('notifications.redirect', $notification->id) }}"
+            <a href="{{ route('notifications.redirect', $notification->id) }}" data-turbo="false"
                 class="flex items-start gap-3 p-2 rounded-lg {{ $notification->read_at ? 'bg-white' : 'bg-blue-50 dark:bg-white/[0.03]' }} hover:bg-gray-50 dark:hover:bg-white/[0.03]">
                 <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-green-50 text-green-600">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -46,7 +47,7 @@
         </div>
         @if($notifications->count() > 0)
         <div class="mt-3 border-t border-gray-200 dark:border-gray-800 pt-3">
-            <a href="{{ auth()->user()->isStaff() ? route('admin.notifications.index') : route('notifications.markRead') }}" class="block text-center text-xs font-medium text-brand-500 hover:underline">View all notifications</a>
+            <a href="{{ auth()->user()->isStaff() ? route('admin.notifications.index') : '#' }}" data-turbo="false" class="block text-center text-xs font-medium text-brand-500 hover:underline">View all notifications</a>
         </div>
         @endif
     </div>

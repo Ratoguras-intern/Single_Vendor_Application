@@ -13,8 +13,9 @@
         </svg>
     </button>
 
-    <div x-show="open" @click.away="open = false" x-transition
-        class="absolute right-0 mt-2 w-56 rounded-lg border border-gray-200 bg-white py-2 shadow-lg dark:border-gray-800 dark:bg-gray-900 z-50">
+    <div x-show="open" @click.away="open = false" x-transition x-cloak
+        class="absolute right-0 mt-2 w-56 rounded-lg border border-gray-200 bg-white py-2 shadow-lg dark:border-gray-800 dark:bg-gray-900 z-50"
+        style="display: none;">
         <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
             @if(Auth::check())
                 <x-user-avatar :user="Auth::user()" size="h-10 w-10" text-size="text-sm" />

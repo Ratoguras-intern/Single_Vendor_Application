@@ -72,6 +72,23 @@ document.addEventListener('turbo:render', () => {
 // dedupes the initial full-load (DOMContentLoaded + possible first turbo:render).
 const executedScripts = new WeakSet();
 
+// Phase 1: Eval scripts to register Alpine.data()/Alpine.store() calls.
+// Called before Alpine.start() so data components are available when Alpine
+// scans the DOM for the first time.
+function registerPageScripts() {
+    document.querySelectorAll('script[type="text/turbo-script"]').forEach((script) => {
+        if (executedScripts.has(script)) return;
+        executedScripts.add(script);
+        try {
+            (0, eval)(script.textContent);
+        } catch (err) {
+            console.error('[admin] failed to register page script:', err);
+        }
+    });
+}
+
+// Phase 2: Eval scripts AND initTree sibling elements. Used after Alpine has
+// started (DOMContentLoaded / turbo:render) to handle dynamic page content.
 function runPageScripts() {
     document.querySelectorAll('script[type="text/turbo-script"]').forEach((script) => {
         if (executedScripts.has(script)) {
@@ -80,6 +97,14 @@ function runPageScripts() {
         executedScripts.add(script);
         try {
             (0, eval)(script.textContent);
+
+            // Page-level Alpine components are registered by the script above,
+            // after Alpine's initial page scan. Initialise only the component
+            // immediately before the script so its x-data expression can run.
+            const component = script.previousElementSibling;
+            if (component?.hasAttribute('x-data')) {
+                Alpine.initTree(component);
+            }
         } catch (err) {
             console.error('[admin] failed to run page script:', err);
         }
@@ -159,6 +184,9 @@ function autoInitTiptapEditor() {
     }
 }
 
+// Register Alpine.data()/store() from page scripts before Alpine scans the DOM,
+// so components like chatAdmin/chatInbox are available on first load.
+registerPageScripts();
 Alpine.start();
 
 autoInitTiptapEditor();

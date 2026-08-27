@@ -72,11 +72,15 @@
             </div>
 
             {{-- Grid Add to Cart (always visible) --}}
-            <div x-show="viewMode !== 'list'" class="mt-auto pt-3">
+            <div x-show="viewMode !== 'list'" class="mt-auto pt-3 flex flex-col gap-2">
                 <button x-on:click.prevent.stop="$store.cart.add({ id: {{ $product['id']}}, name: '{{ addslashes($product['name']) }}', price: {{ $product['price']}}, image: '{{ $product['image'] }}' })"
                     class="btn-primary btn-sm w-full" @if($isOutOfStock) disabled @endif>
                     <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
                     <span data-i18n="Add to Cart" x-text="$store.i18n.t('Add to Cart')">{{ __('Add to Cart') }}</span>
+                </button>
+                <button x-on:click.prevent.stop="$store.cart.buyNow({ id: {{ $product['id']}}, name: '{{ addslashes($product['name']) }}', price: {{ $product['price']}}, image: '{{ $product['image'] }}' })"
+                    class="btn-outline btn-sm w-full" @if($isOutOfStock) disabled @endif>
+                    <span data-i18n="Buy Now" x-text="$store.i18n.t('Buy Now')">{{ __('Buy Now') }}</span>
                 </button>
             </div>
 
@@ -85,6 +89,9 @@
                 <button x-on:click="$store.cart.add({ id: {{ $product['id']}}, name: '{{ addslashes($product['name']) }}', price: {{ $product['price']}}, image: '{{ $product['image'] }}' })" class="btn-primary btn-sm" @if($isOutOfStock) disabled @endif>
                     <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
                     <span data-i18n="Add to Cart" x-text="$store.i18n.t('Add to Cart')">{{ __('Add to Cart') }}</span>
+                </button>
+                <button x-on:click="$store.cart.buyNow({ id: {{ $product['id']}}, name: '{{ addslashes($product['name']) }}', price: {{ $product['price']}}, image: '{{ $product['image'] }}' })" class="btn-outline btn-sm" @if($isOutOfStock) disabled @endif>
+                    <span data-i18n="Buy Now" x-text="$store.i18n.t('Buy Now')">{{ __('Buy Now') }}</span>
                 </button>
                 <button x-on:click="$store.quickView.openProduct({ id: {{ $product['id'] }}, name: '{{ addslashes($product['name']) }}', brand: '{{ addslashes($product['brand'] ?? '') }}', price: {{ $product['price'] }}, original_price: {{ $product['original_price'] ?? 0 }}, image: '{{ $product['image'] }}', description: '{{ addslashes($product['description'] ?? '') }}', stock: {{ $product['stock'] ?? 0 }}, url: '{{ $productUrl }}' })"
                     class="btn-outline btn-sm" @if($isOutOfStock) disabled @endif>

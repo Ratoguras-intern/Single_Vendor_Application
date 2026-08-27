@@ -37,6 +37,7 @@ class ContentSettingsController extends Controller
             'value3_text' => (string) Setting::get('about.value3_text', ''),
             'badge_title' => (string) Setting::get('about.badge_title', ''),
             'badge_sub' => (string) Setting::get('about.badge_sub', ''),
+            'chat_widget_enabled' => Setting::get('chat_widget.enabled', '1'),
         ];
 
         return view('admin.content-settings.edit', compact('values'));
@@ -71,6 +72,7 @@ class ContentSettingsController extends Controller
             'value3_text' => 'nullable|string|max:500',
             'badge_title' => 'nullable|string|max:255',
             'badge_sub' => 'nullable|string|max:500',
+            'chat_widget_enabled' => 'nullable',
         ]);
 
         Setting::set('contact.business_hours', (string) ($validated['business_hours'] ?? ''));
@@ -95,6 +97,8 @@ class ContentSettingsController extends Controller
             $val = (string) ($validated[$field] ?? '');
             filled($val) ? Setting::set("about.{$field}", $val) : Setting::forget("about.{$field}");
         }
+
+        Setting::set('chat_widget.enabled', $request->boolean('chat_widget_enabled') ? '1' : '0');
 
         return redirect()->route('admin.content-settings.edit')
             ->with('success', 'Content settings saved successfully.');

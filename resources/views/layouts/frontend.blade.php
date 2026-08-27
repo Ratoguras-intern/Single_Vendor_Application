@@ -148,6 +148,8 @@
     @include('frontend.partials.scripts')
     @livewireScriptConfig
     @stack('scripts')
-    <x-chat-widget />
+    @if(\App\Models\Setting::get('chat_widget.enabled', '1') === '1')
+        <x-chat-widget />
+    @endif
 </body>
 </html>

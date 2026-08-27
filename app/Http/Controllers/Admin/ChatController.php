@@ -80,7 +80,7 @@ class ChatController extends Controller
 
         $conversation->update(['last_message_at' => now()]);
 
-        broadcast(new NewChatMessage($message));
+        try { broadcast(new NewChatMessage($message)); } catch (\Throwable $e) {}
 
         return response()->json($message->load('sender'));
     }
