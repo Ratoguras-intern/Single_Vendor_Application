@@ -1,4 +1,4 @@
-@auth('web')
+@if(auth('web')->check() && auth('web')->user()->role === 'customer')
 <div x-data="chatWidget()" x-init="init()" x-cloak class="fixed bottom-6 right-6 z-[99998]">
 
     {{-- Floating Button --}}
@@ -124,7 +124,7 @@
         </div>
     </div>
 </div>
-@endauth
+@endif
 
 <script>
 document.addEventListener('alpine:init', () => {

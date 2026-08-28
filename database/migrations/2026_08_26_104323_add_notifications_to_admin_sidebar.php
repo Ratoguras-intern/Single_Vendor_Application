@@ -15,12 +15,12 @@ return new class extends Migration
 
         $maxSort = DB::table('navigation_items')
             ->where('menu_id', $menuId)
-            ->whereNull('parent_id')
+            ->where('parent_id', 98)
             ->max('sort_order');
 
         DB::table('navigation_items')->insert([
             'menu_id' => $menuId,
-            'parent_id' => null,
+            'parent_id' => 98,
             'name' => 'Notifications',
             'url' => 'admin.notifications.index',
             'icon_key' => 'bell',
@@ -35,7 +35,7 @@ return new class extends Migration
     {
         DB::table('navigation_items')
             ->where('url', 'admin.notifications.index')
-            ->whereNull('parent_id')
+            ->where('parent_id', 98)
             ->delete();
     }
 };
