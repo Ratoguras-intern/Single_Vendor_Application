@@ -184,7 +184,7 @@
                         @endif
 
                         {{-- Write a Review Form --}}
-                        @auth
+                        @if(auth()->user()?->role === 'customer')
                             @if(!$userReview)
                                 <div class="card p-6">
                                     <h3 class="text-lg font-semibold text-secondary-900 dark:text-white mb-4">Write a Review</h3>
@@ -299,7 +299,7 @@
                                     to leave a review for this product.
                                 </p>
                             </div>
-                        @endauth
+                        @endif
 
                         {{-- Reviews List --}}
                         @forelse($reviews as $review)
@@ -370,7 +370,7 @@
 @endsection
 
 @push('scripts')
-<script type="text/turbo-script">
+<script>
 function reviewForm() {
     return {
         rating: 0,
