@@ -154,40 +154,68 @@ document.addEventListener('alpine:init', () => {
             return true;
         },
 
-        syncFromResponse(data) {
+        syncFromResponse(data, noticeType = 'success') {
             this.items = data.items;
             this.subtotal = data.subtotal;
             this.shipping = data.shipping;
             this.tax = data.tax;
             this.total = data.total;
+            if (data.stock_reached && data.message) {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { message: data.message, type: 'warning' } }));
+            }
         },
 
         async add(item) {
             if (!this.requireAuth()) return;
+            const existing = this.items.find(i => i.id === item.id);
+            if (existing && existing.quantity >= existing.stock) {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { message: `Only ${existing.stock} units of "${item.name}" are available in stock.`, type: 'warning' } }));
+                return;
+            }
             const data = await apiFetch(window.apiRoutes.cartAdd, {
                 method: 'POST',
                 body: JSON.stringify({ product_id: item.id, quantity: 1 }),
             });
             if (data) {
                 this.syncFromResponse(data);
-                window.dispatchEvent(new CustomEvent('toast', { detail: { message: item.name + ' added to cart', type: 'success' } }));
+                if (!data.stock_reached) {
+                    window.dispatchEvent(new CustomEvent('toast', { detail: { message: item.name + ' added to cart', type: 'success' } }));
+                }
             }
         },
 
         async addToCartQty(item, qty) {
             if (!this.requireAuth()) return;
+            let adjustedMessage = null;
+            const existing = this.items.find(i => i.id === item.id);
+            if (existing) {
+                const remaining = existing.stock - existing.quantity;
+                if (remaining <= 0) {
+                    window.dispatchEvent(new CustomEvent('toast', { detail: { message: `Only ${existing.stock} units of "${item.name}" are available in stock.`, type: 'warning' } }));
+                    return;
+                }
+                if (qty > remaining) {
+                    qty = remaining;
+                    adjustedMessage = `Only ${remaining} units of "${item.name}" left in stock. Quantity adjusted to ${remaining}.`;
+                }
+            }
             const data = await apiFetch(window.apiRoutes.cartAdd, {
                 method: 'POST',
                 body: JSON.stringify({ product_id: item.id, quantity: qty }),
             });
             if (data) {
                 this.syncFromResponse(data);
-                window.dispatchEvent(new CustomEvent('toast', { detail: { message: item.name + ' added to cart', type: 'success' } }));
+                window.dispatchEvent(new CustomEvent('toast', { detail: { message: adjustedMessage || item.name + ' added to cart', type: adjustedMessage ? 'warning' : 'success' } }));
             }
         },
 
         async buyNow(item) {
             if (!this.requireAuth()) return;
+            const existing = this.items.find(i => i.id === item.id);
+            if (existing && existing.quantity >= existing.stock) {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { message: `Only ${existing.stock} units of "${item.name}" are available in stock.`, type: 'warning' } }));
+                return;
+            }
             const data = await apiFetch(window.apiRoutes.cartAdd, {
                 method: 'POST',
                 body: JSON.stringify({ product_id: item.id, quantity: 1 }),
@@ -200,6 +228,22 @@ document.addEventListener('alpine:init', () => {
 
         async buyNowQty(item, qty) {
             if (!this.requireAuth()) return;
+            let adjustedMessage = null;
+            const existing = this.items.find(i => i.id === item.id);
+            if (existing) {
+                const remaining = existing.stock - existing.quantity;
+                if (remaining <= 0) {
+                    window.dispatchEvent(new CustomEvent('toast', { detail: { message: `Only ${existing.stock} units of "${item.name}" are available in stock.`, type: 'warning' } }));
+                    return;
+                }
+                if (qty > remaining) {
+                    qty = remaining;
+                    adjustedMessage = `Only ${remaining} units of "${item.name}" left in stock. Quantity adjusted to ${remaining}.`;
+                }
+            }
+            if (adjustedMessage) {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { message: adjustedMessage, type: 'warning' } }));
+            }
             const data = await apiFetch(window.apiRoutes.cartAdd, {
                 method: 'POST',
                 body: JSON.stringify({ product_id: item.id, quantity: qty }),
@@ -218,6 +262,11 @@ document.addEventListener('alpine:init', () => {
 
         async updateQuantity(productId, quantity) {
             if (quantity < 1) return;
+            const item = this.items.find(i => i.id === productId);
+            if (item && quantity > item.stock) {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { message: `Only ${item.stock} units of "${item.name}" are available in stock.`, type: 'warning' } }));
+                return;
+            }
             const data = await apiFetch(window.apiRoutes.cartUpdate, {
                 method: 'PUT',
                 body: JSON.stringify({ product_id: productId, quantity }),

@@ -33,15 +33,17 @@ class CartController extends Controller
             'quantity' => 'nullable|integer|min:1|max:99',
         ]);
 
-        $items = $this->cartService->addItem(
+        $result = $this->cartService->addItem(
             Auth::id(),
             $request->product_id,
             $request->integer('quantity', 1)
         );
-        $totals = $this->cartService->calculateTotals($items);
+        $totals = $this->cartService->calculateTotals($result['items']);
 
         return response()->json([
-            'items' => $items,
+            'items' => $result['items'],
+            'stock_reached' => $result['stock_reached'],
+            'message' => $result['message'],
             ...$totals,
         ]);
     }
@@ -53,15 +55,17 @@ class CartController extends Controller
             'quantity' => 'required|integer|min:1|max:99',
         ]);
 
-        $items = $this->cartService->updateQuantity(
+        $result = $this->cartService->updateQuantity(
             Auth::id(),
             $request->product_id,
             $request->quantity
         );
-        $totals = $this->cartService->calculateTotals($items);
+        $totals = $this->cartService->calculateTotals($result['items']);
 
         return response()->json([
-            'items' => $items,
+            'items' => $result['items'],
+            'stock_reached' => $result['stock_reached'],
+            'message' => $result['message'],
             ...$totals,
         ]);
     }

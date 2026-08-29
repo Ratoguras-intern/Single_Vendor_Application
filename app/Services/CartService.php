@@ -26,6 +26,7 @@ class CartService
                 'cart_items.price',
                 'products.name',
                 'products.slug',
+                'products.stock',
                 'product_images.image as image_path'
             )
             ->where('products.status', true)
@@ -54,36 +55,82 @@ class CartService
         $cart = Cart::firstOrCreate(['user_id' => $userId]);
 
         $product = Product::findOrFail($productId);
+        $stock = (int) $product->stock;
+
+        if ($stock <= 0) {
+            return [
+                'items' => $this->getCartItems($userId),
+                'stock_reached' => true,
+                'message' => "This product is currently out of stock.",
+            ];
+        }
 
         $cartItem = CartItem::where('cart_id', $cart->id)
             ->where('product_id', $productId)
             ->first();
 
+        $newQuantity = $cartItem
+            ? min($cartItem->quantity + $quantity, $stock)
+            : min($quantity, $stock);
+
         if ($cartItem) {
-            $cartItem->increment('quantity', $quantity);
+            $cartItem->update(['quantity' => $newQuantity]);
         } else {
             CartItem::create([
                 'cart_id' => $cart->id,
                 'product_id' => $productId,
-                'quantity' => $quantity,
+                'quantity' => $newQuantity,
                 'price' => $product->discount_price ?? $product->price,
             ]);
         }
 
-        return $this->getCartItems($userId);
+        return [
+            'items' => $this->getCartItems($userId),
+            'stock_reached' => $newQuantity >= $stock,
+            'message' => $newQuantity >= $stock
+                ? "Only {$stock} units of \"{$product->name}\" are available in stock."
+                : null,
+        ];
     }
 
     public function updateQuantity(int $userId, int $productId, int $quantity): array
     {
         $cart = Cart::where('user_id', $userId)->first();
+        $stockReached = false;
+        $message = null;
 
         if ($cart) {
-            CartItem::where('cart_id', $cart->id)
-                ->where('product_id', $productId)
-                ->update(['quantity' => max(1, $quantity)]);
+            $product = Product::find($productId);
+
+            if ($product) {
+                $stock = (int) $product->stock;
+
+                if ($stock <= 0) {
+                    CartItem::where('cart_id', $cart->id)
+                        ->where('product_id', $productId)
+                        ->delete();
+                    $stockReached = true;
+                    $message = 'This product is currently out of stock.';
+                } else {
+                    $newQuantity = min(max(1, $quantity), $stock);
+
+                    CartItem::where('cart_id', $cart->id)
+                        ->where('product_id', $productId)
+                        ->update(['quantity' => $newQuantity]);
+
+                    if ($newQuantity >= $stock) {
+                        $stockReached = true;
+                        $message = "Only {$stock} units of \"{$product->name}\" are available in stock.";
+                    }
+                }
+            }
         }
 
-        return $this->getCartItems($userId);
+        return [
+            'items' => $this->getCartItems($userId),
+            'stock_reached' => $stockReached,
+            'message' => $message,
+        ];
     }
 
     public function removeItem(int $userId, int $productId): array

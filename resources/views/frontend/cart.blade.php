@@ -83,14 +83,27 @@
                                             </div>
 
                                             <div class="flex items-center justify-between mt-4">
-                                                <div class="flex items-center border border-secondary-300 dark:border-secondary-600 rounded-input overflow-hidden">
-                                                    <button x-on:click="$store.cart.updateQuantity(item.id, item.quantity - 1)" :disabled="item.quantity <= 1" class="min-h-[44px] min-w-[44px] inline-flex items-center justify-center text-secondary-600 dark:text-secondary-400 hover:bg-secondary-100 dark:hover:bg-white/5 transition-colors disabled:pointer-events-none disabled:opacity-50">
-                                                         <svg class="h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14"/></svg>
-                                                     </button>
-                                                     <span x-text="item.quantity" class="px-3 py-1 min-w-[40px] text-center text-sm font-medium text-secondary-900 dark:text-white"></span>
-                                                     <button x-on:click="$store.cart.updateQuantity(item.id, item.quantity + 1)" class="min-h-[44px] min-w-[44px] inline-flex items-center justify-center text-secondary-600 dark:text-secondary-400 hover:bg-secondary-100 dark:hover:bg-white/5 transition-colors">
-                                                        <svg class="h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                                                    </button>
+                                                <div>
+                                                    <div class="flex items-center border border-secondary-300 dark:border-secondary-600 rounded-input overflow-hidden">
+                                                        <button x-on:click="$store.cart.updateQuantity(item.id, item.quantity - 1)" :disabled="item.quantity <= 1" class="min-h-[44px] min-w-[44px] inline-flex items-center justify-center text-secondary-600 dark:text-secondary-400 hover:bg-secondary-100 dark:hover:bg-white/5 transition-colors disabled:pointer-events-none disabled:opacity-50">
+                                                             <svg class="h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14"/></svg>
+                                                         </button>
+                                                         <span x-text="item.quantity" class="px-3 py-1 min-w-[40px] text-center text-sm font-medium text-secondary-900 dark:text-white"></span>
+                                                         <button x-on:click="$store.cart.updateQuantity(item.id, item.quantity + 1)" :disabled="item.stock <= 0 || item.quantity >= item.stock" class="min-h-[44px] min-w-[44px] inline-flex items-center justify-center text-secondary-600 dark:text-secondary-400 hover:bg-secondary-100 dark:hover:bg-white/5 transition-colors disabled:pointer-events-none disabled:opacity-40">
+                                                            <svg class="h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                                                        </button>
+                                                    </div>
+                                                    <template x-if="item.quantity >= item.stock">
+                                                        <p class="mt-2 flex items-center gap-1.5 text-xs font-medium text-amber-600 dark:text-amber-400">
+                                                            <svg class="h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>
+                                                            <span data-i18n="Maximum stock reached" x-text="$store.i18n.t('Maximum stock reached')">Maximum stock reached</span>
+                                                        </p>
+                                                    </template>
+                                                    <template x-if="item.stock <= 0">
+                                                        <p class="mt-2 flex items-center gap-1.5 text-xs font-medium text-red-600 dark:text-red-400">
+                                                            <span data-i18n="Out of stock" x-text="$store.i18n.t('Out of stock')">Out of stock</span>
+                                                        </p>
+                                                    </template>
                                                 </div>
 
                                                 <p class="text-lg font-bold text-secondary-900 dark:text-white">

@@ -29,6 +29,20 @@ export default {
         'object-right-top',
         'object-left-bottom',
         'object-right-bottom',
+        // CMS page content (rendered from DB, not scanned by Tailwind) —
+        // stat cards / badges used by returns & info pages must compile even
+        // though they never appear in a .blade.php source file.
+        'border-emerald-100',
+        'sm:gap-0',
+        'dark:bg-primary-950/20',
+        'dark:bg-primary-900/40',
+        'dark:border-primary-900/30',
+        'dark:bg-emerald-950/20',
+        'dark:bg-emerald-900/40',
+        'dark:border-emerald-900/30',
+        'dark:bg-blue-950/20',
+        'dark:bg-blue-900/40',
+        'dark:border-blue-900/30',
     ],
 
     theme: {
