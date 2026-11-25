@@ -201,6 +201,50 @@
                     </svg>
                 </button>
 
+                <!-- Chat Bell -->
+                @php
+                    $chatUnread = \App\Models\ChatMessage::whereNull('read_at')
+                        ->whereHas('sender', fn ($q) => $q->where('role', 'customer'))
+                        ->whereHas('conversation', fn ($q) => $q->where('status', 'open'))
+                        ->count();
+                    $chatUnreadCap = (int) \App\Models\Setting::get('limits.chat.unread_badge', 99);
+                @endphp
+                <div class="relative" x-data="chatBell({{ $chatUnread }})">
+                    <a href="{{ route('admin.chat.index') }}"
+                        class="relative flex h-11 w-11 items-center justify-center rounded-full bg-white text-gray-500 border border-gray-200 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+                        title="Live Chat">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <template x-if="unread > 0">
+                            <span class="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white" x-text="displayCount()"></span>
+                        </template>
+                    </a>
+                </div>
+                <script>
+                    document.addEventListener('alpine:init', () => {
+                        Alpine.data('chatBell', (initial) => ({
+                            unread: initial,
+                            cap: {{ $chatUnreadCap }},
+                            channel: null,
+                            init() {
+                                if (window.Echo) {
+                                    this.channel = window.Echo.private('chat.admin')
+                                        .listen('.message.new', (e) => {
+                                            if (e.sender_role && ['admin', 'super_admin'].includes(e.sender_role)) {
+                                                return;
+                                            }
+                                            this.unread++;
+                                        });
+                                }
+                            },
+                            displayCount() {
+                                return this.unread > this.cap ? this.cap + '+' : this.unread;
+                            }
+                        }));
+                    });
+                </script>
+
                 <!-- Notification Dropdown -->
                 @include('header.notification-dropdown')
             </div>

@@ -1,12 +1,20 @@
 @php
     $footerSect = app(\App\Models\HomepageSection::class)->getCached()->get('premium-footer');
-    $companyName = $footerSect?->config['company_name'] ?? site_name();
-    $companyDesc = $footerSect?->config['company_description'] ?? 'A powerful e-commerce management platform. Streamline operations, boost sales, and scale your business with confidence.';
-    $address = $footerSect?->config['address'] ?? '123 Fashion Street, Style City, SC 12345';
-    $phone = $footerSect?->config['phone'] ?? '+1 (555) 123-4567';
-    $email = $footerSect?->config['email'] ?? 'hello@nbkvertex.com';
+    $companyName = \App\Models\Setting::get('store.name') ?: ($footerSect?->config['company_name'] ?? site_name());
+    $companyDesc = \App\Models\Setting::get('store.description') ?: ($footerSect?->config['company_description'] ?? 'A powerful e-commerce management platform. Streamline operations, boost sales, and scale your business with confidence.');
+    $address = \App\Models\Setting::get('store.address') ?: ($footerSect?->config['address'] ?? '123 Fashion Street, Style City, SC 12345');
+    $phone = \App\Models\Setting::get('store.phone') ?: ($footerSect?->config['phone'] ?? '+1 (555) 123-4567');
+    $email = \App\Models\Setting::get('store.email') ?: ($footerSect?->config['email'] ?? 'hello@nbkvertex.com');
     $copyrightText = $footerSect?->config['copyright_text'] ?? 'All Rights Reserved.';
-    $socialLinks = $footerSect?->config['social_links'] ?? [];
+    $socialLinks = \App\Models\Setting::get('store.social_links');
+    if (is_string($socialLinks)) {
+        $decoded = json_decode((string) $socialLinks, true);
+        $socialLinks = is_array($decoded) ? $decoded : [];
+    }
+    if (! is_array($socialLinks)) {
+        $socialLinks = [];
+    }
+    $socialLinks = $socialLinks ?: ($footerSect?->config['social_links'] ?? []);
     $footerColumns = $footerSect?->config['footer_columns'] ?? [];
 
     $defaultSocials = [

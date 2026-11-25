@@ -269,6 +269,27 @@ Route::middleware(['auth', 'admin'])
         Route::get('/footer', [FooterController::class, 'edit'])->name('footer.edit');
         Route::put('/footer/{homepageSection}', [FooterController::class, 'update'])->name('footer.update');
 
+        // Store Settings (contact info + social links, single source of truth)
+        Route::get('/store-settings', [\App\Http\Controllers\Admin\StoreSettingsController::class, 'edit'])->name('store-settings.edit');
+        Route::put('/store-settings', [\App\Http\Controllers\Admin\StoreSettingsController::class, 'update'])->name('store-settings.update');
+
+        // Why Choose Us (homepage benefits)
+        Route::get('/why-choose-us', [\App\Http\Controllers\Admin\WhyChooseUsController::class, 'index'])->name('why-choose-us.index');
+        Route::post('/why-choose-us', [\App\Http\Controllers\Admin\WhyChooseUsController::class, 'store'])->name('why-choose-us.store');
+        Route::put('/why-choose-us/{feature}', [\App\Http\Controllers\Admin\WhyChooseUsController::class, 'update'])->name('why-choose-us.update');
+        Route::patch('/why-choose-us/{feature}/toggle', [\App\Http\Controllers\Admin\WhyChooseUsController::class, 'toggle'])->name('why-choose-us.toggle');
+        Route::delete('/why-choose-us/{feature}', [\App\Http\Controllers\Admin\WhyChooseUsController::class, 'destroy'])->name('why-choose-us.destroy');
+        Route::patch('/why-choose-us/order', [\App\Http\Controllers\Admin\WhyChooseUsController::class, 'updateOrder'])->name('why-choose-us.updateOrder');
+
+        // Testimonials
+        Route::get('/testimonials', [\App\Http\Controllers\Admin\TestimonialController::class, 'index'])->name('testimonials.index');
+        Route::post('/testimonials', [\App\Http\Controllers\Admin\TestimonialController::class, 'store'])->name('testimonials.store');
+        Route::put('/testimonials/{testimonial}', [\App\Http\Controllers\Admin\TestimonialController::class, 'update'])->name('testimonials.update');
+        Route::patch('/testimonials/{testimonial}/toggle', [\App\Http\Controllers\Admin\TestimonialController::class, 'toggle'])->name('testimonials.toggle');
+        Route::patch('/testimonials/{testimonial}/feature', [\App\Http\Controllers\Admin\TestimonialController::class, 'feature'])->name('testimonials.feature');
+        Route::delete('/testimonials/{testimonial}', [\App\Http\Controllers\Admin\TestimonialController::class, 'destroy'])->name('testimonials.destroy');
+        Route::patch('/testimonials/order', [\App\Http\Controllers\Admin\TestimonialController::class, 'updateOrder'])->name('testimonials.updateOrder');
+
         // Content Management
         Route::get('/homepage-sections', [HomepageSectionController::class, 'index'])->name('homepage-sections.index');
         Route::get('/homepage-sections/{homepageSection}', [HomepageSectionController::class, 'show'])->name('homepage-sections.show');
@@ -308,6 +329,12 @@ Route::middleware(['auth', 'admin'])
             Route::patch('/navigations/{navigation}/items/{item}/toggle', [NavigationController::class, 'toggleItem'])->name('navigations.toggleItem');
             Route::patch('/navigations/{navigation}/items/order', [NavigationController::class, 'updateOrder'])->name('navigations.updateOrder');
             Route::put('/navigations/{navigation}/config', [NavigationController::class, 'updateConfig'])->name('navigations.updateConfig');
+            Route::post('/navigations/{navigation}/slides', [NavigationController::class, 'storeSlide'])->name('navigations.storeSlide');
+            Route::put('/navigations/{navigation}/slides/{index}', [NavigationController::class, 'updateSlide'])->name('navigations.updateSlide');
+            Route::patch('/navigations/{navigation}/slides/{index}/toggle', [NavigationController::class, 'toggleSlide'])->name('navigations.toggleSlide');
+            Route::delete('/navigations/{navigation}/slides/{index}', [NavigationController::class, 'destroySlide'])->name('navigations.destroySlide');
+            Route::patch('/navigations/{navigation}/slides/order', [NavigationController::class, 'reorderSlides'])->name('navigations.reorderSlides');
+            Route::delete('/navigations/{navigation}/slides', [NavigationController::class, 'resetSlides'])->name('navigations.resetSlides');
             Route::patch('/navigations/{navigation}/toggle', [NavigationController::class, 'toggleMenu'])->name('navigations.toggleMenu');
             Route::delete('/navigations/{navigation}', [NavigationController::class, 'destroyMenu'])->name('navigations.destroyMenu');
     });

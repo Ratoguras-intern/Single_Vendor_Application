@@ -16,7 +16,8 @@ class MediaController extends Controller
     }
 
     /**
-     * Paginated JSON listing of the media library (newest first).
+     * Media Library page (browser visit) or paginated JSON listing (AJAX,
+     * used by the picker component). Same endpoint, two representations.
      */
     public function index(Request $request)
     {
@@ -30,12 +31,21 @@ class MediaController extends Controller
             ->search($validated['search'] ?? null)
             ->folder($validated['folder'] ?? null)
             ->latest()
-            ->paginate(config('media.per_page', 24));
+            ->paginate((int) $request->input('per_page', config('media.per_page', 24)));
 
-        return response()->json([
-            'data' => collect($media->items())->map(fn (Media $m) => $m->toPickerArray()),
-            'current_page' => $media->currentPage(),
-            'last_page' => $media->lastPage(),
+        if ($request->wantsJson()) {
+            return response()->json([
+                'data' => collect($media->items())->map(fn (Media $m) => $m->toPickerArray()),
+                'current_page' => $media->currentPage(),
+                'last_page' => $media->lastPage(),
+                'total' => $media->total(),
+            ]);
+        }
+
+        return view('admin.media.index', [
+            'media' => $media,
+            'folders' => (array) config('media.folders', []),
+            'perPage' => $media->perPage(),
             'total' => $media->total(),
         ]);
     }

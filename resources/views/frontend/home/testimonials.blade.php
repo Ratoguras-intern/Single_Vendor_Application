@@ -1,6 +1,10 @@
 @php
     $section = $sections->get('testimonials');
-    $testimonialItems = $section?->config['testimonials'] ?? [];
+    $testimonialItems = collect($section?->config['testimonials'] ?? [])
+        ->filter(fn ($t) => ($t['active'] ?? true) !== false)
+        ->sortBy(fn ($t) => $t['sort_order'] ?? 0)
+        ->values()
+        ->all();
 @endphp
 
 @if(!empty($testimonialItems))

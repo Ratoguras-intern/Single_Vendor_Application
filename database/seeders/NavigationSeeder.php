@@ -80,146 +80,74 @@ class NavigationSeeder extends Seeder
         // Clear existing items for fresh seed
         NavigationItem::where('menu_id', $adminSidebar->id)->delete();
 
-        // Menu group
-        $menuGroup = NavigationItem::create([
-            'menu_id' => $adminSidebar->id,
-            'name' => 'Menu',
-            'sort_order' => 0,
-            'config' => ['is_group_title' => true],
-        ]);
+        $groups = [
+            'Overview' => 0,
+            'Catalog' => 1,
+            'Orders' => 2,
+            'Customers' => 3,
+            'Store' => 4,
+            'Settings' => 5,
+        ];
 
-        NavigationItem::create([
-            'menu_id' => $adminSidebar->id,
-            'parent_id' => $menuGroup->id,
-            'name' => 'Dashboard',
-            'icon_key' => 'dashboard',
-            'url' => 'admin.dashboard',
-            'sort_order' => 0,
-        ]);
+        $groupIds = [];
+        foreach ($groups as $label => $order) {
+            $groupIds[$label] = NavigationItem::create([
+                'menu_id' => $adminSidebar->id,
+                'name' => $label,
+                'sort_order' => $order,
+                'config' => ['is_group_title' => true],
+            ])->id;
+        }
 
-        // Catalog group
-        $catalogGroup = NavigationItem::create([
-            'menu_id' => $adminSidebar->id,
-            'name' => 'Catalog',
-            'sort_order' => 1,
-            'config' => ['is_group_title' => true],
-        ]);
+        $add = function (int $groupId, string $name, string $url, string $icon, int $order, ?string $permission = null) use ($adminSidebar) {
+            NavigationItem::create([
+                'menu_id' => $adminSidebar->id,
+                'parent_id' => $groupId,
+                'name' => $name,
+                'icon_key' => $icon,
+                'url' => $url,
+                'sort_order' => $order,
+                'permission' => $permission,
+            ]);
+        };
 
-        NavigationItem::create([
-            'menu_id' => $adminSidebar->id,
-            'parent_id' => $catalogGroup->id,
-            'name' => 'Categories',
-            'icon_key' => 'category',
-            'url' => 'admin.categories.index',
-            'sort_order' => 0,
-        ]);
+        // Overview
+        $add($groupIds['Overview'], 'Dashboard', 'admin.dashboard', 'dashboard', 0);
+        $add($groupIds['Overview'], 'Notifications', 'admin.notifications.index', 'bell', 1);
 
-        NavigationItem::create([
-            'menu_id' => $adminSidebar->id,
-            'parent_id' => $catalogGroup->id,
-            'name' => 'Brands',
-            'icon_key' => 'brand',
-            'url' => 'admin.brands.index',
-            'sort_order' => 1,
-        ]);
+        // Catalog
+        $add($groupIds['Catalog'], 'Products', 'admin.products.index', 'product', 0);
+        $add($groupIds['Catalog'], 'Categories', 'admin.categories.index', 'category', 1);
+        $add($groupIds['Catalog'], 'Brands', 'admin.brands.index', 'brand', 2);
 
-        NavigationItem::create([
-            'menu_id' => $adminSidebar->id,
-            'parent_id' => $catalogGroup->id,
-            'name' => 'Products',
-            'icon_key' => 'product',
-            'url' => 'admin.products.index',
-            'sort_order' => 2,
-        ]);
+        // Orders
+        $add($groupIds['Orders'], 'Orders', 'admin.orders.index', 'order', 0);
+        $add($groupIds['Orders'], 'Returns & Refunds', 'admin.returns.index', 'returns', 1);
 
-        // Content group
-        $contentGroup = NavigationItem::create([
-            'menu_id' => $adminSidebar->id,
-            'name' => 'Content',
-            'sort_order' => 2,
-            'config' => ['is_group_title' => true],
-        ]);
+        // Customers
+        $add($groupIds['Customers'], 'Customers', 'admin.customers.index', 'customer', 0);
+        $add($groupIds['Customers'], 'Reviews', 'admin.reviews.index', 'reviews', 1);
+        $add($groupIds['Customers'], 'Live Chat', 'admin.chat.index', 'chat', 2);
 
-        NavigationItem::create([
-            'menu_id' => $adminSidebar->id,
-            'parent_id' => $contentGroup->id,
-            'name' => 'Homepage Sections',
-            'icon_key' => 'homepage',
-            'url' => 'admin.homepage-sections.index',
-            'sort_order' => 0,
-        ]);
-
-        NavigationItem::create([
-            'menu_id' => $adminSidebar->id,
-            'parent_id' => $contentGroup->id,
-            'name' => 'Banners',
-            'icon_key' => 'banner',
-            'url' => 'admin.banners.index',
-            'sort_order' => 1,
-        ]);
-
-        NavigationItem::create([
-            'menu_id' => $adminSidebar->id,
-            'parent_id' => $contentGroup->id,
-            'name' => 'Sale Banners',
-            'icon_key' => 'sale',
-            'url' => 'admin.sale-banners.index',
-            'sort_order' => 2,
-        ]);
-
-        NavigationItem::create([
-            'menu_id' => $adminSidebar->id,
-            'parent_id' => $contentGroup->id,
-            'name' => 'Featured Categories',
-            'icon_key' => 'featured',
-            'url' => 'admin.featured-categories.index',
-            'sort_order' => 3,
-        ]);
-
-        NavigationItem::create([
-            'menu_id' => $adminSidebar->id,
-            'parent_id' => $contentGroup->id,
-            'name' => 'Navigation',
-            'icon_key' => 'navigation',
-            'url' => 'admin.navigations.index',
-            'permission' => 'super_admin',
-            'sort_order' => 4,
-        ]);
-
-        NavigationItem::create([
-            'menu_id' => $adminSidebar->id,
-            'parent_id' => $contentGroup->id,
-            'name' => 'Pages',
-            'icon_key' => 'info',
-            'url' => 'admin.pages.index',
-            'sort_order' => 5,
-        ]);
-
-        NavigationItem::create([
-            'menu_id' => $adminSidebar->id,
-            'parent_id' => $contentGroup->id,
-            'name' => 'Footer',
-            'icon_key' => 'homepage',
-            'url' => 'admin.footer.edit',
-            'sort_order' => 6,
-        ]);
-
-        NavigationItem::create([
-            'menu_id' => $adminSidebar->id,
-            'parent_id' => $contentGroup->id,
-            'name' => 'Reviews',
-            'icon_key' => 'homepage',
-            'url' => 'admin.reviews.index',
-            'sort_order' => 7,
-        ]);
+        // Store & content
+        $add($groupIds['Store'], 'Homepage', 'admin.homepage-sections.index', 'homepage', 0);
+        $add($groupIds['Store'], 'Banners', 'admin.banners.index', 'banner', 1);
+        $add($groupIds['Store'], 'Sale Banners', 'admin.sale-banners.index', 'sale', 2);
+        $add($groupIds['Store'], 'Featured Categories', 'admin.featured-categories.index', 'featured', 3);
+        $add($groupIds['Store'], 'Pages', 'admin.pages.index', 'media', 5);
+        $add($groupIds['Store'], 'Footer', 'admin.footer.edit', 'homepage', 6);
+        $add($groupIds['Store'], 'Media', 'admin.media.index', 'media', 7);
+        $add($groupIds['Store'], 'Navigation', 'admin.navigations.index', 'navigation', 8, 'super_admin');
+        $add($groupIds['Store'], 'Why Choose Us', 'admin.why-choose-us.index', 'featured', 9);
+        $add($groupIds['Store'], 'Testimonials', 'admin.testimonials.index', 'reviews', 10);
 
         $productSections = NavigationItem::create([
             'menu_id' => $adminSidebar->id,
-            'parent_id' => $contentGroup->id,
+            'parent_id' => $groupIds['Store'],
             'name' => 'Product Sections',
             'icon_key' => 'product',
             'url' => null,
-            'sort_order' => 8,
+            'sort_order' => 4,
         ]);
 
         $productSectionItems = [
@@ -242,67 +170,13 @@ class NavigationSeeder extends Seeder
             ]);
         }
 
-        // Sales group
-        $salesGroup = NavigationItem::create([
-            'menu_id' => $adminSidebar->id,
-            'name' => 'Sales',
-            'sort_order' => 3,
-            'config' => ['is_group_title' => true],
-        ]);
-
-        NavigationItem::create([
-            'menu_id' => $adminSidebar->id,
-            'parent_id' => $salesGroup->id,
-            'name' => 'Orders',
-            'icon_key' => 'order',
-            'url' => 'admin.orders.index',
-            'sort_order' => 0,
-        ]);
-
-        NavigationItem::create([
-            'menu_id' => $adminSidebar->id,
-            'parent_id' => $salesGroup->id,
-            'name' => 'Customers',
-            'icon_key' => 'customer',
-            'url' => 'admin.customers.index',
-            'sort_order' => 1,
-        ]);
-
-        NavigationItem::create([
-            'menu_id' => $adminSidebar->id,
-            'parent_id' => $salesGroup->id,
-            'name' => 'Returns',
-            'icon_key' => 'order',
-            'url' => 'admin.returns.index',
-            'sort_order' => 2,
-        ]);
-
-        // Administration group (super_admin only)
-        $adminGroup = NavigationItem::create([
-            'menu_id' => $adminSidebar->id,
-            'name' => 'Administration',
-            'sort_order' => 4,
-            'config' => ['is_group_title' => true],
-        ]);
-
-        NavigationItem::create([
-            'menu_id' => $adminSidebar->id,
-            'parent_id' => $adminGroup->id,
-            'name' => 'Admins',
-            'icon_key' => 'admins',
-            'url' => 'superadmin.admins.index',
-            'permission' => 'super_admin',
-            'sort_order' => 0,
-        ]);
-
-        NavigationItem::create([
-            'menu_id' => $adminSidebar->id,
-            'parent_id' => $adminGroup->id,
-            'name' => 'Users',
-            'icon_key' => 'users',
-            'url' => 'superadmin.users.index',
-            'permission' => 'super_admin',
-            'sort_order' => 1,
-        ]);
+        // Settings
+        $add($groupIds['Settings'], 'Content Settings', 'admin.content-settings.edit', 'settings', 0);
+        $add($groupIds['Settings'], 'Display Limits', 'admin.limit-settings.edit', 'sliders', 1);
+        $add($groupIds['Settings'], 'Branding & Logo', 'admin.branding.edit', 'branding', 2, 'super_admin');
+        $add($groupIds['Settings'], 'Team Members', 'superadmin.admins.index', 'team', 3, 'super_admin');
+        $add($groupIds['Settings'], 'All Users', 'superadmin.users.index', 'users', 4, 'super_admin');
+        $add($groupIds['Settings'], 'My Account', 'profile.edit', 'account', 5);
+        $add($groupIds['Settings'], 'Store Information', 'admin.store-settings.edit', 'settings', 6);
     }
 }

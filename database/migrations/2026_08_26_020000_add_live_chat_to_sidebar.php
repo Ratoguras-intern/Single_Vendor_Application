@@ -7,6 +7,15 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // IDs below are environment-specific; skip on fresh databases (e.g. tests).
+        // Later sidebar migrations add Live Chat by lookup instead of fixed IDs.
+        $menuExists = DB::table('navigation_menus')->where('id', 4)->exists();
+        $parentExists = DB::table('navigation_items')->where('id', 104)->exists();
+
+        if (! $menuExists || ! $parentExists) {
+            return;
+        }
+
         DB::table('navigation_items')->insert([
             'menu_id' => 4,
             'parent_id' => 104,

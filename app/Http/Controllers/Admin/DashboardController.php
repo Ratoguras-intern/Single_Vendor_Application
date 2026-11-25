@@ -43,6 +43,7 @@ class DashboardController extends Controller
         $averageOrderValue = Order::where('payment_status', 'paid')->avg('total_amount') ?? 0;
 
         $lowStockProducts = Product::where('stock', '<=', 10)->orderBy('stock')->limit((int) Setting::get('limits.admin.low_stock', 10))->get();
+        $outOfStockCount = Product::where('stock', '<=', 0)->count();
 
         // --- Return Stats ---
         $pendingReturns = OrderReturn::whereIn('status', ['requested', 'pending_review'])->count();
@@ -77,6 +78,9 @@ class DashboardController extends Controller
         });
         $salesRevenue = $salesData->pluck('revenue');
         $salesOrderCount = $salesData->pluck('orders');
+
+        // --- Sales by range (7 / 30 / 90 / 365 days) ---
+        $salesRanges = self::salesRanges($now);
 
         // --- Top 10 Best Selling Products ---
         $topProducts = OrderItem::join('orders', 'order_items.order_id', '=', 'orders.id')
@@ -128,6 +132,8 @@ class DashboardController extends Controller
             'revenueThisMonth',
             'averageOrderValue',
             'lowStockProducts',
+            'outOfStockCount',
+            'salesRanges',
             'pendingReturns',
             'returnsAwaitingReceipt',
             'returnsAwaitingRefund',
@@ -140,5 +146,124 @@ class DashboardController extends Controller
             'latestOrders',
             'latestCustomers',
         ));
+    }
+
+    /**
+     * Compute per-label sales (revenue + order count) for the given list of
+     * date ranges. Each range returns its own set of labels so the dashboard
+     * chart can switch ranges instantly without a round-trip (no layout shift).
+     */
+    private static function salesRanges(Carbon $now): array
+    {
+        $ranges = [
+            '7' => [
+                'title' => 'Last 7 Days',
+                'short' => '7 Days',
+                'days' => 7,
+                'format' => 'D',
+                'step' => 'day',
+            ],
+            '30' => [
+                'title' => 'Last 30 Days',
+                'short' => '30 Days',
+                'days' => 30,
+                'format' => 'M d',
+                'step' => 'day',
+            ],
+            '90' => [
+                'title' => 'Last 3 Months',
+                'short' => '3 Months',
+                'days' => 90,
+                'format' => 'W',
+                'step' => 'week',
+            ],
+            '365' => [
+                'title' => 'Last 12 Months',
+                'short' => '1 Year',
+                'days' => 365,
+                'format' => 'M Y',
+                'step' => 'month',
+            ],
+        ];
+
+        $result = [];
+
+        foreach ($ranges as $key => $range) {
+            $start = $now->copy()->subDays($range['days'])->startOfDay();
+
+            $rows = Order::where('payment_status', 'paid')
+                ->where('created_at', '>=', $start)
+                ->selectRaw('DATE(created_at) as d')
+                ->selectRaw('SUM(total_amount) as revenue')
+                ->selectRaw('COUNT(*) as orders')
+                ->groupBy('d')
+                ->orderBy('d')
+                ->get()
+                ->keyBy('d');
+
+            if ($range['step'] === 'day') {
+                $labels = [];
+                $revenue = [];
+                $orders = [];
+                for ($i = $range['days'] - 1; $i >= 0; $i--) {
+                    $day = $start->copy()->addDays($i);
+                    $keyDate = $day->toDateString();
+                    $labels[] = $day->format($range['format']);
+                    $revenue[] = (float) ($rows[$keyDate]->revenue ?? 0);
+                    $orders[] = (int) ($rows[$keyDate]->orders ?? 0);
+                }
+            } elseif ($range['step'] === 'week') {
+                $weeks = [];
+                for ($i = $range['days'] - 1; $i >= 0; $i -= 7) {
+                    $weeks[] = $start->copy()->addDays($i);
+                }
+                $weeks = array_reverse($weeks);
+                $labels = [];
+                $revenue = [];
+                $orders = [];
+                foreach ($weeks as $weekStart) {
+                    $weekEnd = $weekStart->copy()->addDays(6)->endOfDay();
+                    $label = $weekStart->format('M d');
+                    $labels[] = $label;
+                    $revenue[] = (float) Order::where('payment_status', 'paid')
+                        ->whereBetween('created_at', [$weekStart, $weekEnd])
+                        ->sum('total_amount');
+                    $orders[] = (int) Order::where('payment_status', 'paid')
+                        ->whereBetween('created_at', [$weekStart, $weekEnd])
+                        ->count();
+                }
+            } else { // month
+                $labels = [];
+                $revenue = [];
+                $orders = [];
+                $months = collect();
+                for ($i = 11; $i >= 0; $i--) {
+                    $months->push($now->copy()->subMonths($i)->format('Y-m'));
+                }
+                $monthly = Order::where('payment_status', 'paid')
+                    ->where('created_at', '>=', $now->copy()->subMonths(11)->startOfMonth())
+                    ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as m")
+                    ->selectRaw('SUM(total_amount) as revenue')
+                    ->selectRaw('COUNT(*) as orders')
+                    ->groupBy('m')
+                    ->get()
+                    ->keyBy('m');
+                foreach ($months as $m) {
+                    $labels[] = Carbon::createFromFormat('Y-m', $m)->format('M Y');
+                    $revenue[] = (float) ($monthly[$m]->revenue ?? 0);
+                    $orders[] = (int) ($monthly[$m]->orders ?? 0);
+                }
+            }
+
+            $result[$key] = [
+                'title' => $range['title'],
+                'short' => $range['short'],
+                'labels' => $labels,
+                'revenue' => $revenue,
+                'orders' => $orders,
+            ];
+        }
+
+        return $result;
     }
 }

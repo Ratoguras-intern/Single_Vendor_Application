@@ -123,34 +123,34 @@
                                 x-cloak
                                 role="menu"
                                 x-data="{ hoveredCat: null }">
-                                <div class="section py-8">
-                                    <div class="grid grid-cols-12 gap-8">
+                                <div class="section py-6">
+                                    <div class="grid grid-cols-12 gap-6 lg:gap-8 mega-grid-scroll">
 
                                         {{-- Category List --}}
                                         <div class="col-span-3">
-                                            <h3 class="text-xs font-bold uppercase tracking-wider text-secondary-400 dark:text-secondary-500 mb-4">Categories</h3>
-                                            <ul class="space-y-0.5">
+                                            <h3 class="mega-heading mb-3">Shop Categories</h3>
+                                            <ul class="space-y-1">
                                                 @forelse($topCategories as $category)
+                                                    @php
+                                                        $isCatActive = $activeCategory && ($activeCategory->id === $category->id || $activeCategory->parent_id === $category->id);
+                                                    @endphp
                                                     <li class="mega-cat-item" x-on:mouseenter="hoveredCat = {{ $category->id }}">
-                        <a href="{{ route('frontend.category', $category->slug) }}" wire:navigate
-                            class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors group
-                                                                {{ $activeCategory && ($activeCategory->id === $category->id || $activeCategory->parent_id === $category->id)
-                                                                    ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-400 font-semibold'
-                                                                    : 'text-secondary-700 dark:text-secondary-300 hover:bg-primary-50 dark:hover:bg-primary-500/10 hover:text-primary-700 dark:hover:text-primary-400' }}"
+                                                        <a href="{{ route('frontend.category', $category->slug) }}" wire:navigate
+                                                            class="mega-cat-link {{ $isCatActive ? 'is-active' : '' }}"
                                                             role="menuitem"
-                                                            {{ $activeCategory && ($activeCategory->id === $category->id || $activeCategory->parent_id === $category->id) ? 'aria-current="page"' : '' }}>
-                                                            <span class="flex items-center gap-2.5">
+                                                            {{ $isCatActive ? 'aria-current="page"' : '' }}>
+                                                            <span class="flex items-center gap-2.5 min-w-0">
                                                                 @if($category->lucide_icon)
                                                                     <x-lucide :name="$category->lucide_icon" class="h-5 w-5 shrink-0 text-primary-500 dark:text-primary-400" />
                                                                 @elseif($category->icon_url)
                                                                     <img src="{{ $category->icon_url }}" alt="" class="h-5 w-5 rounded object-cover shrink-0" loading="lazy">
                                                                 @endif
-                                                                <span class="font-medium">{{ $category->name }}</span>
+                                                                <span class="font-medium truncate">{{ $category->name }}</span>
                                                             </span>
-                                                            @if($category->children->count())
-                                                                <svg class="mega-cat-arrow h-3.5 w-3.5 text-secondary-400 dark:text-secondary-500 group-hover:text-primary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
+                                                            @if($category->children->isNotEmpty())
+                                                                <svg class="mega-cat-arrow h-3.5 w-3.5 text-secondary-400 dark:text-secondary-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
                                                             @else
-                                                                <span class="text-xs text-secondary-400 dark:text-secondary-500 group-hover:text-primary-500 shrink-0">{{ $category->total_products_count }}</span>
+                                                                <span class="mega-count shrink-0">{{ $category->total_products_count }}</span>
                                                             @endif
                                                         </a>
                                                     </li>
@@ -165,36 +165,60 @@
                                             </a>
                                         </div>
 
-                                        {{-- Subcategories for hovered parent OR Featured image cards --}}
-                                        <div class="col-span-5">
+                                        {{-- Detail pane: hovered category subcategories OR default thumbnail cards --}}
+                                        <div class="col-span-5 mega-pane">
                                             @foreach($topCategories as $category)
                                                 <div x-show="hoveredCat === {{ $category->id }}" x-transition.opacity.duration.150ms>
-                                                    <div class="flex items-center justify-between mb-4">
-                                                        <h3 class="text-xs font-bold uppercase tracking-wider text-secondary-400 dark:text-secondary-500">{{ $category->name }}</h3>
-                                                        <span class="text-xs text-secondary-400 dark:text-secondary-500">{{ $category->total_products_count }} products</span>
-                                                    </div>
-                                                    @if($category->children->isNotEmpty())
+                                                    @if($category->children->count() >= 2)
+                                                        <div class="flex items-center justify-between mb-4">
+                                                            <h3 class="mega-title">{{ $category->name }}</h3>
+                                                            <span class="mega-count">{{ $category->total_products_count }} products</span>
+                                                        </div>
                                                         <div class="grid grid-cols-2 gap-2">
                                                             @foreach($category->children as $child)
-                                                            <a href="{{ route('frontend.category', $child->slug) }}" wire:navigate
-                                                                class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors
-                                                                        {{ $activeCategory && $activeCategory->id === $child->id
-                                                                            ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-400 font-semibold'
-                                                                            : 'text-secondary-700 dark:text-secondary-300 hover:bg-primary-50 dark:hover:bg-primary-500/10' }}">
-                                                                    <span class="flex items-center gap-2">
+                                                                <a href="{{ route('frontend.category', $child->slug) }}" wire:navigate
+                                                                    class="mega-sub-link {{ $activeCategory && $activeCategory->id === $child->id ? 'is-active' : '' }}">
+                                                                    <span class="flex items-center gap-2 min-w-0">
                                                                         @if($child->lucide_icon)
                                                                             <x-lucide :name="$child->lucide_icon" class="h-4 w-4 shrink-0 text-primary-500 dark:text-primary-400" />
                                                                         @elseif($child->icon_url)
                                                                             <img src="{{ $child->icon_url }}" alt="" class="h-4 w-4 rounded object-cover shrink-0" loading="lazy">
                                                                         @endif
-                                                                        <span>{{ $child->name }}</span>
+                                                                        <span class="truncate">{{ $child->name }}</span>
                                                                     </span>
-                                                                    <span class="text-xs text-secondary-400 dark:text-secondary-500 shrink-0">{{ $child->total_products_count }}</span>
+                                                                    <span class="mega-count shrink-0">{{ $child->total_products_count }}</span>
                                                                 </a>
                                                             @endforeach
                                                         </div>
                                                     @else
-                                                        <p class="text-sm text-secondary-400 dark:text-secondary-500 py-2">No subcategories yet.</p>
+                                                        <div class="flex items-start gap-5">
+                                                            <a href="{{ route('frontend.category', $category->slug) }}" wire:navigate class="mega-cat-card mega-cat-card--wide shrink-0">
+                                                                @if($category->display_image)
+                                                                    <img src="{{ $category->display_image }}" alt="{{ $category->name }}"
+                                                                        class="absolute inset-0 w-full h-full object-cover" loading="lazy">
+                                                                @else
+                                                                    <div class="absolute inset-0 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/20"></div>
+                                                                @endif
+                                                                <div class="mega-cat-overlay"></div>
+                                                                <div class="mega-cat-content">
+                                                                    <span class="text-sm font-semibold text-white">{{ $category->name }}</span>
+                                                                    <span class="block text-xs text-white/70">{{ $category->total_products_count }} products</span>
+                                                                </div>
+                                                            </a>
+                                                            <div class="min-w-0 flex-1">
+                                                                <h3 class="mega-title mb-3">{{ $category->name }}</h3>
+                                                                @foreach($category->children as $child)
+                                                                    <a href="{{ route('frontend.category', $child->slug) }}" wire:navigate
+                                                                        class="mega-sub-link mb-1 {{ $activeCategory && $activeCategory->id === $child->id ? 'is-active' : '' }}">
+                                                                        <span class="truncate">{{ $child->name }}</span>
+                                                                        <span class="mega-count shrink-0">{{ $child->total_products_count }}</span>
+                                                                    </a>
+                                                                @endforeach
+                                                                @if($category->description)
+                                                                    <p class="mt-2 text-sm leading-relaxed text-secondary-500 dark:text-secondary-400">{{ $category->description }}</p>
+                                                                @endif
+                                                            </div>
+                                                        </div>
                                                     @endif
                                                     <a href="{{ route('frontend.category', $category->slug) }}" wire:navigate
                                                         class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors">
@@ -205,23 +229,29 @@
                                             @endforeach
 
                                             <div x-show="hoveredCat === null">
-                                                <h3 class="text-xs font-bold uppercase tracking-wider text-secondary-400 dark:text-secondary-500 mb-4">Shop by Category</h3>
-                                                <div class="grid grid-cols-2 gap-3">
-                        @forelse($topCategories->take(4) as $category)
-                                                    <a href="{{ route('frontend.category', $category->slug) }}" wire:navigate
-                                                        class="mega-cat-card">
-                                                        @if($category->display_image)
-                                                            <img src="{{ $category->display_image }}" alt="{{ $category->name }}"
-                                                                class="absolute inset-0 w-full h-full object-cover" loading="lazy">
-                                                        @else
-                                                            <div class="absolute inset-0 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/20"></div>
-                                                        @endif
-                                                        <div class="mega-cat-overlay"></div>
-                                                        <div class="mega-cat-content">
-                                                            <span class="text-sm font-semibold text-white">{{ $category->name }}</span>
-                                                            <span class="block text-xs text-white/70">{{ $category->total_products_count }} products</span>
-                                                        </div>
+                                                <div class="flex items-center justify-between mb-4">
+                                                    <h3 class="mega-title">Shop by Category</h3>
+                                                    <a href="{{ route('frontend.shop') }}" wire:navigate
+                                                        class="text-xs font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors">
+                                                        View all
                                                     </a>
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-3">
+                                                    @forelse($topCategories->take(4) as $category)
+                                                        <a href="{{ route('frontend.category', $category->slug) }}" wire:navigate
+                                                            class="mega-cat-card">
+                                                            @if($category->display_image)
+                                                                <img src="{{ $category->display_image }}" alt="{{ $category->name }}"
+                                                                    class="absolute inset-0 w-full h-full object-cover" loading="lazy">
+                                                            @else
+                                                                <div class="absolute inset-0 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/20"></div>
+                                                            @endif
+                                                            <div class="mega-cat-overlay"></div>
+                                                            <div class="mega-cat-content">
+                                                                <span class="text-sm font-semibold text-white">{{ $category->name }}</span>
+                                                                <span class="block text-xs text-white/70">{{ $category->total_products_count }} products</span>
+                                                            </div>
+                                                        </a>
                                                     @empty
                                                         <div class="col-span-2 text-sm text-secondary-400 dark:text-secondary-500 py-4">Browse our collection</div>
                                                     @endforelse
@@ -229,19 +259,97 @@
                                             </div>
                                         </div>
 
-                                        {{-- Promo Banner --}}
-                                        <div class="col-span-4">
-                                            <a href="{{ $megaMenuPromo['url'] }}" wire:navigate class="mega-promo-card block h-full">
-                                                <div class="relative">
-                                                    <span class="inline-block px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold mb-3">{{ $megaMenuPromo['badge'] }}</span>
-                                                    <h4 class="text-xl font-bold text-white mb-2">{{ $megaMenuPromo['heading'] }}</h4>
-                                                    <p class="text-sm text-white/80 mb-4">{{ $megaMenuPromo['description'] }}</p>
-                                                    <span class="mega-promo-btn">
-                                                        {{ $megaMenuPromo['cta_text'] }}
-                                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
-                                                    </span>
+                                        {{-- Featured Promo Carousel (absolute slides, stable size) --}}
+                                        @php $megaSlideCount = max(count($megaMenuPromoSlides), 1); @endphp
+                                        <div class="col-span-4"
+                                            x-data="{
+                                                slide: 0,
+                                                featTimer: null,
+                                                featHover: false,
+                                                featStart() {
+                                                    if (this.featTimer || this.featHover || {{ $megaSlideCount }} < 2) return;
+                                                    this.featTimer = setInterval(() => {
+                                                        this.slide = (this.slide + 1) % {{ $megaSlideCount }};
+                                                    }, 4500);
+                                                },
+                                                featStop() {
+                                                    if (this.featTimer) { clearInterval(this.featTimer); this.featTimer = null; }
+                                                },
+                                                featPause() {
+                                                    this.featHover = true;
+                                                    this.featStop();
+                                                },
+                                                featResume() {
+                                                    this.featHover = false;
+                                                    this.featStart();
+                                                },
+                                                featGo(i) {
+                                                    this.slide = i;
+                                                    this.featStop();
+                                                    this.featStart();
+                                                }
+                                            }"
+                                            x-effect="megaOpen ? featStart() : featStop()"
+                                            x-on:mouseenter="featPause()"
+                                            x-on:mouseleave="featResume()">
+                                            <div class="mega-promo-card block relative">
+                                                <div class="mega-promo-card-inner relative">
+                                                    @foreach($megaMenuPromoSlides as $slideIndex => $promo)
+                                                        <div class="mega-promo-slide"
+                                                            x-show="slide === {{ $slideIndex }}"
+                                                            x-transition:enter="transition ease-out duration-400"
+                                                            x-transition:enter-start="opacity-0 translate-y-2"
+                                                            x-transition:enter-end="opacity-100 translate-y-0"
+                                                            x-transition:leave="transition ease-in duration-250"
+                                                            x-transition:leave-start="opacity-100 translate-y-0"
+                                                            x-transition:leave-end="opacity-0 -translate-y-2">
+                                                            @if(!empty($promo['image']))
+                                                                <img src="{{ $promo['image'] }}" alt="{{ $promo['heading'] }}" class="mega-promo-img" loading="lazy">
+                                                            @endif
+                                                            <span class="mega-promo-badge">{{ $promo['badge'] }}</span>
+                                                            <h4 class="mega-promo-heading">
+                                                                <span class="block line-clamp-2">{{ $promo['heading'] }}</span>
+                                                            </h4>
+                                                            <p class="mega-promo-desc">
+                                                                <span class="line-clamp-2">{{ $promo['description'] }}</span>
+                                                            </p>
+                                                            @if(!empty($promo['product_url']) && !empty($promo['product_name']))
+                                                                <a href="{{ $promo['product_url'] }}" wire:navigate class="mega-promo-product">{{ $promo['product_name'] }}</a>
+                                                            @endif
+                                                            <a href="{{ $promo['url'] }}" wire:navigate class="mega-promo-btn">
+                                                                {{ $promo['cta_text'] }}
+                                                                <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
+                                                            </a>
+                                                        </div>
+                                                    @endforeach
                                                 </div>
-                                            </a>
+
+                                                {{-- Controls --}}
+                                                <div class="mega-promo-controls">
+                                                    <div class="flex items-center gap-2">
+                                                        @foreach($megaMenuPromoSlides as $dotIndex => $promo)
+                                                            <button type="button"
+                                                                x-on:click="featGo({{ $dotIndex }})"
+                                                                :class="slide === {{ $dotIndex }} ? 'is-active' : ''"
+                                                                class="mega-promo-dot"
+                                                                :aria-label="'Go to slide ' + ({{ $dotIndex }} + 1)"
+                                                                :aria-current="slide === {{ $dotIndex }} ? 'true' : 'false'"></button>
+                                                        @endforeach
+                                                    </div>
+                                                    <span class="mega-promo-count">
+                                                        <span x-text="String(slide + 1).padStart(2, '0')">01</span>
+                                                        <span class="opacity-50"> / {{ sprintf('%02d', $megaSlideCount) }}</span>
+                                                    </span>
+                                                    <div class="flex items-center gap-1">
+                                                        <button type="button" x-on:click="featGo((slide - 1 + {{ $megaSlideCount }}) % {{ $megaSlideCount }})" class="mega-promo-nav" aria-label="Previous slide">
+                                                            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
+                                                        </button>
+                                                        <button type="button" x-on:click="featGo((slide + 1) % {{ $megaSlideCount }})" class="mega-promo-nav" aria-label="Next slide">
+                                                            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
 
                                     </div>

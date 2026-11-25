@@ -1,6 +1,10 @@
 @php
     $section = $sections->get('why-choose-us');
-    $features = $section?->config['features'] ?? [];
+    $features = collect($section?->config['features'] ?? [])
+        ->filter(fn ($f) => ($f['active'] ?? true) !== false)
+        ->sortBy(fn ($f) => $f['sort_order'] ?? 0)
+        ->values()
+        ->all();
 @endphp
 
 @if(!empty($features))
@@ -13,6 +17,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             @foreach($features as $feature)
+                @if(($feature['active'] ?? true) === false) @continue @endif
                 <div class="card-hover text-center group">
                     <div class="h-14 w-14 rounded-full bg-primary-50 dark:bg-primary-950/30 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary-100 dark:group-hover:bg-primary-950/30 transition-colors">
                         @if($feature['icon'] === 'quality')

@@ -120,6 +120,15 @@
                             <p class="mt-1.5 text-sm text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
+                    <div>
+                        <label for="chat_unread_badge" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Unread Chat Badge Cap</label>
+                        <input type="number" name="chat_unread_badge" id="chat_unread_badge" value="{{ old('chat_unread_badge', $values['chat_unread_badge']) }}" min="1" max="999"
+                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white @error('chat_unread_badge') border-red-500 @enderror">
+                        <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Max unread chat count shown on the admin header badge before it displays "+".</p>
+                        @error('chat_unread_badge')
+                            <p class="mt-1.5 text-sm text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
             </div>
 

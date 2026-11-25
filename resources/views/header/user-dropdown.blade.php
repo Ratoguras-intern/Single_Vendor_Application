@@ -1,15 +1,13 @@
 <div x-data="{ open: false }" class="relative">
     <button @click="open = !open"
-        class="flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-400">
-        <span class="hidden text-right lg:block">
-            <span class="block text-sm font-semibold text-gray-800 dark:text-white">{{ Auth::user()->name ?? 'Admin' }}</span>
-            <span class="block text-xs text-gray-500 dark:text-gray-400">{{ Str::headline(Auth::user()->role ?? 'admin') }}</span>
-        </span>
+        class="flex items-center gap-1.5 text-sm font-medium text-gray-700 dark:text-gray-400 group">
         @if(Auth::check())
-            <x-user-avatar :user="Auth::user()" size="h-9 w-9" text-size="text-xs" class="hidden sm:block" />
+            <span class="ring-2 ring-transparent group-hover:ring-primary-500/30 rounded-full transition-shadow">
+                <x-user-avatar :user="Auth::user()" size="h-8 w-8" text-size="text-xs" class="hidden sm:block" />
+            </span>
         @endif
-        <svg class="hidden sm:block" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <svg class="hidden sm:block text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
     </button>
 

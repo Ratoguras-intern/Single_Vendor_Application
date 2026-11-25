@@ -21,6 +21,7 @@ class LimitSettingsController extends Controller
             'admin_top_customers' => (int) Setting::get('limits.admin.top_customers', 10),
             'admin_latest_orders' => (int) Setting::get('limits.admin.latest_orders', 10),
             'admin_latest_customers' => (int) Setting::get('limits.admin.latest_customers', 10),
+            'chat_unread_badge' => (int) Setting::get('limits.chat.unread_badge', 99),
             'superadmin_low_stock' => (int) Setting::get('limits.superadmin.low_stock', 10),
             'superadmin_recent_orders' => (int) Setting::get('limits.superadmin.recent_orders', 8),
             'superadmin_recent_users' => (int) Setting::get('limits.superadmin.recent_users', 8),
@@ -43,6 +44,7 @@ class LimitSettingsController extends Controller
             'admin_top_customers' => 'required|integer|min:1|max:100',
             'admin_latest_orders' => 'required|integer|min:1|max:100',
             'admin_latest_customers' => 'required|integer|min:1|max:100',
+            'chat_unread_badge' => 'required|integer|min:1|max:999',
             'superadmin_low_stock' => 'required|integer|min:1|max:100',
             'superadmin_recent_orders' => 'required|integer|min:1|max:100',
             'superadmin_recent_users' => 'required|integer|min:1|max:100',
@@ -59,6 +61,7 @@ class LimitSettingsController extends Controller
         Setting::set('limits.admin.top_customers', $validated['admin_top_customers']);
         Setting::set('limits.admin.latest_orders', $validated['admin_latest_orders']);
         Setting::set('limits.admin.latest_customers', $validated['admin_latest_customers']);
+        Setting::set('limits.chat.unread_badge', $validated['chat_unread_badge']);
         Setting::set('limits.superadmin.low_stock', $validated['superadmin_low_stock']);
         Setting::set('limits.superadmin.recent_orders', $validated['superadmin_recent_orders']);
         Setting::set('limits.superadmin.recent_users', $validated['superadmin_recent_users']);

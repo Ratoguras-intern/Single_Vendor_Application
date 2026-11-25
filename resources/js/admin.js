@@ -1,7 +1,6 @@
 import * as Turbo from '@hotwired/turbo';
 import Alpine from 'alpinejs';
 import collapse from '@alpinejs/collapse';
-import { initTiptapEditor } from './tiptap-editor';
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 
@@ -167,21 +166,32 @@ window.__initAdminSidebar = () => {
     }
 };
 
-window.__initTiptapEditor = initTiptapEditor;
+// Tiptap is lazy-loaded so its ~350 kB only downloads on editor pages.
+const loadTiptapEditor = () => import('./tiptap-editor').then((m) => m.initTiptapEditor);
+
+window.__initTiptapEditor = (...args) => loadTiptapEditor().then((init) => init(...args));
 
 // Auto-init Tiptap editor when the elements exist (admin pages create/edit).
 // Runs on DOMContentLoaded + every turbo:render for SPA navigation.
-function autoInitTiptapEditor() {
-    const editorEl = document.querySelector('#editor');
-    const hiddenEl = document.querySelector('#content-hidden');
-    if (editorEl && hiddenEl) {
-        // Destroy previous instance if it exists (Turbo SPA navigation swaps DOM)
-        if (window.__tiptapEditorInstance) {
-            window.__tiptapEditorInstance.destroy();
-            window.__tiptapEditorInstance = null;
-        }
-        window.__tiptapEditorInstance = initTiptapEditor('#content-hidden', '#editor');
+let tiptapInitToken = 0;
+
+async function autoInitTiptapEditor() {
+    const token = ++tiptapInitToken;
+
+    // Destroy previous instance if it exists (Turbo SPA navigation swaps DOM)
+    if (window.__tiptapEditorInstance) {
+        window.__tiptapEditorInstance.destroy();
+        window.__tiptapEditorInstance = null;
     }
+
+    if (!document.querySelector('#editor') || !document.querySelector('#content-hidden')) return;
+
+    const initTiptapEditor = await loadTiptapEditor();
+
+    // A newer navigation started while the chunk was loading; let it win.
+    if (token !== tiptapInitToken) return;
+
+    window.__tiptapEditorInstance = initTiptapEditor('#content-hidden', '#editor');
 }
 
 // Register Alpine.data()/store() from page scripts before Alpine scans the DOM,

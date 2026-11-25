@@ -6,6 +6,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\NavigationItem;
 use App\Models\NavigationMenu;
+use App\Models\Product;
 use App\Support\WindowsFilesystem;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
@@ -24,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
     {
         App::setLocale(Session::get('locale', config('app.locale', 'en')));
 
-        View::composer(['layouts.frontend', 'frontend.partials.header', 'frontend.partials.mega-menu', 'frontend.partials.mobile-drawer'], function ($view) {
+        View::composer(['layouts.frontend', 'frontend.partials.header', 'frontend.partials.mobile-drawer'], function ($view) {
             $categories = Cache::remember('frontend_categories', 300, function () {
                 return Category::active()
                     ->with([
@@ -92,28 +93,85 @@ class AppServiceProvider extends ServiceProvider
                     ]);
             });
 
-            $megaMenuPromo = Cache::remember('frontend_mega_promo', 300, function () {
+            $megaMenuPromoSlides = Cache::remember('frontend_mega_promo_slides', 300, function () {
                 $menu = NavigationMenu::where('slug', 'mega-menu-promo')->enabled()->first();
-                if (!$menu) {
-                    return [
-                        'badge' => 'Featured',
-                        'heading' => 'Explore Our Collection',
-                        'description' => 'Discover quality products across all categories.',
-                        'cta_text' => 'Shop Now',
-                        'url' => route('frontend.shop'),
-                    ];
-                }
-                $config = $menu->config ?? [];
-                return [
-                    'badge' => $config['badge'] ?? 'Featured',
-                    'heading' => $config['heading'] ?? 'Explore Our Collection',
-                    'description' => $config['description'] ?? 'Discover quality products across all categories.',
-                    'cta_text' => $config['cta_text'] ?? 'Shop Now',
-                    'url' => isset($config['url']) ? (str_starts_with($config['url'], '/') ? $config['url'] : route($config['url'])) : route('frontend.shop'),
+                $config = $menu?->config ?? [];
+
+                $scopeUrl = fn (string $scope) => match ($scope) {
+                    'featured'   => route('frontend.shop') . '?featured=1',
+                    'onSale'     => route('frontend.shop') . '?on_sale=1',
+                    'trending'   => route('frontend.shop'),
+                    'bestSeller' => route('frontend.shop'),
+                    default      => route('frontend.shop'),
+                };
+
+                // Defaults used the first time, before the panel configures its own slides.
+                $defaults = [
+                    [
+                        'enabled' => true, 'data_scope' => 'featured', 'badge' => 'Curated',
+                        'heading' => 'Curated Favorites', 'description' => 'Handpicked products selected for quality.',
+                        'cta_text' => 'Shop Now', 'cta_url' => '', 'product_id' => null, 'image' => null,
+                    ],
+                    [
+                        'enabled' => true, 'data_scope' => 'onSale', 'badge' => 'Exclusive',
+                        'heading' => 'Exclusive Deals', 'description' => 'Limited-time offers and special promotions.',
+                        'cta_text' => 'View Deals', 'cta_url' => '', 'product_id' => null, 'image' => null,
+                    ],
+                    [
+                        'enabled' => true, 'data_scope' => 'trending', 'badge' => 'Trending',
+                        'heading' => 'Trending Now', 'description' => 'Products currently getting attention from customers.',
+                        'cta_text' => 'Explore Trending', 'cta_url' => '', 'product_id' => null, 'image' => null,
+                    ],
+                    [
+                        'enabled' => true, 'data_scope' => 'bestSeller', 'badge' => 'Best Selling',
+                        'heading' => 'Best Sellers', 'description' => 'Popular products customers are buying most.',
+                        'cta_text' => 'Shop Best Sellers', 'cta_url' => '', 'product_id' => null, 'image' => null,
+                    ],
                 ];
+
+                $configured = collect($config['slides'] ?? [])
+                    ->filter(fn ($s) => ($s['enabled'] ?? true) && !blank($s['heading'] ?? null))
+                    ->values();
+
+                $source = $configured->isNotEmpty() ? $configured : collect($defaults);
+
+                return $source->map(function ($slide) use ($scopeUrl) {
+                    $scope = $slide['data_scope'] ?? null;
+                    $product = null;
+
+                    if (!empty($slide['product_id'])) {
+                        $product = Product::with(['images'])->find($slide['product_id']);
+                    } elseif ($scope) {
+                        $product = Product::active()->with(['images'])->{$scope}()->latest()->first();
+                    }
+
+                    $image = $slide['image'] ?? null;
+                    $productName = null;
+                    $productUrl = null;
+                    if ($product) {
+                        $image = $image ?: product_image_url($product->primaryImage()?->image);
+                        $productName = $product->name;
+                        $productUrl = route('frontend.product.show', $product->id);
+                    }
+
+                    $ctaUrl = $slide['cta_url'] ?? null;
+
+                    return [
+                        'badge' => $slide['badge'] ?? 'Featured',
+                        'heading' => $slide['heading'] ?? 'Explore Our Collection',
+                        'description' => $slide['description'] ?? '',
+                        'cta_text' => $slide['cta_text'] ?? 'Shop Now',
+                        'url' => $ctaUrl
+                            ? (str_starts_with($ctaUrl, '/') || str_starts_with($ctaUrl, 'http') ? $ctaUrl : route($ctaUrl))
+                            : ($scope ? $scopeUrl($scope) : route('frontend.shop')),
+                        'image' => $image ?: null,
+                        'product_name' => $productName,
+                        'product_url' => $productUrl,
+                    ];
+                })->values()->all();
             });
 
-            $view->with(compact('categories', 'brands', 'headerNavItems', 'mobileNavItems', 'megaMenuPromo'));
+            $view->with(compact('categories', 'brands', 'headerNavItems', 'mobileNavItems', 'megaMenuPromoSlides'));
         });
     }
 }

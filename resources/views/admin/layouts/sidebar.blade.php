@@ -91,7 +91,7 @@
         :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ?
         'xl:justify-center' :
         'justify-start'">
-        <x-brand-logo sidebar href="{{ url()->current() }}" subtitle="{{ auth()->user()->role === 'super_admin' ? 'SUPER ADMIN' : 'ADMIN SUITE' }}" />
+        <x-brand-logo sidebar href="{{ url()->current() }}" subtitle="Store Management" />
     </div>
 
     <!-- Navigation Menu -->

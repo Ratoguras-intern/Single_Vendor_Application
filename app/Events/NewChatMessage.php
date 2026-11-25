@@ -43,6 +43,7 @@ class NewChatMessage implements ShouldBroadcastNow
             'conversation_id' => $this->conversation->id,
             'sender_id' => $this->message->sender_id,
             'sender_name' => $this->message->sender->name,
+            'sender_role' => $this->message->sender->role,
             'message' => $this->message->message,
             'created_at' => $this->message->created_at->toISOString(),
             'user_id' => $this->conversation->user_id,
